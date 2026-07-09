@@ -1,0 +1,77 @@
+{
+  "schema_id": "signal-factory-receipt-v1",
+  "note": "Structural encoding of the Signal Factory v1 output contract (SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/signal-factory-v1.md + signal-factory SKILL.md). The receipt is the artifact of record for one triaged inbound signal. Author (the triage agent) MUST differ from subject (the signal's sender/entity) per the author≠subject independence rule. All four score dimensions are bounded 0–5.",
+  "type": "object",
+  "required": [
+    "signal_id",
+    "timestamp",
+    "source",
+    "classification",
+    "decision",
+    "author",
+    "subject",
+    "scores",
+    "risk_score",
+    "action",
+    "result",
+    "status"
+  ],
+  "properties": {
+    "signal_id": {
+      "type": "string",
+      "pattern": "^sig_[A-Za-z0-9_-]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["gmail", "linkedin", "web_form", "dm", "platform", "other"]
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["vendor", "partner", "client", "investor", "risk", "bug", "idea", "spam", "unclear"]
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["ignore", "archive", "reply", "route", "build_automation", "create_service_pattern"]
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "note": "the triage agent that produced this receipt"
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "note": "the sender / entity the signal is about; MUST NOT equal author"
+    },
+    "scores": {
+      "type": "object",
+      "required": ["trust", "risk", "automation_value", "commercial_value"],
+      "properties": {
+        "trust": {"type": "integer", "minimum": 0, "maximum": 5},
+        "risk": {"type": "integer", "minimum": 0, "maximum": 5},
+        "automation_value": {"type": "integer", "minimum": 0, "maximum": 5},
+        "commercial_value": {"type": "integer", "minimum": 0, "maximum": 5}
+      }
+    },
+    "risk_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "note": "must equal scores.risk per the SKILL 'risk_score matching the SCORES line' rule"
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "result": {
+      "const": "triaged"
+    },
+    "status": {
+      "const": "complete"
+    }
+  }
+}

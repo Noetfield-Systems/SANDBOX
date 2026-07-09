@@ -1,0 +1,53 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox ROI-heartbeat populator + no-fabrication detector. Emits CHECK_OK/CHECK_REJECTED, never a bare governance PASS. Offline: derives from local receipts only, never opens Supabase / cost_event.",
+  "catalog_item": "MO-6", "phase": "B3",
+  "title": "ROI Heartbeat Populator (local-only, append-only, no-fabrication)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "scripts/write_roi_heartbeat_v1.py",
+      "receipts/agent-read-staleness-20260707T234651Z.json"
+    ],
+    "modified": false,
+    "note": "Ground heartbeat hardcodes every metric to 'unknown'. This populator fills ONLY blocker_count, derived by hand-counting blockers[] (severity=='BLOCKER') in the latest agent-read-staleness receipt (currently 0 open). All live-only metrics stay 'unknown'. New timestamped heartbeat written into MO-6/ only; no tracked receipt touched (sha unchanged)."
+  },
+  "what_it_proves": [
+    "blocker_count is DERIVED from local data and matches an independent hand-count of the latest agent-read-staleness receipt's blockers[] (real on-disk artifact, currently 0)",
+    "MINIMAL MUTATION of a real staleness receipt (append one severity=='BLOCKER' entry, newest 'at') raises the derived count by exactly one -> derivation reads content, not a frozen constant",
+    "underivable metrics (cost_per_signal_cad, free_tier_ceiling_max_pct, trap_battery_pass_pct, fixture_agreement_pct, pattern_exports_per_week, receipt_chain_verifier) STAY 'unknown' and are asserted NOT fabricated to 0/None (no-fabrication contract)",
+    "with NO local staleness receipt, blocker_count is 'unknown', NOT fabricated to 0",
+    "the verify DETECTOR exits NONZERO on a fabricated heartbeat (positive control: cost=0 / trap_battery_pass_pct=100 -> CHECK_REJECTED exit 1) and 0 on a clean one -> a zero-hit is not a broken-clean false-pass",
+    "populate is append-only: refuses to overwrite an existing heartbeat and refuses to write into the tracked receipts/ tree; real staleness receipts left byte-identical",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; heartbeat stamped origin=sandbox-advisory / authority=none / pass_claimed=false"
+  ],
+  "chess_patches_applied": [
+    "derives from REAL local receipts (no strawman); positive/negative fixtures are minimal mutations of a real staleness artifact, no relaxation",
+    "no-fabrication invariant is never relaxed: non-derivable metrics held at 'unknown', proven by a firing detector with a positive control",
+    "writes a NEW timestamped heartbeat into MO-6/ only; never edits the ground script or any receipt (Lock 5 append-only)",
+    "offline by construction: reads only receipts/*.json, never Supabase / cost_event / network (no live call)",
+    "origin=sandbox-advisory / authority=none; reports derivation provenance, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 1/2 append-only (no tracked file edited/overwritten; new heartbeat is a fresh timestamped file in build dir)",
+    "Lock 5 read-only over ground truth (staleness receipts sha unchanged; write refuses receipts/ tree)",
+    "Lock 6/7 no live call (offline local JSON only; no Supabase/cost_event/network; DRAFT-safe, nothing dispatched)",
+    "multi-agent isolation (writes only under catalog/builds/MO-6/)"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/MO-6/mo6_roi_heartbeat_populate.py",
+    "test": "catalog/builds/MO-6/test_mo6_roi_heartbeat_populate.py",
+    "red_run_canary": "catalog/builds/MO-6/redrun-canary.txt",
+    "produced_heartbeat": "catalog/builds/MO-6/mo6-roi-heartbeat-20260709T091358Z.json",
+    "results": {
+      "populate_real": "CHECK_OK exit 0, blocker_count=0 (derived from receipts/agent-read-staleness-20260707T234651Z.json)",
+      "verify_fabricated": "CHECK_REJECTED exit 1 (positive control)",
+      "self_runner": "10/10 green",
+      "pytest": "10 passed",
+      "ground_truth_sha": "unchanged (staleness receipts + write_roi_heartbeat_v1.py)"
+    }
+  },
+  "exit_gate_B3": "MO-6 done: populates only the locally-derivable blocker_count (0, hand-count-matched); every live-only metric held at 'unknown' with a firing no-fabrication detector; append-only + offline.",
+  "next_action": "When live TrustField cost_event / Signal Factory fixtures land locally, extend derivation for cost_per_signal_cad et al.; until then they must remain 'unknown'."
+}

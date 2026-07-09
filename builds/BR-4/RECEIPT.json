@@ -1,0 +1,32 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory differential/parity test. Never PASS.",
+  "catalog_item": "BR-4", "phase": "B1 — TRUST SPINE",
+  "title": "Node <-> schema descriptor-validator parity", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "precondition": "GV-2 built (catalog/builds/GV-2/) — GV-2 -> BR-4 dependency satisfied",
+  "subject": {
+    "files": ["workers/github-app-advisory/index.js (validateArtifactDescriptor)", "verifier/brain-config-artifact-descriptor-schema-v0.1.json"],
+    "modified": false,
+    "method": "extracts the JS validator from the CURRENT index.js at runtime (const block + validSha256/validHex/optionalString/validateArtifactDescriptor) -> zero drift, index.js unedited; compares to Python schema-of-record validation; node required; no live worker call"
+  },
+  "what_it_proves": [
+    "clean descriptor accepted by BOTH the JS validator and the schema-of-record",
+    "6 core minimal mutations (missing field, bad author_id, bad subject, non-hex sha, non-bool schema_valid, empty runtime) rejected by BOTH -> parity on the shared surface",
+    "detects the two real divergences where JS is more permissive than the schema",
+    "index.js byte-unchanged (extraction is read-only); no live worker /run call"
+  ],
+  "findings_for_founder": {
+    "divergence": "workers/github-app-advisory/index.js validateArtifactDescriptor is MORE PERMISSIVE than verifier/brain-config-artifact-descriptor-schema-v0.1.json: (1) JS accepts artifact_type=brain_worker_bundle (with worker shas) but the schema pins const knowledge_bundle; (2) JS ignores extra fields but the schema is additionalProperties:false. REPORTED, not reconciled — aligning them is a founder call (which is the source of truth)."
+  },
+  "chess_patches_applied": [
+    "GV-2-present precondition (GV-2 -> BR-4)",
+    "runs lifted JS against LOCAL fixtures only; never fetches the live worker; index.js unedited",
+    "divergences surfaced as findings, not silently reconciled"
+  ],
+  "locks_respected": ["Lock 2/3 no live worker call", "Lock 5 index.js unedited", "no network", "worktree not pushed"],
+  "evidence": { "js_extractor": "catalog/builds/BR-4/br4_js_validate.mjs", "test": "catalog/builds/BR-4/test_br4_parity.py",
+    "red_run_canary": "catalog/builds/BR-4/redrun-canary.txt", "results": { "self_runner": "3/3", "pytest": "3 passed", "node": "v24.16.0" } },
+  "next_action": "TH-5 (offline receipt-replay of the worker pass-eligibility rule)"
+}

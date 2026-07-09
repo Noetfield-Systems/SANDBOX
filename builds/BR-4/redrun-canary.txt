@@ -1,0 +1,2 @@
+brain_worker_bundle(+worker shas) -> schema_ok=False  js_ok=True  (divergence: JS accepts, schema rejects)
+EXPECTED -> RED-CANARY FIRED: JS accepts brain_worker_bundle but the schema-of-record rejects it -> asserting parity here correctly fails. The differential has teeth.

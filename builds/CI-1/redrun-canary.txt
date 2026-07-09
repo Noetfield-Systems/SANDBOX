@@ -1,0 +1,29 @@
+CI-1  pr-governance-lint  red-run canary (deliberately-wrong assertion that MUST fire)
+
+positive fixture : sample_pr_body_valid.md            -> lint_pr_body(...)["ok"] == True,  missing == []
+mutation fixture : sample_pr_body_missing_receipt.md  -> lint_pr_body(...)["ok"] == False, missing == ["receipt_id"]
+  (the mutation is minimal: exactly the `receipt_id:` line reverted to its template
+   placeholder <!-- ... --> comment; every other field stays filled and both required
+   checkboxes stay checked.)
+
+wrong assertion asserted:
+  "the receipt-less PR body PASSES the governance lint (report['ok'] is True)"
+
+EXPECTED -> RED-CANARY FIRED:
+  AssertionError: CANARY FIRED: missing-receipt body is flagged ok=False, not True
+  exit code 1.
+
+Reproduce:
+  python3 - <<'PY'
+  import importlib.util; from pathlib import Path
+  HERE = Path("catalog/builds/CI-1")
+  s = importlib.util.spec_from_file_location("ci1", HERE/"ci1_pr_governance_lint.py")
+  ci1 = importlib.util.module_from_spec(s); s.loader.exec_module(ci1)
+  r = ci1.lint_pr_body((HERE/"sample_pr_body_missing_receipt.md").read_text())
+  assert r["ok"] is True   # DELIBERATELY WRONG -> AssertionError, exit 1
+  PY
+
+The lint reads receipt_id from the PR body as DATA (an HTML-placeholder value counts as
+UNFILLED, never satisfied); it is not green-by-construction. The same data-driven spine
+also flips ok=False when a required checkbox is unchecked
+(see test_unchecked_required_box_is_flagged).

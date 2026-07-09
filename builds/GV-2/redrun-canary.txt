@@ -1,0 +1,5 @@
+verdict on hash-corrupted descriptor: CHECK_REJECTED
+hash_reasons: ['H1: proposed_sha256 0fceca7dddfe062bd121d353f9d0a90aacce612da93cf492c252802e3adcf0f1 != sha256(bundle bytes) afceca7dddfe062bd121d353f9d0a90aacce612da93cf492c252802e3adcf0f1']
+Traceback (most recent call last):
+  File "<stdin>", line 18, in <module>
+AssertionError: RED-CANARY FIRED: corrupted proposed_sha256 is CHECK_REJECTED (H1 has teeth), NOT CHECK_OK -> validator is not green-by-construction

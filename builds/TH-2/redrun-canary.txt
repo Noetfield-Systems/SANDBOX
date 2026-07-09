@@ -1,0 +1,2 @@
+live counts: {'ADVISOR_REVIEW': 49, 'DEFER': 11, 'FOUNDER_FACT': 2, 'MACHINE_VALIDATABLE': 18}
+RED-CANARY FIRED: a tampered count (ADVISOR_REVIEW+999) is detected as drift -> golden has teeth.

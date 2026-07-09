@@ -1,0 +1,18 @@
+MO-4 RED-RUN CANARY  (deliberately-wrong assertion that MUST fail)
+
+Source packet: receipts/p0pgr/outbox/P0PGR-20260708-002.json  (a REAL, lint-clean packet)
+Minimal mutation: quality_handling.hard_block_allowed_reasons = ["totally_bogus_reason"]
+                  (flip exactly one value to a token outside the linter's allowed enum)
+
+Deliberately-wrong assertion:  assert mo4.assess_packet(mutated).verdict == "CHECK_OK"
+
+Actual verdict on the minimally-mutated real packet: CHECK_REJECTED
+Actual reasons:
+  - hard_block reason not in allowed enum: totally_bogus_reason
+  - schema: 'totally_bogus_reason' is not one of [...allowed hard-block enum...]
+
+EXPECTED -> RED-CANARY FIRED: DELIBERATELY-WRONG: claiming the mutated packet is clean.
+Asserting CHECK_OK on a packet the ground linter flags correctly fails. The re-linter
+has teeth: a real lint violation is reported, not swallowed. (A clean real packet ->
+CHECK_OK; this same mutation-detector is the positive control in the test suite, so a
+zero-hit elsewhere cannot be a broken-regex false-clean.)

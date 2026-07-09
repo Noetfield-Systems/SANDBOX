@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain Coherence Report</title>
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --ink: #1c2126; --muted: #5b646e;
+    --line: #e2e6ea; --accent: #3a4a5a; --bar-track: #e6e9ec;
+    --s0:#b23b3b; --s1:#c65a2e; --s2:#c79024; --s3:#7f9a3c; --s4:#4f8a5b; --s5:#2f7d54;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --bar-track:#2a323b;
+      --s0:#e06767; --s1:#e08a53; --s2:#d9b45a; --s3:#a9c56b; --s4:#77b98a; --s5:#5fc191;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+    --line:#2a323b; --accent:#9fb4c7; --bar-track:#2a323b;
+    --s0:#e06767; --s1:#e08a53; --s2:#d9b45a; --s3:#a9c56b; --s4:#77b98a; --s5:#5fc191;
+    --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --bar-track:#e6e9ec;
+    --s0:#b23b3b; --s1:#c65a2e; --s2:#c79024; --s3:#7f9a3c; --s4:#4f8a5b; --s5:#2f7d54;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700;
+    text-align:center; padding:10px 14px; border-radius:8px; letter-spacing:.02em;
+    font-size:13px; margin-bottom:24px; }
+  h1 { font-size:26px; margin:8px 0 4px; }
+  h2 { font-size:18px; margin:0 0 10px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .meta { display:flex; flex-wrap:wrap; gap:14px; color:var(--muted); font-size:13px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:10px 0; margin:0 0 22px; }
+  .meta b { color:var(--ink); font-weight:600; }
+  .scope { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--accent);
+    border-radius:8px; padding:12px 14px; font-size:13.5px; color:var(--muted); margin:0 0 26px; }
+  .overall { display:flex; align-items:center; gap:16px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:0 0 12px; }
+  .score-chip { font-size:30px; font-weight:800; min-width:74px; height:74px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; color:#fff; }
+  .overall .label { font-size:13px; color:var(--muted); }
+  section.cat { border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:14px 0; background:var(--bg); }
+  .cat-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .cat-head h2 { margin:0; }
+  .pill { font-size:12px; font-weight:700; color:#fff; padding:2px 10px; border-radius:999px; white-space:nowrap; }
+  .bar { height:8px; background:var(--bar-track); border-radius:999px; overflow:hidden; margin:10px 0 12px; }
+  .bar > span { display:block; height:100%; border-radius:999px; }
+  .observed { margin:0 0 10px; }
+  .evidence, .step { font-size:13.5px; color:var(--muted); margin:4px 0; }
+  .evidence b, .step b { color:var(--ink); font-weight:600; }
+  table.rubric { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 0; }
+  table.rubric th, table.rubric td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.rubric th { color:var(--muted); font-weight:600; }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+  .ladder { list-style:none; padding:0; margin:8px 0 0; }
+  .ladder li { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin:8px 0;
+    display:flex; align-items:center; gap:12px; }
+  .ladder .tname { font-weight:600; flex:1; }
+  .tag-avail { background:var(--panel); color:var(--accent); border:1px solid var(--line);
+    font-size:12px; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .tag-locked { background:var(--lock-bg); color:var(--lock-ink); font-size:12px; font-weight:700;
+    padding:2px 10px; border-radius:999px; }
+  .gate-note { font-size:12px; color:var(--muted); margin-top:2px; }
+  h3.section-title { font-size:16px; margin:34px 0 6px; border-top:1px solid var(--line); padding-top:22px; }
+  footer { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH — not for public hosting (Tier-1 diagnosis deliverable, sample data)</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>Brain Coherence Report</h1>
+  <p class="sub">Tier-1 (diagnosis only) — diagnosis of the current stack. No autonomy or outcome promise.</p>
+  <div class="meta">
+    <span><b>Prepared for</b> SAMPLE CLIENT (synthetic)</span>
+    <span><b>Date</b> 2026-07-08</span>
+    <span><b>Scope</b> Diagnosis only</span>
+  </div>
+  <div class="scope">Tier-1 diagnosis of the client&#x27;s current stack. This report describes what was observed. It makes no autonomy or outcome promises. Any build or managed-operation work is a separate, later tier.</div>
+
+  <div class="overall">
+    <div class="score-chip" style="background:var(--s1)">1</div>
+    <div>
+      <div style="font-weight:700; font-size:16px;">Overall coherence: fragmented</div>
+      <div class="label">Mean of the seven diagnostic scores below, on a 0-5 coherence scale.</div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Diagnostic findings</h3>
+    <section class="cat">
+    <div class="cat-head">
+      <h2>Stack Fragmentation</h2>
+      <span class="pill" style="background:var(--s1)">1 / 5 &middot; fragmented</span>
+    </div>
+    <div class="bar"><span style="width:20%; background:var(--s1)"></span></div>
+    <p class="observed">Fourteen tools were named across chat, three note apps, and two task trackers. The same customer record lives in at least four of them with no single source of truth.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>tool inventory export</li><li>two conflicting customer lists (CRM vs spreadsheet)</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Name one source of truth per data type and route the rest to it.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Definition Drift</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">The word &#x27;active client&#x27; resolves three different ways depending on who is asked. The same question to the assistant returns different answers on different days.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>three written definitions of &#x27;active client&#x27;</li><li>two divergent answers to the same prompt</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Extract the current working definitions, have the founder ratify them, and lock them as the shared vocabulary.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Agent Theater</h2>
+      <span class="pill" style="background:var(--s1)">1 / 5 &middot; fragmented</span>
+    </div>
+    <div class="bar"><span style="width:20%; background:var(--s1)"></span></div>
+    <p class="observed">Two workflows are described as automated but a person re-checks and re-runs each one by hand. The automation reports success while the underlying step is redone manually.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>screen recording of the manual re-run</li><li>success log with no linked output</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Retire the labels that claim automation until a step produces a checkable output on its own.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Missing Receipts</h2>
+      <span class="pill" style="background:var(--s0)">0 / 5 &middot; absent</span>
+    </div>
+    <div class="bar"><span style="width:0%; background:var(--s0)"></span></div>
+    <p class="observed">Decisions and automated runs leave no stored proof. When a result is questioned there is nothing to inspect after the fact.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>no artifact directory found</li><li>outcomes described only in chat prose</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Have each run write a small stored record (inputs, output pointer, timestamp) so results can be checked later.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Dead Workflows</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">Six documented workflows exist; three have not run this quarter and one points at a tool that was removed. Nobody owns the map, so stale steps are still followed by new hires.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>workflow doc last-modified dates</li><li>one step referencing a decommissioned tool</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Mark each workflow live, stale, or retired, and delete the ones that no longer run.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Founder Overload</h2>
+      <span class="pill" style="background:var(--s1)">1 / 5 &middot; fragmented</span>
+    </div>
+    <div class="bar"><span style="width:20%; background:var(--s1)"></span></div>
+    <p class="observed">The founder is the routing layer for most decisions and the only person who can resolve a definition conflict. Progress stalls whenever the founder is unavailable.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>calendar showing decision meetings back-to-back</li><li>queue that only the founder can clear</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Move the recurring decisions into written rules the team can apply without the founder in the loop.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Missing Decision-Spine</h2>
+      <span class="pill" style="background:var(--s1)">1 / 5 &middot; fragmented</span>
+    </div>
+    <div class="bar"><span style="width:20%; background:var(--s1)"></span></div>
+    <p class="observed">There is no single place that says how a decision is made, who approves it, and where it is recorded. Ten competent fragments exist but they do not share a spine.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>no decision log</li><li>approvals happening in three separate channels</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Stand up one decision-spine document: the rule, the approver, and the record location for each recurring decision.</div>
+  </section>
+
+
+  <h3 class="section-title">Scoring rubric</h3>
+  <p class="sub">0-5 coherence score per diagnostic category (higher is more coherent).</p>
+  <table class="rubric">
+    <thead><tr><th>Score</th><th>Level</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td><span class="dot" style="background:var(--s0)"></span>0</td><td>absent</td><td>no shared spine observed for this dimension</td></tr>
+      <tr><td><span class="dot" style="background:var(--s1)"></span>1</td><td>fragmented</td><td>pieces exist but do not connect; frequent contradiction</td></tr>
+      <tr><td><span class="dot" style="background:var(--s2)"></span>2</td><td>gaps</td><td>partial structure with material blind spots</td></tr>
+      <tr><td><span class="dot" style="background:var(--s3)"></span>3</td><td>partial</td><td>a spine exists but is inconsistent or unowned</td></tr>
+      <tr><td><span class="dot" style="background:var(--s4)"></span>4</td><td>mostly-coherent</td><td>coherent with a small number of open edges</td></tr>
+      <tr><td><span class="dot" style="background:var(--s5)"></span>5</td><td>coherent</td><td>receipt-backed and consistent across the stack</td></tr>
+    </tbody>
+  </table>
+  <p class="gate-note">Overall score formula: overall = rounded mean of the seven category scores</p>
+
+  <h3 class="section-title">Engagement ladder</h3>
+  <p class="sub">This report is the first step. The later steps are shown for context. The two most advanced steps stay locked until their proof conditions are met.</p>
+  <ul class="ladder">
+    <li><span class="tname">Tier 1 &mdash; Brain Coherence Report (this deliverable)</span><span class="tag-avail">diagnosis, delivered</span></li>
+    <li><span class="tname">Tier 2 &mdash; Foundation build (bounded scope)<div class="gate-note">A separate, scoped engagement. Offered as a build, with no autonomy promise.</div></span><span class="tag-avail">scoped build</span></li>
+    <li><span class="tname">Tier 3 &mdash; Managed operation<div class="gate-note">Locked. Unlocks only after a running system produces receipts over time.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+    <li><span class="tname">Tier 4 &mdash; Architecture partnership<div class="gate-note">Locked. Reserved for later, after the managed tier is proven.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+  </ul>
+
+  <footer>
+    This report describes what was observed in the client&#x27;s current stack on the date shown. It is a diagnosis. It makes no autonomy promise and no outcome promise. Build and managed-operation work are separate, later engagements with their own scope.
+  </footer>
+</div>
+</body>
+</html>

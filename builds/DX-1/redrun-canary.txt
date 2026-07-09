@@ -1,0 +1,13 @@
+DX-1 red-run canary (deliberately-wrong assertion that MUST fire)
+
+real rendered queue order: M03 > M05 > M04 > M02 > M06 > M07 > M01 > M09
+founder-confirmation field (packets_confirmed_accepted_by_founder = 0) -> badge: UNPOPULATED
+
+wrong assertion asserted: "the empty founder-confirmation field reads CLEAN (all-clear)"
+EXPECTED -> RED-CANARY FIRED: empty founder-confirmation field is UNPOPULATED, not a clean 0
+  -> AssertionError raised, exit 1.
+
+The dashboard refuses to render an empty attestation sink as a clean/all-clear 0; the
+UNPOPULATED discriminator has teeth (not green-by-construction). The same data-driven spine
+also flips the rendered queue order when the input receipt order changes (see
+test_mutating_queue_input_changes_rendered_order).

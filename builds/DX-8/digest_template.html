@@ -1,0 +1,100 @@
+<meta charset="utf-8">
+<title>Weekly Founder ROI Digest — DX-8</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5b6570; --card:#f5f7f9; --line:#dfe4ea;
+    --ok:#1c7c3f; --okbg:#e3f4e8; --warn:#8a5a00; --warnbg:#fbf0d8;
+    --bad:#a11f2c; --badbg:#fbe1e3; --info:#1f5aa1; --infobg:#e3ecf7;
+    --banner:#7a1520; --bannerfg:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --fg:#e6eaee; --muted:#9aa4ae; --card:#171b21; --line:#2a3038;
+      --ok:#57d98a; --okbg:#123021; --warn:#e5b45a; --warnbg:#33280f;
+      --bad:#f0868f; --badbg:#3a161b; --info:#7fb0e6; --infobg:#132539;
+      --banner:#5a0f18; --bannerfg:#ffe;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1216; --fg:#e6eaee; --muted:#9aa4ae; --card:#171b21; --line:#2a3038;
+    --ok:#57d98a; --okbg:#123021; --warn:#e5b45a; --warnbg:#33280f;
+    --bad:#f0868f; --badbg:#3a161b; --info:#7fb0e6; --infobg:#132539;
+    --banner:#5a0f18; --bannerfg:#ffe;
+  }
+  :root[data-theme="light"]{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5b6570; --card:#f5f7f9; --line:#dfe4ea;
+    --ok:#1c7c3f; --okbg:#e3f4e8; --warn:#8a5a00; --warnbg:#fbf0d8;
+    --bad:#a11f2c; --badbg:#fbe1e3; --info:#1f5aa1; --infobg:#e3ecf7;
+    --banner:#7a1520; --bannerfg:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px;color:var(--fg);background:var(--bg);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .banner{background:var(--banner);color:var(--bannerfg);font-weight:700;letter-spacing:.02em;
+    padding:10px 14px;border-radius:8px;text-align:center;margin-bottom:16px;}
+  h1{font-size:1.5rem;margin:.2em 0}
+  h2{font-size:1.05rem;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--line)}
+  .meta{color:var(--muted);font-size:.9rem;margin:.3em 0}
+  .watermark{color:var(--muted);font-style:italic;font-size:.85rem;margin:.4em 0 0}
+  table{width:100%;border-collapse:collapse;margin:.4em 0;font-size:.9rem}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em}
+  .invbar{padding:12px 14px;border-radius:8px;font-weight:700;margin:.4em 0}
+  .b-ok.invbar,.invbar.b-ok{background:var(--okbg);color:var(--ok)}
+  .b-bad.invbar,.invbar.b-bad{background:var(--badbg);color:var(--bad)}
+  .badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:.75rem;font-weight:700;
+    letter-spacing:.02em}
+  .b-ok{background:var(--okbg);color:var(--ok)}
+  .b-warn{background:var(--warnbg);color:var(--warn)}
+  .b-bad{background:var(--badbg);color:var(--bad)}
+  .b-info{background:var(--infobg);color:var(--info)}
+  tr.invariant td:first-child::before{content:"◆ ";color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:.5em 0}
+  .card-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.3em}
+  .pill{background:var(--infobg);color:var(--info);border-radius:20px;padding:1px 8px;font-size:.75rem;font-weight:600}
+  .muted{color:var(--muted);font-size:.85rem}
+  .scroll{overflow-x:auto}
+  ul{margin:.3em 0 .3em 1.1em;padding:0}
+</style>
+<div class="wrap">
+  <div class="banner">__BANNER_TEXT__</div>
+  <h1>Weekly Founder ROI Digest</h1>
+  <div class="meta">As of <b>__AS_OF__</b> · origin=sandbox-advisory · authority=none · pass_claimed=false</div>
+  <div class="meta">Operating mode: <b>__OPERATING_MODE__</b></div>
+  <div class="watermark">__WATERMARK__ — figures are read from repo receipts; this digest asserts, it does not promise.</div>
+
+  <h2>Running counters — NO-SEND / NO-DEPLOY invariant</h2>
+  <div class="invbar __INV_CLASS__">Invariant: __INV_LABEL__</div>
+  __INV_NOTE__
+  <div class="scroll"><table>
+    <tr><th>Counter</th><th>Value</th><th>Status</th></tr>
+    __COUNTER_ROWS__
+  </table></div>
+
+  <h2>Source freshness</h2>
+  <div class="scroll"><table>
+    <tr><th>Source</th><th>Timestamp</th><th>Age (days)</th><th>Badge</th></tr>
+    __SOURCE_ROWS__
+  </table></div>
+
+  <h2>Ranked moves (ROI queue)</h2>
+  <div class="muted">Weights: <code>__WEIGHTS__</code></div>
+  <div class="scroll"><table>
+    <tr><th>#</th><th>Move</th><th>Packet</th><th>Score</th><th></th><th>Route</th><th>Rationale</th></tr>
+    __RANKED_ROWS__
+  </table></div>
+
+  <h2>Executed candidates</h2>
+  __EXECUTED__
+
+  <h2>Findings needing founder eyes</h2>
+  __FINDINGS__
+
+  <h2>Held items</h2>
+  __HELD__
+
+  <h2>Next in queue</h2>
+  __NEXT__
+</div>

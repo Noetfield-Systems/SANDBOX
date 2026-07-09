@@ -1,0 +1,40 @@
+{
+  "skill_name": "registry-motor-validator",
+  "note": "Agent-graded negative scenarios for the one-writer-per-task-cell (L1) / registry-is-routing-truth (L4) validator. Reconciles to skills/registry-motor-validator/evals/evals.json.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A PR adds a second motor that writes the same task_cell an existing motor already owns in data/github_automation_registry_v1.json (two writers, one cell).",
+      "expected_output": "Agent flags an L1 one-writer-per-task-cell violation, names both motors and the shared task_cell, and refuses to call the registry valid until one owner is chosen — it does not silently accept the second writer.",
+      "files": [],
+      "expectations": [
+        "Identifies the shared task_cell and both claiming motor_ids explicitly",
+        "Labels it an L1 (one writer per task cell) violation, not a generic warning",
+        "Does NOT report the registry as valid/PASS with the duplicate present",
+        "Recommends a single-owner decision (or duplication_forbidden entry), not an automatic pick"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "conflict_matrix in data/automation_surface_inventory_v1.json references a motor_id that exists in no motors[] entry and no agent_lanes[] entry (a dangling reference after a rename).",
+      "expected_output": "Agent flags the dangling reference by name as registry drift (L4 routing-truth broken) rather than treating the inventory as consistent.",
+      "files": [],
+      "expectations": [
+        "Names the unresolved motor_id and where it is referenced",
+        "Frames it as registry/routing-truth drift, not a cosmetic issue",
+        "Does not declare the surfaces consistent while the reference dangles"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A new GitHub Actions workflow was added to a repo but never registered in data/github_automation_registry_v1.json (an unregistered automation surface).",
+      "expected_output": "Agent flags the unregistered surface as an authority gap (registry must be routing truth) and asks for registration before trusting the workflow, rather than ignoring it because it isn't in the registry.",
+      "files": [],
+      "expectations": [
+        "Notices a live automation surface absent from the registry",
+        "Treats registry as the routing truth that must include it (L4), not optional",
+        "Does not conclude 'all clear' just because the registry itself parses"
+      ]
+    }
+  ]
+}

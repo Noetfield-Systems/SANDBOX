@@ -1,0 +1,53 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a Tier-1 AI Spend Leak Audit over a SYNTHETIC token log; its proof is (a) a data-driven leak_rate that discriminates a known leak from a mutated log and (b) the repo language_gate dogfood (CHECK_OK when the report does not FAIL, CHECK_REJECTED when an overclaim is injected). Never a bare governance PASS. Every leak_rate is watermarked; a customer receipt is required for any real figure.",
+  "catalog_item": "CO-3", "phase": "B4 — commercial (revenue lane, pulled parallel after B0)",
+  "title": "Tier-1 \"AI Spend Leak Audit\" scanner + HTML report renderer (SYNTHETIC data)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-SSOT.md",
+      "language_gate/language_gate_core_v1.py"
+    ],
+    "modified": false,
+    "note": "computes the SSOT ROI metrics (leak_rate headline per §3, plus cost/successful-task, policy compliance, premium-justification) over a hardcoded synthetic token-log fixture; leak = spend above policy baseline WITHOUT a measured ROI signal (SSOT §1 vocabulary). Judged by the repo language_gate (scan/decide, surface=public). Sources read-only."
+  },
+  "what_it_proves": [
+    "reads ONLY a hardcoded SYNTHETIC token-log fixture; the loader REFUSES any input not doubly marked synthetic (data_class=='SYNTHETIC' and synthetic==true) -> no real token log is ever ingested",
+    "computes leak_rate per the SSOT metrics table: leaked_spend / total_spend where a leak is spend above policy with no measured ROI signal; the synthetic fixture yields leak_rate = 50.00% ($500 of $1000), premium tier 66.67%, commodity tier 25.00%",
+    "EVERY leak_rate (overall + per-tier) renders with the watermark 'SYNTHETIC — not a guaranteed-savings claim; customer receipt required'; every other computed metric carries 'SYNTHETIC — not a guaranteed claim'",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH — not for public hosting' banner + a source-freshness badge marking the data synthetic, not live",
+    "distinguishes UNPOPULATED / empty-sink from clean: a null cost renders an explicit UNPOPULATED badge and is excluded from the math, never read as $0 (all-clear)",
+    "Tier-3 (Firewall Pilot) and Tier-4 (ROI Router Advisory) render LOCKED / proof-gated, never 'available'; no autonomy or guaranteed-savings claim in the clean report",
+    "DATA-DRIVEN red-capability: the same compute_metrics function yields 50.00% on the real fixture and 35.00% when one leak flag is flipped -> the metric discriminates real vs mutated input, not green-by-construction",
+    "DOGFOOD red-capability: the REAL rendered report does NOT FAIL the language_gate (public) -> CHECK_OK (WARN on undefined title-case terms only); a MINIMAL MUTATION (flip one field 'Diagnosis only' -> '100% guaranteed certified') makes the gate FAIL on OVERCLAIM -> CHECK_REJECTED; reversing the injection reproduces the artifact byte-for-byte",
+    "the dogfood uses scan/decide directly, writing NO receipt into the tracked language_gate/receipts dir"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (SSOT + language_gate read-only; all writes confined to catalog/builds/CO-3)",
+    "Lock 10 commercial (generated HTML to local out/ only, visible DO-NOT-PUSH banner, source-freshness badge, tiers 3/4 LOCKED, no autonomy/savings claim, every leak_rate watermarked SYNTHETIC)",
+    "no live call (no network/CF/Supabase/sends; gate run in-process with no receipt write; HOME isolation for the render run)",
+    "no real data (synthetic fixture only; loader hard-refuses non-synthetic input)",
+    "worktree not pushed; no git write commands; no other-lane files read or staged"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/CO-3/co3_spend_leak_audit.py",
+    "template": "catalog/builds/CO-3/report_template.html",
+    "synthetic_fixture": "catalog/builds/CO-3/synthetic_token_log.json",
+    "generated_report": "catalog/builds/CO-3/out/spend_leak_audit_report.html",
+    "test": "catalog/builds/CO-3/test_co3_spend_leak_audit.py",
+    "red_run_canary": "catalog/builds/CO-3/redrun-canary.txt",
+    "results": {
+      "leak_rate_synthetic": "50.00% ($500.00 of $1,000.00); premium 66.67%, commodity 25.00%",
+      "clean_report_gate": "WARN (undefined title-case terms only) -> verdict CHECK_OK, exit 0",
+      "overclaim_injected_gate": "FAIL (OVERCLAIM: '100% guaranteed', 'certified') -> verdict CHECK_REJECTED",
+      "self_runner": "14/14 green exit 0",
+      "pytest": "14 passed",
+      "red_run_canary": "BOTH FIRED (asserting 0% leak on the known-leak fixture, and CHECK_OK on the overclaim mutant, both raised AssertionError)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside CO-3 == 0)"
+    }
+  },
+  "exit_gate_B4": "CO-3 done — Tier-1 AI Spend Leak Audit renders a watermarked SYNTHETIC leak-rate report, refuses real token logs, dogfoods clean through the language_gate, and is red-capable on both the data metric and an injected overclaim.",
+  "next_action": "wire the same renderer to a customer's own spend ledger per engagement (customer holds the data, receipt required); consider CO-4 Tier-2 Policy Pack scoping on the same commercial lane."
+}

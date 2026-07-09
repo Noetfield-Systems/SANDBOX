@@ -1,0 +1,3 @@
+verdict on real M03: CHECK_REJECTED
+cited: ["$: missing required field 'recorded_at'", "$: missing required field 'evidence_artifacts'", "$: missing required field 'founder_authorization_ref'", "quality_state is 'PARTIAL', not PASS — not PASS-eligible", 'no founder_authorization_ref (real execution needs an in-repo unlock receipt)', 'no evidence_artifacts (stored proof, not prose)']
+EXPECTED -> RED-CANARY FIRED: real M03 is CHECK_REJECTED (missing required + PARTIAL) -> asserting CHECK_OK correctly fails. The spine has teeth.

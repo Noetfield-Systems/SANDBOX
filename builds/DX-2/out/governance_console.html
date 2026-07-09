@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unified Governance Console</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --surface:#ffffff; --border:#e6e7eb; --text:#1d2129; --muted:#6b7280;
+    --ok-bg:#e3f8ea; --ok-fg:#177245; --bad-bg:#fdeaea; --bad-fg:#b3261e;
+    --warn-bg:#fff6e0; --warn-fg:#8a5b00; --unpop-bg:#eceef1; --unpop-fg:#4b5563;
+    --banner-bg:#3a0d0d; --banner-fg:#ffd9d9; --lock-bg:#eceef1; --lock-fg:#4b5563;
+    --synth-bg:#eef1fb; --synth-fg:#3b4a91;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1115; --surface:#171a20; --border:#2a2f3a; --text:#e7e9ee; --muted:#9aa2b1;
+      --ok-bg:#123123; --ok-fg:#7fe0a6; --bad-bg:#3a1414; --bad-fg:#ff9b9b;
+      --warn-bg:#2f2508; --warn-fg:#f0cf7a; --unpop-bg:#20242c; --unpop-fg:#aab2c0;
+      --banner-bg:#4a0f0f; --banner-fg:#ffd9d9; --lock-bg:#20242c; --lock-fg:#aab2c0;
+      --synth-bg:#191d33; --synth-fg:#aab6f0;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --surface:#171a20; --border:#2a2f3a; --text:#e7e9ee; --muted:#9aa2b1;
+    --ok-bg:#123123; --ok-fg:#7fe0a6; --bad-bg:#3a1414; --bad-fg:#ff9b9b;
+    --warn-bg:#2f2508; --warn-fg:#f0cf7a; --unpop-bg:#20242c; --unpop-fg:#aab2c0;
+    --banner-bg:#4a0f0f; --banner-fg:#ffd9d9; --lock-bg:#20242c; --lock-fg:#aab2c0;
+    --synth-bg:#191d33; --synth-fg:#aab6f0;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f5f7; --surface:#ffffff; --border:#e6e7eb; --text:#1d2129; --muted:#6b7280;
+    --ok-bg:#e3f8ea; --ok-fg:#177245; --bad-bg:#fdeaea; --bad-fg:#b3261e;
+    --warn-bg:#fff6e0; --warn-fg:#8a5b00; --unpop-bg:#eceef1; --unpop-fg:#4b5563;
+    --banner-bg:#3a0d0d; --banner-fg:#ffd9d9; --lock-bg:#eceef1; --lock-fg:#4b5563;
+    --synth-bg:#eef1fb; --synth-fg:#3b4a91;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .banner{background:var(--banner-bg);color:var(--banner-fg);text-align:center;
+    font-weight:700;font-size:13px;letter-spacing:.02em;padding:9px 12px;}
+  .wrap{max-width:1040px;margin:0 auto;padding:26px 24px 64px;}
+  .hdr h1{font-size:22px;margin:0 0 4px;}
+  .hdr .sub{color:var(--muted);font-size:13px;margin-bottom:14px;}
+  .synthstrip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px;}
+  .badge{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:12px;}
+  .badge.ok{background:var(--ok-bg);color:var(--ok-fg);}
+  .badge.bad{background:var(--bad-bg);color:var(--bad-fg);}
+  .badge.warn{background:var(--warn-bg);color:var(--warn-fg);}
+  .badge.unpop{background:var(--unpop-bg);color:var(--unpop-fg);}
+  .badge.synth{background:var(--synth-bg);color:var(--synth-fg);}
+  .badge.lock{background:var(--lock-bg);color:var(--lock-fg);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .card h2{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .card .src{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;
+    word-break:break-all;margin-bottom:12px;}
+  .stat-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;}
+  .stat{flex:1;min-width:96px;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;padding:10px 12px;}
+  .stat .num{font-size:18px;font-weight:700;}
+  .stat .num.unpop{color:var(--unpop-fg);font-size:13px;font-style:italic;}
+  .stat .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+  .detail{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:6px;}
+  .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--muted);margin:30px 0 12px;font-weight:700;}
+  .tier-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;
+    border-bottom:1px solid var(--border);font-size:13px;}
+  .tier-row:last-child{border-bottom:none;}
+  .tier-row .tname{font-weight:700;min-width:64px;}
+  .tier-row .tnote{color:var(--muted);font-size:12px;}
+  .foot{color:var(--muted);font-size:11.5px;margin-top:34px;text-align:center;line-height:1.6;}
+  .legend{font-size:11.5px;color:var(--muted);margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="banner">DO NOT PUSH — not for public hosting (local desktop console, synthetic snapshot data)</div>
+<div class="wrap">
+  <div class="hdr">
+    <h1>Unified Governance Console</h1>
+    <div class="sub">Read-only composition of the four desktop auditors + PR-Conflict-Resolver report</div>
+  </div>
+  <div class="synthstrip">
+    <span class="badge synth">SYNTHETIC — not a guaranteed claim</span>
+    <span class="badge unpop">Captured 2026-07-08 &middot; read-only snapshot</span>
+  </div>
+
+  <div class="section-title">Auditor sections (4)</div>
+  <div class="grid">
+    <div class="card" data-auditor-id="receipt_ledger">
+      <h2>Receipt Ledger Auditor <span class="badge ok">CLEAN</span> <span class="badge synth">SYNTHETIC snapshot</span></h2>
+      <div class="src">desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py<br>run: scripts/audit_receipt_ledger_v1.py &middot; repo root via DX-3 _resolve_repo()</div>
+      <div class="stat-row"><div class="stat"><div class="num">214</div><div class="lbl">Receipts scanned</div></div><div class="stat"><div class="num">0</div><div class="lbl">Cross-motor clusters</div></div><div class="stat"><div class="num">0</div><div class="lbl">Malformed</div></div><div class="stat"><div class="num">0</div><div class="lbl">No timestamp</div></div><div class="stat"><div class="num unpop">UNPOPULATED</div><div class="lbl">Receipt families</div></div></div>
+      <div class="detail">No cross-motor clusters found in the collision window; every scanned receipt has a resolvable date. Receipt-family rollup was not captured in this snapshot.</div>
+    </div>
+    <div class="card" data-auditor-id="registry_motor">
+      <h2>Registry / Motor Validator <span class="badge ok">CLEAN</span> <span class="badge synth">SYNTHETIC snapshot</span></h2>
+      <div class="src">desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py<br>run: scripts/validate_parallel_automation_governance_v1.py + scripts/audit_automation_surface_v1.py &middot; repo root via DX-3 _resolve_repo() <span class="badge warn">writes a receipt when run — snapshotted, not executed</span></div>
+      <div class="stat-row"><div class="stat"><div class="num">PASS</div><div class="lbl">L1 (one writer/cell)</div></div><div class="stat"><div class="num">PASS</div><div class="lbl">L4 (registry routing)</div></div><div class="stat"><div class="num">PASS</div><div class="lbl">Automation surface</div></div></div>
+      <div class="detail">Snapshot only. The underlying audit_automation_surface_v1.py writes a receipt into the tracked receipts/ dir on every run, so the console does NOT execute it live — doing so would mutate a tracked directory (append-only / NO-LIVE lock).</div>
+    </div>
+    <div class="card" data-auditor-id="staleness_gate">
+      <h2>Staleness Gate Auditor <span class="badge bad">FINDINGS</span> <span class="badge synth">SYNTHETIC snapshot</span></h2>
+      <div class="src">desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py<br>run: scripts/agent_read_staleness_engine_v1.py &middot; repo root via DX-3 _resolve_repo()</div>
+      <div class="stat-row"><div class="stat"><div class="num">37</div><div class="lbl">Alive surfaces</div></div><div class="stat"><div class="num">2</div><div class="lbl">Blockers</div></div><div class="stat"><div class="num">5</div><div class="lbl">Warnings</div></div></div>
+      <div class="detail">Two blockers are missing_read_surface for docs in sibling venture repos (SourceA, TrustField-Technologies). If those repos are not checked out on this machine they may be false blockers — verify the paths before treating them as real staleness.</div>
+    </div>
+    <div class="card" data-auditor-id="pr_conflict">
+      <h2>PR-Conflict-Resolver Report <span class="badge unpop">UNPOPULATED</span> <span class="badge warn">STALE — source counts not captured</span></h2>
+      <div class="src">desktop-app/PR-Conflict-Resolver-Report.app/Contents/Resources/report.html<br>run: static report.html (not a generator) &middot; repo root via n/a (static bundled report)</div>
+      <div class="stat-row"><div class="stat"><div class="num unpop">UNPOPULATED</div><div class="lbl">PRs reviewed</div></div><div class="stat"><div class="num unpop">UNPOPULATED</div><div class="lbl">Conflicts flagged</div></div><div class="stat"><div class="num unpop">UNPOPULATED</div><div class="lbl">Auto-resolved</div></div></div>
+      <div class="detail">The bundled report.html is a static, externally-styled (CDN font + sheetjs) &#x27;Eval Review&#x27; page. Its computed counts were not extracted into this snapshot, so its tiles render UNPOPULATED rather than 0/CLEAN. Open the source report.html for the full interactive view.</div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Autonomy tiers</div>
+  <div class="card">
+    <div class="tier-row"><span class="tname">Tier-1</span><span class="badge ok">SHOWN</span><span>Read-only auditor view</span><span class="tnote">— This console — look, don&#x27;t touch. No repo mutation.</span></div>
+    <div class="tier-row"><span class="tname">Tier-2</span><span class="badge ok">SHOWN</span><span>Operator-triggered gate run</span><span class="tnote">— A human runs the underlying gate (writes its own receipt) outside this console.</span></div>
+    <div class="tier-row"><span class="tname">Tier-3</span><span class="badge lock">LOCKED · proof-gated</span><span>Scheduled unattended gate loop</span><span class="tnote">— Proof-gated — requires receipt-backed cycle evidence before enablement.</span></div>
+    <div class="tier-row"><span class="tname">Tier-4</span><span class="badge lock">LOCKED · proof-gated</span><span>Autonomous remediation</span><span class="tnote">— Proof-gated — no autonomy or guaranteed-outcome claim is made here.</span></div>
+
+    <div class="legend">Tier-3 and Tier-4 are LOCKED / proof-gated. No autonomy or guaranteed-outcome claim is made by this console.</div>
+  </div>
+
+  <div class="foot">These are READ-ONLY, embedded snapshots of each auditor&#x27;s output. The console never runs the underlying generators live: audit_automation_surface_v1.py (behind the Registry / Motor Validator) writes a receipt into the repo&#x27;s tracked receipts/ dir every time it runs, so live execution would mutate a tracked directory. Snapshotting keeps the console deterministic and side-effect-free.<br><br>This console is a read-only view. It reports what four auditors observed in the snapshot shown; it runs no gate, mutates no repo, and makes no autonomy or outcome promise. Real gate runs (which write their own receipts) are separate, operator-triggered actions outside this console.</div>
+</div>
+</body>
+</html>

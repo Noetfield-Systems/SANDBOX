@@ -1,0 +1,59 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox detector. Emits CHECK_OK/CHECK_REJECTED verdicts, never a bare governance PASS. Read-only over the two ground-truth data files; exits NONZERO on any stale-law hit (not an always-exit-0 stub).",
+  "catalog_item": "MO-7", "phase": "B3",
+  "title": "Stale-Law Sweep over ACTIVE agent read surfaces (static, read-only)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "data/stale_law_guard_patterns_v1.json",
+      "data/agent_read_surfaces_v1.json"
+    ],
+    "modified": false,
+    "note": "sweeps the 5 ACTIVE-applicable stale-law regexes across 31 in-repo ACTIVE must_read surfaces; both ground-truth files read-only, sha unchanged"
+  },
+  "result": {
+    "verdict": "CHECK_OK",
+    "positive_control_detected": true,
+    "surfaces_swept": 31,
+    "active_pattern_ids": ["deploy_vercel_word", "vercel_deploy_owner", "noos_for_vercel", "mac_only_24_7", "vercel_workflow_file"],
+    "hit_count": 0,
+    "pattern_source_excluded": "data/stale_law_guard_patterns_v1.json",
+    "interpretation": "No ACTIVE agent read surface carries a stale-law string. The clean result is trustworthy because the hardcoded positive control (synthetic known-bad surface) is detected every run and a minimal mutation of a real surface (AGENTS.md + 'Vercel') is flagged. The pattern-source file is excluded as the detector's own rule table (it self-matches 6x by construction: Vercel/vercel_deploy/NOOS-for-Vercel in its regex/replacement/message metadata) — this is scoping, not relaxation, and is printed transparently."
+  },
+  "what_it_proves": [
+    "REAL ACTIVE read surfaces (31 in-repo must_read files) -> CHECK_OK, zero stale-law hits; positive control detected so the clean result is not a broken-regex false-clean",
+    "POSITIVE CONTROL: a hardcoded synthetic surface known to contain stale-law strings trips 4 ACTIVE patterns every run; if it stopped matching the tool returns CHECK_REJECTED (a zero-hit can never be reported clean when the regexes are dead)",
+    "NEGATIVE FIXTURE by MINIMAL MUTATION of a real on-disk surface (AGENTS.md + one injected 'Vercel' token) -> FLAGGED, cites surface + pattern_id, exits nonzero (RED); the unmutated original is clean (GREEN)",
+    "workflow-glob pattern (vercel_workflow_file) is gated to *vercel*.yml workflow surfaces only — it does not broad-sweep the substring 'vercel' across arbitrary data files",
+    "running the sweep leaves both ground-truth files byte-identical (sha unchanged); tool is strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any hit (not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL patterns + real read-surface registry (no strawman); 31 genuine surfaces swept",
+    "positive control + minimal-mutation-of-real-artifact provide RED-before-GREEN; no pattern weakening",
+    "pattern-source file excluded as the detector's own rule table (self-match by construction), stated transparently in output and receipt — scoping, not relaxation to hide a real hit",
+    "origin=sandbox-advisory / authority=none; reports hits as a finding, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (both ground-truth files unmodified, sha unchanged)",
+    "no live call (no network/Supabase/deploy; pure static grep)",
+    "read-only detector; writes only inside catalog/builds/MO-7/",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/MO-7/mo7_stale_law_sweep.py",
+    "test": "catalog/builds/MO-7/test_mo7_stale_law_sweep.py",
+    "red_run_canary": "catalog/builds/MO-7/redrun-canary.txt",
+    "results": {
+      "real_surfaces": "CHECK_OK exit 0 (0 hits, 31 surfaces, positive-control OK)",
+      "self_runner": "7/7 green",
+      "pytest": "7 passed",
+      "red_canary": "FIRED (wrong 'surfaces are clean' assertion fails on mutated-real + positive-control hits)",
+      "ground_truth_sha": "unchanged (both files)"
+    }
+  },
+  "exit_gate_B3": "MO-7 done (stale-law sweep: real ACTIVE surfaces clean CHECK_OK; RED-before-GREEN via hardcoded positive control + minimal-mutation-of-real-surface negative fixture; workflow-glob pattern gated; pattern-source self-match excluded transparently).",
+  "next_action": "None required from this finding — all ACTIVE read surfaces are stale-law clean. Keep MO-7 in the motor set to re-sweep on every surface/law change so a future retired-law string on an ACTIVE surface trips CHECK_REJECTED immediately."
+}

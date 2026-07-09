@@ -1,0 +1,4 @@
+mutant counters -> external_sends=4 deploys=2
+model.invariant_ok=False  breaches=['external_sends', 'deploys']
+EXPECTED -> RED-CANARY FIRED: asserting invariant HELD on send=4/deploy=2 raised AssertionError (invariant HELD).
+The digest's send/deploy-zero check discriminates real (all-zero -> HELD) from mutated (nonzero -> BREACH).

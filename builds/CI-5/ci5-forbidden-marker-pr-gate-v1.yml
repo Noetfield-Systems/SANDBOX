@@ -1,0 +1,56 @@
+# PROPOSAL - reconciles to .github/workflows/ci5-forbidden-marker-pr-gate-v1.yml on founder approval.
+# Report-only, advisory, NON-BLOCKING PR gate: scans changed files for the forbidden
+# active-config marker named in .github/copilot-instructions.md and posts findings to the
+# job summary. It never fails the PR, never merges, and holds no write permission.
+name: ci5-forbidden-marker-pr-gate-v1
+
+# pull_request ONLY. Never pull_request_target / push / schedule: the scan runs against
+# untrusted PR head content with read-only, secret-free permissions.
+on:
+  pull_request:
+
+# Least privilege: read only. No write scopes of any kind.
+permissions:
+  contents: read
+
+jobs:
+  forbidden-marker-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Collect changed files
+        id: changed
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git diff --name-only --diff-filter=ACMR \
+            "origin/${{ github.base_ref }}...HEAD" > changed_files.txt || true
+          echo "Changed files:"; cat changed_files.txt
+
+      - name: Scan changed files for forbidden marker (report-only JSON)
+        id: scan
+        continue-on-error: true   # NON-BLOCKING: a hit is surfaced, never enforced.
+        run: |
+          python3 catalog/builds/CI-5/scan_forbidden_marker_v1.py \
+            --files-from changed_files.txt --json | tee marker_report.json
+
+      - name: Post findings to job summary (always, advisory)
+        if: always()
+        run: |
+          python3 catalog/builds/CI-5/scan_forbidden_marker_v1.py \
+            --files-from changed_files.txt --md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Advisory note
+        if: always()
+        run: |
+          echo "This gate is advisory and non-blocking. Findings are posted to the job" \
+               "summary; the PR is not failed and no merge is performed by this workflow."

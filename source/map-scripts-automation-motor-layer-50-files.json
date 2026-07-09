@@ -1,0 +1,131 @@
+{
+  "subsystem": "scripts/ \u2014 automation/motor layer (50 files)",
+  "what_it_is": "The 50-script motor layer that drives the governance SSOT: it runs the Mac/CI brain autorun loop (verify \u2192 self-heal \u2192 matrix \u2192 gated promote), the P0-PGR shadow dispatch pipeline (evidence \u2192 lint \u2192 route \u2192 receipt), the weekly workflow census + agent-read staleness governance cycles, auth/Supabase e2e probes, receipt-ledger audits, and heuristic chess-risk pre-checks. Every motor is receipt-emitting and registry-driven; most transitions are deterministic shell/Python with no LLM calls, so shadow cost is a true 0.0.",
+  "current_state": {
+    "status": "partial",
+    "note": "Mixed maturity. LIVE + scheduled: brain_loop_autorun (CI cron */30 + Mac launchd), workflow_census (weekly), agent_read_staleness (weekly Mon), sg_auth_surface_probe (every 6h). SCAFFOLDED/shadow-only: entire p0pgr_* pipeline \u2014 shadow-cycle CI is workflow_dispatch ONLY, the cron is commented pending a FOUNDER-UNLOCK-R3 receipt, and the cycle does route-decision-only with zero execution (matches memory: P0-PGR runtime scaffolded, execution locked). LOCKED for sandbox purposes: promote_brain_worker --autonomous-deploy (touches live Cloudflare sourcea-brain-chat-v1 Worker via promotion_gate) and the autonomous-hold path in brain_loop_autorun. STALE/stub: write_roi_heartbeat emits all-\"unknown\" metrics; living_system_chain_validate is an LS-021 stub. audit_* tools always exit 0 (surface findings, never gate)."
+  },
+  "key_assets": [
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_loop_autorun_v1.sh",
+      "kind": "script",
+      "purpose": "Core 30m autorun motor. Sequences _run_step self-heal \u2192 parallel candidates \u2192 e2e matrix, then either OBSERVE_ONLY or (founder-flag) autonomous promote. Reads flags under ~/.sina/, writes receipts/brain-loop-autorun-*.json. This is the heartbeat of the whole layer."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_mac_env_v1.sh",
+      "kind": "config",
+      "purpose": "Shared sourced lib for all brain_* / promote / validate shell motors: SourceA worktree resolution, TCC/SIGKILL (rc 137/139) handling, overlap-lock (brain_acquire_lock), BRAIN_PYTHON pinning. Single point every shell motor depends on."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/promote_brain_worker_v1.sh",
+      "kind": "gate",
+      "purpose": "Deploy gate wrapper \u2014 resolves candidate ref/sha from live verifier receipt, invokes gates/promotion_gate.py with confirm-each-time or --autonomous-deploy to the secondary CF account. The one script that reaches live Cloudflare; LOCKED for sandbox work."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_loop_self_heal_v1.py",
+      "kind": "script",
+      "purpose": "Self-heal tick: compares live verifier receipt candidate_sha256/ref vs local bundle_sha256 + git HEAD (ancestor logic) to decide skip vs reverify, optionally re-triggers /run. Writes brain-self-heal-tick receipt."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_domain_registry_v1.py",
+      "kind": "data",
+      "purpose": "SSOT loader for data/brain_domain_sandboxes_v1.json \u2014 get_sandbox, resolve_sourcea_root, git_ref, bundle_sha256. Imported by self-heal, trigger_verifier_run, parallel candidates. Registry is the plug-point for new brain sandboxes."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_cycle_v1.py",
+      "kind": "script",
+      "purpose": "P0-PGR shadow cycle motor: evidence \u2192 load packet \u2192 lint \u2192 ROUTE-DECISION-ONLY \u2192 schema-validated loop-state receipt (receipts/p0pgr/). Non-binary verdicts (PASS/REPAIR_CANDIDATE/DEGRADED); bad packet becomes a repair_candidates file, lane never stops. Zero execution in Phase-0."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_packet_lint_v1.py",
+      "kind": "script",
+      "purpose": "Packet linter: jsonschema + 7 semantic rules (delivery fields, HARD_BLOCK enum, CLOUD_ONLY/cloud_safe, HYBRID_MAC reqs, FOUNDER_ONLY for deploy/authority, P0-CORE leak fingerprints). HARD_BLOCK_REASONS/DELIVERY_REQUIRED are the rule tables."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_phase2_rank_v1.py",
+      "kind": "script",
+      "purpose": "Deterministic ROI ranker (move M10): WEIGHTS + authored FACTORS table (0-1) over campaign moves \u2192 ranked cloud-only queue + HOLD_CLOUD_UNSAFE for Mac-bound. Emits receipts/p0pgr/phase2_queue_v1.json. Recommendation only \u2014 does not flip dispatch flags."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/workflow_census_v1.py",
+      "kind": "script",
+      "purpose": "Crawls all motors (GH Actions, CF workers, launchd), classifies each by which receipt it serves + value_class, writes Supabase + census receipt. Reads data/automation_surface_inventory + workflow_census_extensions + value_class_rules. Weekly CI."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/audit_receipt_ledger_v1.py",
+      "kind": "script",
+      "purpose": "Scans receipts/ for collision/anomaly classes (malformed JSON, missing timestamp, near-simultaneous different-identity receipts within 5s, duplicate basename across dirs). Always exit 0 \u2014 audit, not gate. TIMESTAMP_KEYS + checks are extensible."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/chess_pass_cli_v1.py",
+      "kind": "cli",
+      "purpose": "Heuristic risk pre-check: reads mission/raw_move JSON, matches RISK_WORDS (clean/simplify/\u2026) + IRREVERSIBLE_HINTS (delete/send/spend/\u2026), emits a CHESS_PASS skeleton with likely_misread/second-move-risk and PROCEED/PROCEED_WITH_PATCH/ASK_IF_IRREVERSIBLE action. Standalone stdin/file CLI."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/agent_read_staleness_engine_v1.py",
+      "kind": "script",
+      "purpose": "Alive-doc law motor: reads data/agent_read_surfaces_v1.json + stale_law_guard_patterns, flags stale governance pointers, files into governance_stale_pointer_queue, emits receipt. Weekly cycle via run_agent_read_governance_cycle_v1.sh."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/write_roi_heartbeat_v1.py",
+      "kind": "script",
+      "purpose": "Weekly ROI heartbeat receipt. Currently a STUB \u2014 every metric is literal \"unknown\" (no fabrication). Clear target for a real collector."
+    }
+  ],
+  "extension_points": [
+    "data/workflow_census_extensions_v1.json \u2014 declarative registry of extra motors (CF workers, Railway, GH workflows, traffic probes) merged into the census with no code change; add an object to register a new loop + its receipt_glob + value_class.",
+    "data/brain_domain_sandboxes_v1.json (via brain_domain_registry_v1.py) \u2014 add a sandbox_id and self-heal + run_parallel_brain_candidates + trigger_verifier_run pick it up automatically.",
+    "p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables \u2014 authored constants; a new campaign move needs one FACTORS row to be ranked (currently hardcoded in-file).",
+    "p0pgr_packet_lint_v1.py HARD_BLOCK_REASONS / DELIVERY_REQUIRED / the 7 numbered semantic checks \u2014 add a rule to tighten packet governance.",
+    "p0pgr_cycle_v1.py ROUTE_VERDICT map \u2014 execution_mode \u2192 route decision; extend to add routing modes.",
+    "chess_pass_cli_v1.py RISK_WORDS / IRREVERSIBLE_HINTS lists \u2014 extend the heuristic vocabulary.",
+    "audit_receipt_ledger_v1.py check functions + TIMESTAMP_KEYS \u2014 add new receipt-anomaly detectors.",
+    "brain_loop_autorun_v1.sh _run_step sequence \u2014 add a governed step to the 30m cycle (self-heal/parallel/matrix pattern).",
+    "receipts/ + receipts/p0pgr/ \u2014 the common bus; any new motor plugs in by writing a schema-tagged JSON receipt that the ledger/census/rollup can read.",
+    "write_roi_heartbeat_v1.py metrics dict \u2014 replace \"unknown\" values with a collector reading real receipts/Supabase."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Dead-motor detector: a read-only motor that cross-references each census loop's receipt_glob (data/workflow_census_extensions_v1.json + inventory) against actual files in receipts/, flagging any loop with no matching receipt in N days as a silent/dead motor and emitting a census-liveness receipt. Directly answers the file's own 'which receipt does this loop serve?' question with evidence of whether it actually served one.",
+      "builds_on": "workflow_census_v1.py + data/workflow_census_extensions_v1.json + audit_receipt_ledger_v1.py receipt-scan pattern",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "ROI heartbeat populator: replace write_roi_heartbeat's all-\"unknown\" metrics dict with a collector that derives receipt_chain_verifier, pattern_exports_per_week, and blocker_count from real receipts/ files (count by schema, newest brain-loop-autorun gate_note, p0pgr repair_candidates backlog). Keeps 'unknown stays unknown' for genuinely missing sources.",
+      "builds_on": "write_roi_heartbeat_v1.py + receipts/ + workflow_census receipts",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Autonomous-pause explainer: read-only brain_hold_report_v1.py that reads the ~/.sina/enforcement/brain-autonomous-hold-v1.flag reason string plus the last N receipts/brain-loop-autorun-*.json (gate_note, self_heal_rc/parallel_rc/matrix_rc, mac_sigkill) and renders a simple HTML timeline of why autonomous deploy is held or last promoted. Pure observability over the autorun receipts; never touches the promote path.",
+      "builds_on": "brain_loop_autorun_v1.sh receipts + brain_autonomous_controls_v1.py hold flags",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Chess-pass \u2192 packet-lint bridge: a shadow wrapper that runs chess_pass_cli over a packet's task/context_summary text and injects its likely_misread / IRREVERSIBLE_HINTS findings as extra REPAIR_CANDIDATE reasons in the lint result, so ambiguous 'clean/simplify/delete' wording is caught before a packet is routed. Files-only, Phase-0 shadow.",
+      "builds_on": "chess_pass_cli_v1.py + p0pgr_packet_lint_v1.py",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Externalize the Phase-2 rank factor table: load WEIGHTS/FACTORS from a new data/p0pgr_phase2_factors_v1.json registry, assert weights sum to 100 and every campaign move has a factor row (else DEGRADED), so new moves get ranked without editing Python. Still recommendation-only \u2014 no dispatch flags flipped, matches the script's own contract.",
+      "builds_on": "p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Receipt-ledger rollup page: extend audit_receipt_ledger's scan into a receipts_rollup_v1.py that aggregates receipts/ by schema/receipt_type with newest-timestamp, anomaly count, and per-type freshness, rendered as a single simple HTML page (per founder 'deliverables = simple web' rule) for onboarding/at-a-glance health. Read-only, exit 0 like the ledger.",
+      "builds_on": "audit_receipt_ledger_v1.py + receipts/ directory",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

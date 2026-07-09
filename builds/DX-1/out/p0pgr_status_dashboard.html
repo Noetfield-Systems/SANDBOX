@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P0-PGR Status Dashboard</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --ok:#2f7d54; --ok-bg:#e5f2ea; --warn:#a9781f; --warn-bg:#f6ecd6;
+    --unpop:#8a5a1f; --unpop-bg:#f4e6cf; --stale:#8a3b3b; --stale-bg:#f3dede;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --done-bg:#e5f2ea; --done-ink:#2f7d54;
+    --built-bg:#e4ecf5; --built-ink:#37567c; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+      --ok:#5fc191; --ok-bg:#193026; --warn:#d9b45a; --warn-bg:#2e2716;
+      --unpop:#d9a95a; --unpop-bg:#2e2412; --stale:#e08a8a; --stale-bg:#2e1717;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --done-bg:#193026; --done-ink:#5fc191;
+      --built-bg:#16233a; --built-ink:#9cc0f0; --banner-bg:#8f2626; --banner-ink:#ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+      --ok:#5fc191; --ok-bg:#193026; --warn:#d9b45a; --warn-bg:#2e2716;
+      --unpop:#d9a95a; --unpop-bg:#2e2412; --stale:#e08a8a; --stale-bg:#2e1717;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --done-bg:#193026; --done-ink:#5fc191;
+      --built-bg:#16233a; --built-ink:#9cc0f0; --banner-bg:#8f2626; --banner-ink:#ffffff;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --ok:#2f7d54; --ok-bg:#e5f2ea; --warn:#a9781f; --warn-bg:#f6ecd6;
+    --unpop:#8a5a1f; --unpop-bg:#f4e6cf; --stale:#8a3b3b; --stale-bg:#f3dede;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --done-bg:#e5f2ea; --done-ink:#2f7d54;
+    --built-bg:#e4ecf5; --built-ink:#37567c; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700;
+    text-align:center; padding:10px 14px; border-radius:8px; letter-spacing:.02em;
+    font-size:13px; margin-bottom:22px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  h1 { font-size:25px; margin:6px 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 16px; }
+  h3.section-title { font-size:16px; margin:32px 0 8px; border-top:1px solid var(--line); padding-top:20px; }
+  .srcbar { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 6px; }
+  .src { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-size:12px; }
+  .src .path { color:var(--muted); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:11px; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    white-space:nowrap; letter-spacing:.02em; }
+  .b-ok { background:var(--ok-bg); color:var(--ok); }
+  .b-warn { background:var(--warn-bg); color:var(--warn); }
+  .b-unpop { background:var(--unpop-bg); color:var(--unpop); }
+  .b-stale { background:var(--stale-bg); color:var(--stale); }
+  .b-locked { background:var(--lock-bg); color:var(--lock-ink); }
+  .b-done { background:var(--done-bg); color:var(--done-ink); }
+  .b-built { background:var(--built-bg); color:var(--built-ink); }
+  .tbl-scroll { overflow-x:auto; }
+  table.q { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+  table.q th, table.q td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.q th { color:var(--muted); font-weight:600; }
+  table.q td.rank { font-weight:800; color:var(--accent); width:34px; }
+  table.q td.mv { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-weight:700; }
+  table.q td.score { font-weight:700; }
+  .commercial { font-size:11px; color:var(--warn); font-weight:700; }
+  .held li, .gates li { margin:6px 0; }
+  ul.plain { list-style:none; padding:0; margin:8px 0 0; }
+  ul.plain li { border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin:8px 0;
+    display:flex; align-items:center; gap:12px; }
+  .grow { flex:1; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:10px; margin-top:8px; }
+  .card { border:1px solid var(--line); border-radius:9px; padding:11px 13px; background:var(--panel); }
+  .card .k { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .card .v { font-size:22px; font-weight:800; margin-top:3px; }
+  .card .note { font-size:11px; color:var(--muted); margin-top:3px; }
+  .ladder .rung-body { flex:1; }
+  .ladder .rname { font-weight:600; }
+  .ladder .gate-note { font-size:12px; color:var(--muted); margin-top:2px; }
+  .ladder .current { font-size:11px; font-weight:700; color:var(--accent); }
+  .synthwm { font-size:11px; color:var(--muted); font-style:italic; margin-top:4px; }
+  footer { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH - not for public hosting (internal read-only P0-PGR status snapshot)</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>P0-PGR Status Dashboard</h1>
+  <p class="sub">Operating mode: PHASE_2_CLOUD_ONLY_ROI_TRACK . campaign P0PGR-CAMPAIGN-20260708-001 . rendered 2026-07-09T09:40Z</p>
+
+  <h3 class="section-title">Source freshness</h3>
+  <p class="sub">Read-only snapshot of the on-disk P0-PGR receipts. A source older than 24h of the render time is flagged STALE; the dashboard never silently presents stale data as live.</p>
+  <div class="srcbar"><div class="src"><div><span class="badge b-ok">FRESH (20.3h)</span></div><div class="path">receipts/p0pgr/phase1_scorecard_v1.json</div></div><div class="src"><div><span class="badge b-ok">FRESH (20.1h)</span></div><div class="path">receipts/p0pgr/phase2_scorecard_v1.json</div></div><div class="src"><div><span class="badge b-ok">FRESH (20.0h)</span></div><div class="path">receipts/p0pgr/phase2_queue_v1.json</div></div><div class="src"><div><span class="badge b-unpop">NO TIMESTAMP</span></div><div class="path">p0-pgr/P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md</div></div></div>
+
+  <h3 class="section-title">Phase-2 ranked queue (ROI order)</h3>
+  <p class="sub">8 ranked moves, ROI weights {&quot;direct_revenue&quot;: 35, &quot;trust_proof&quot;: 25, &quot;workload_reduction&quot;: 15, &quot;cloud_now&quot;: 15, &quot;reversibility&quot;: 10}. Order below is the exact receipt order (highest phase2_score first).</p>
+  <div class="tbl-scroll">
+  <table class="q">
+    <thead><tr><th>#</th><th>Move</th><th>Packet</th><th>Score</th><th>Route</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr data-move="M03"><td class="rank">1</td><td class="mv">M03 <span class="commercial">$ commercial</span></td><td>P0PGR-20260708-004</td><td class="score">86.0</td><td>DISPATCH_CLOUD</td><td>Protects live CAD 4k offer + /register funnel; pure external read</td></tr>
+      <tr data-move="M05"><td class="rank">2</td><td class="mv">M05 <span class="commercial">$ commercial</span></td><td>P0PGR-20260708-006</td><td class="score">74.0</td><td>DISPATCH_CLOUD</td><td>Unblocks first compliant outbound pipeline; predicate audit only, zero send</td></tr>
+      <tr data-move="M04"><td class="rank">3</td><td class="mv">M04 <span class="commercial">$ commercial</span></td><td>P0PGR-20260708-005</td><td class="score">73.75</td><td>DISPATCH_CLOUD</td><td>Conversion audit; needs labeled test identity + gating care -&gt; slightly less immediately executable</td></tr>
+      <tr data-move="M02"><td class="rank">4</td><td class="mv">M02</td><td>P0PGR-20260708-003</td><td class="score">58.5</td><td>DISPATCH_CLOUD</td><td>Registry trust underpins all dispatch; repo-evidence sweep</td></tr>
+      <tr data-move="M06"><td class="rank">5</td><td class="mv">M06</td><td>P0PGR-20260708-007</td><td class="score">58.5</td><td>DISPATCH_CLOUD</td><td>~$20/mo dead-spend recovery + governor enforceability</td></tr>
+      <tr data-move="M07"><td class="rank">6</td><td class="mv">M07</td><td>P0PGR-20260708-008</td><td class="score">58.0</td><td>DISPATCH_CLOUD</td><td>Packet factory; ranked only for its revenue/trust template share per founder rule</td></tr>
+      <tr data-move="M01"><td class="rank">7</td><td class="mv">M01</td><td>P0PGR-20260708-002</td><td class="score">54.5</td><td>DISPATCH_CLOUD</td><td>Census triage; trust recovery, low direct revenue</td></tr>
+      <tr data-move="M09"><td class="rank">8</td><td class="mv">M09</td><td>P0PGR-20260708-010</td><td class="score">50.5</td><td>DISPATCH_CLOUD</td><td>P0 leak sweep; governance trust, no direct revenue</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="held">
+    <p class="sub" style="margin-top:14px;"><b>Held / non-ranked:</b></p>
+    <ul class="plain"><li><span class="grow"><b>M08</b> P0PGR-20260708-009 &mdash; HOLD_CLOUD_UNSAFE: value is Mac-execution planning; founder directive defers all Mac-bound design in Phase 2</span><span class="badge b-locked">HOLD_CLOUD_UNSAFE</span></li><li><span class="grow"><b>M10</b> P0PGR-20260708-011 &mdash; SELF: executed by this script run</span><span class="badge b-warn">SELF</span></li></ul>
+  </div>
+
+  <h3 class="section-title">Gate &amp; invariant states</h3>
+  <p class="sub">Phase-2 execution gates for the next candidate, and the runtime safety invariants. Invariant counters read CLEAN only when a real 0 was measured; attestation fields that were never populated read UNPOPULATED, never a clean 0.</p>
+  <div class="cards"><div class="card" data-field="packets_confirmed_accepted_by_founder"><div class="k"><span>Founder-confirmed accepts</span><span class="badge b-unpop">UNPOPULATED</span></div><div class="v">&mdash;</div><div class="note">no founder-confirmation receipt yet - not a clean 0</div></div><div class="card" data-field="p0_leakage_count"><div class="k"><span>P0 leakage</span><span class="badge b-ok">CLEAN</span></div><div class="v">0</div><div class="note">measured 0</div></div><div class="card" data-field="hard_block_count"><div class="k"><span>Hard blocks</span><span class="badge b-ok">CLEAN</span></div><div class="v">0</div><div class="note">measured 0</div></div><div class="card" data-field="runtime_freeze_count"><div class="k"><span>Runtime freezes</span><span class="badge b-ok">CLEAN</span></div><div class="v">0</div><div class="note">measured 0</div></div><div class="card" data-field="unauthorized_execution_count"><div class="k"><span>Unauthorized executions</span><span class="badge b-ok">CLEAN</span></div><div class="v">0</div><div class="note">measured 0</div></div></div>
+  <p class="sub" style="margin-top:12px;"><b>Next-candidate gate checklist</b> (M03 / P0PGR-20260708-004):</p>
+  <ul class="plain gates"><li><span class="grow">CLOUD_ONLY</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">read-only or reversible</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">ROI-positive</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">no deploy</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">no external send</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">no legal/financial commitment</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">no P0 leakage</span><span class="badge b-ok">REQUIRED</span></li><li><span class="grow">no unauthorized authority change</span><span class="badge b-ok">REQUIRED</span></li></ul>
+
+  <h3 class="section-title">R1&ndash;R5 cloud-activation ladder</h3>
+  <p class="sub">Ordered path from session-driven to self-running. R4-R5 (autonomy) stay LOCKED / proof-gated - shown for context, never presented as unlocked or offered.</p>
+  <ul class="plain ladder"><li data-rung="R1"><span class="rung-body"><span class="rname">R1 &mdash; Session-driven</span> <span class="current">&larr; current rung</span><div class="gate-note">DONE, current</div></span><span class="badge b-done">DONE</span></li><li data-rung="R2"><span class="rung-body"><span class="rname">R2 &mdash; Cloud manual trigger</span><div class="gate-note">BUILT, awaiting founder push + first run</div></span><span class="badge b-built">BUILT</span></li><li data-rung="R3"><span class="rung-body"><span class="rname">R3 &mdash; Cron shadow</span><div class="gate-note">founder unlock #1</div></span><span class="badge b-locked">LOCKED . proof-gated</span></li><li data-rung="R4"><span class="rung-body"><span class="rname">R4 &mdash; Low-risk auto-dispatch</span><div class="gate-note">founder unlock #2</div></span><span class="badge b-locked">LOCKED . proof-gated</span></li><li data-rung="R5"><span class="rung-body"><span class="rname">R5 &mdash; ROI-aware autonomy</span><div class="gate-note">founder unlock #3</div></span><span class="badge b-locked">LOCKED . proof-gated</span></li></ul>
+
+  <footer>
+    Read-only snapshot rendered from on-disk P0-PGR receipts. It reflects the receipts as they were on the render date - it is an observation, not a live control surface and not a guarantee of runtime state. UNPOPULATED and STALE badges mark fields that were never filled or whose source is older than 24h; those are NOT clean zeros. No autonomy is claimed: rungs R4-R5 are LOCKED / proof-gated.
+  </footer>
+</div>
+</body>
+</html>

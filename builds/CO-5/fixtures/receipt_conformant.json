@@ -1,0 +1,20 @@
+{
+  "_watermark": "SYNTHETIC — not a guaranteed claim; hand-authored fixture for CO-5 structural verification only",
+  "signal_id": "sig_seo_vendor_260708",
+  "timestamp": "2026-07-08T17:42:11Z",
+  "source": "gmail",
+  "classification": "vendor",
+  "decision": "create_service_pattern",
+  "author": "signal-factory-triage-agent",
+  "subject": "rankfast-seo-agency",
+  "scores": {
+    "trust": 1,
+    "risk": 1,
+    "automation_value": 3,
+    "commercial_value": 4
+  },
+  "risk_score": 1,
+  "action": "log SEO-vendor pattern to Base Brain; no reply",
+  "result": "triaged",
+  "status": "complete"
+}

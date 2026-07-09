@@ -1,0 +1,129 @@
+<div class="banner">__BANNER_TEXT__</div>
+
+<main class="wrap">
+  <header class="head">
+    <h1>State-Surface Index</h1>
+    <p class="sub">Onboarding map of registered motors, agent lanes and the loop census value-class counts. Read-only advisory index of on-disk governance state &mdash; no autonomy or guaranteed-outcome claim.</p>
+    <p class="watermark">SYNTHETIC / ADVISORY &mdash; computed rollups are a read-only snapshot, not a guaranteed claim.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-num" id="motor-count">__MOTOR_COUNT__</span><span class="stat-lbl">motors</span></div>
+      <div class="stat"><span class="stat-num" id="agent-count">__AGENT_COUNT__</span><span class="stat-lbl">agent lanes</span></div>
+      <div class="stat"><span class="stat-num" id="lane-count">__LANE_COUNT__</span><span class="stat-lbl">motor lanes</span></div>
+      <div class="stat"><span class="stat-num" id="loop-count">__LOOP_COUNT__</span><span class="stat-lbl">census loops</span></div>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Source freshness</h2>
+    <p class="note">Each input is badged by age against the render date. UNPOPULATED means the source did not carry that field &mdash; never read as 0/clean.</p>
+    <table class="tbl">
+      <thead><tr><th>Source</th><th>Stamp</th><th>Age</th><th>State</th></tr></thead>
+      <tbody>__SOURCE_ROWS__</tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Loop census &mdash; value-class counts</h2>
+    <p class="note">Audit status <span class="badge __AUDIT_CLASS__">__AUDIT_STATUS__</span> from <code>__CENSUS_FILE__</code> (<span class="badge __CENSUS_FRESH_CLASS__">__CENSUS_FRESH__</span>). Flags: __FLAG_COUNT__.</p>
+    <div class="census">__CENSUS_CARDS__</div>
+    <p class="note">__CENSUS_RECON__</p>
+  </section>
+
+  <section class="card">
+    <h2>Motors <span class="count-chip">__MOTOR_COUNT__</span></h2>
+    <p class="note">Autonomy fields render <span class="badge locked">LOCKED / proof-gated</span> &mdash; never offered as ready-to-run.</p>
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <thead><tr><th>Motor</th><th>Kind</th><th>Repo</th><th>Lane</th><th>Cadence</th><th>Owns</th><th>Autonomy</th><th>State</th></tr></thead>
+      <tbody>__MOTOR_ROWS__</tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Agent lanes <span class="count-chip">__AGENT_COUNT__</span></h2>
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <thead><tr><th>Agent</th><th>Kind</th><th>Repo</th><th>Lane</th><th>Owns</th></tr></thead>
+      <tbody>__AGENT_ROWS__</tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Dispatch scorecard</h2>
+    <p class="note">Mode <span class="badge">__OPERATING_MODE__</span> &middot; updated <span class="badge __SCORECARD_FRESH_CLASS__">__SCORECARD_FRESH__</span></p>
+    __SCORECARD_BLOCK__
+  </section>
+
+  <footer class="foot">
+    <p>__FOOTER_NOTE__</p>
+    <p class="meta">Rendered __GENERATED_AT__ from registry <code>__REGISTRY_VERSION__</code>. Origin sandbox-advisory / authority none / pass_claimed false.</p>
+  </footer>
+</main>
+
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d21; --muted:#5b6570; --line:#e2e6ea;
+    --accent:#3b6ea5; --banner:#8a3b12; --banner-bg:#fdeede;
+    --guard:#2f6f4f; --meta:#5b6570; --none:#8a6d1f; --revenue:#7a2f6f; --unpop:#8a3b12;
+    --fresh:#2f6f4f; --stale:#8a6d1f; --red:#a12f2f; --locked:#5a4b8a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --card:#1c2024; --ink:#e8ebee; --muted:#9aa5b0; --line:#2c3238;
+      --accent:#7fb0e0; --banner:#ffcf9e; --banner-bg:#3a2413;
+      --guard:#6fd39f; --meta:#9aa5b0; --none:#d6b25a; --revenue:#d68ac8; --unpop:#ffb27f;
+      --fresh:#6fd39f; --stale:#d6b25a; --red:#e88; --locked:#b3a4e0;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14171a; --card:#1c2024; --ink:#e8ebee; --muted:#9aa5b0; --line:#2c3238;
+    --accent:#7fb0e0; --banner:#ffcf9e; --banner-bg:#3a2413;
+    --guard:#6fd39f; --meta:#9aa5b0; --none:#d6b25a; --revenue:#d68ac8; --unpop:#ffb27f;
+    --fresh:#6fd39f; --stale:#d6b25a; --red:#e88; --locked:#b3a4e0;
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d21; --muted:#5b6570; --line:#e2e6ea;
+    --accent:#3b6ea5; --banner:#8a3b12; --banner-bg:#fdeede;
+    --guard:#2f6f4f; --meta:#5b6570; --none:#8a6d1f; --revenue:#7a2f6f; --unpop:#8a3b12;
+    --fresh:#2f6f4f; --stale:#8a6d1f; --red:#a12f2f; --locked:#5a4b8a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .banner{background:var(--banner-bg);color:var(--banner);font-weight:700;text-align:center;padding:8px 12px;letter-spacing:.02em;border-bottom:2px solid var(--banner)}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 60px}
+  .head h1{margin:.2em 0 .1em;font-size:1.9rem}
+  .sub{color:var(--muted);margin:.2em 0}
+  .watermark{color:var(--unpop);font-size:.8rem;font-weight:600;margin:.4em 0 0;letter-spacing:.02em}
+  .stat-row{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 6px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 18px;min-width:96px}
+  .stat-num{display:block;font-size:1.7rem;font-weight:700;color:var(--accent)}
+  .stat-lbl{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+  .card h2{margin:.1em 0 .5em;font-size:1.15rem}
+  .count-chip{display:inline-block;background:var(--accent);color:#fff;border-radius:20px;padding:1px 10px;font-size:.85rem;vertical-align:middle}
+  @media (prefers-color-scheme: dark){.count-chip{color:#12161a}}
+  :root[data-theme="dark"] .count-chip{color:#12161a}
+  .note{color:var(--muted);font-size:.86rem;margin:.2em 0 .8em}
+  .tbl-scroll{overflow-x:auto}
+  .tbl{width:100%;border-collapse:collapse;font-size:.86rem}
+  .tbl th,.tbl td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.04em}
+  .tbl code{font-size:.82em}
+  code{background:rgba(127,127,127,.14);padding:1px 5px;border-radius:5px}
+  .badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:.74rem;font-weight:700;border:1px solid currentColor;letter-spacing:.02em}
+  .badge.fresh{color:var(--fresh)} .badge.stale{color:var(--stale)}
+  .badge.unpop{color:var(--unpop)} .badge.red{color:var(--red)}
+  .badge.locked{color:var(--locked)} .badge.superseded{color:var(--muted)}
+  .census{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0}
+  .cc{border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:110px}
+  .cc-num{font-size:1.6rem;font-weight:700}
+  .cc-lbl{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .cc.guard .cc-num{color:var(--guard)} .cc.meta .cc-num{color:var(--meta)}
+  .cc.none .cc-num{color:var(--none)} .cc.revenue .cc-num{color:var(--revenue)}
+  .cc.unpop{border-style:dashed} .cc.unpop .cc-num{color:var(--unpop);font-size:1.05rem}
+  .lane-chip{display:inline-block;background:rgba(127,127,127,.12);border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin:2px;font-size:.78rem}
+  .foot{color:var(--muted);font-size:.82rem;margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+  .foot .meta{font-size:.76rem;opacity:.85}
+</style>

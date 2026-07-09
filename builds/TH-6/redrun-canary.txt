@@ -1,0 +1,2 @@
+EXPECTED -> RED-CANARY FIRED: used_llm is False (deterministic) -> asserting True correctly fails.
+drift detected on tampered golden: True

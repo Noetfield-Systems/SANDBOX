@@ -1,0 +1,144 @@
+{
+  "subsystem": "P0-PGR / P0-PDR Dispatch Brain Runtime",
+  "what_it_is": "A governed prompt-authoring + delivery loop that replaces the founder as prompt writer/router/critic/dispatcher. It reads system evidence deterministically, classifies a problem into one of 9 classes, runs a 12-stage pipeline (Evidence Reader \u2192 ... \u2192 Main Brain Decision \u2192 Prompt Compiler \u2192 Dispatch Router \u2192 Receipt Verifier \u2192 Harvest), and compiles delivery-aware \"prompt packets\" that carry execution_mode/route/executor/authority. Contract v1.1 adds a delivery rail (P0-PDR) plus RUNTIME_CONTINUITY_LAW_v1 (degrade, never freeze the lane) and non-binary result states. Workers receive ONLY the packet \u2014 never P0 doctrine (leak = lint rejection).",
+  "current_state": {
+    "status": "partial",
+    "note": "Docs say 'current rung R1' but the filesystem is further along: Phase-0 scripts are real and tested (10/10 tests), lane p0pgr IS registered in data/github_automation_registry_v1.json, Phase-1 shadow is DONE (10 packets in outbox, campaign receipt, phase1 scorecard 10/10 compiled 0 leakage awaiting founder diff-accept), and Phase-2 CLOUD_ONLY ROI track is founder-UNLOCKED and has EXECUTED twice (M10 ranker + M03 live trustfield.ca audit, PARTIAL, 0 sends/deploys/merges). LOCKED/unbuilt: R2 cloud run is BUILT but never actually run (blocked on founder push+click, R2 proof = PARTIAL); R3 cron, R4 auto-dispatch, R5 ROI-autonomy all gated behind founder unlock receipts that do not exist; Mac runner (Phase 3) DEFERRED, fallback removed from packets; prompt registry SCHEMA exists but data/p0pgr_prompt_registry_v1.json is NOT built. Real dispatch, deploy, merge, cron, and auto-dispatch are all locked."
+  },
+  "key_assets": [
+    {
+      "path": "p0-pgr/P0_DISPATCH_BRAIN_RUNTIME_v1.1.md",
+      "kind": "doc",
+      "purpose": "Operating contract v1.1 (supersedes v1.0). RUNTIME_CONTINUITY_LAW_v1, 12-stage pipeline, execution modes CLOUD_ONLY/HYBRID_MAC/HUMAN_REVIEW/FOUNDER_ONLY, HARD_BLOCK whitelist."
+    },
+    {
+      "path": "p0-pgr/P0_DISPATCH_ROUTER_RULES_v1.md",
+      "kind": "doc",
+      "purpose": "Routing table (packet type -> destination -> mode), rail reliability ranking, Mac Runner safety rules 1-10, spend governor caps ($1.5k pre-revenue)."
+    },
+    {
+      "path": "p0-pgr/P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md",
+      "kind": "doc",
+      "purpose": "R1-R5 rung ladder from session-driven to full autonomy; each rung has entry gate + exit receipt + founder unlock. Names the exact locked seams."
+    },
+    {
+      "path": "p0-pgr/P0_PROMPT_PACKET_SCHEMA_v1.json",
+      "kind": "schema",
+      "purpose": "Packet v1.1 (the dispatch unit). Enums for owner_agent/delivery_route/target_executor + conditional requires for HYBRID_MAC, cloud_safe=false, deploy->FOUNDER_ONLY."
+    },
+    {
+      "path": "p0-pgr/P0_PROMPT_LOOP_STATE_SCHEMA_v1.json",
+      "kind": "schema",
+      "purpose": "One cycle's loop-state receipt (deterministic L13 replay via bundle_hash, non-binary quality_state, founder_blocked_snapshot)."
+    },
+    {
+      "path": "p0-pgr/P0_EXECUTION_RECEIPT_SCHEMA_v1.json",
+      "kind": "schema",
+      "purpose": "Real (non-shadow) execution receipt: evidence_artifacts (proof not prose), founder_authorization_ref required, cost never bare $0 without accounting_note."
+    },
+    {
+      "path": "p0-pgr/P0_PROMPT_REGISTRY_SCHEMA_v1.json",
+      "kind": "schema",
+      "purpose": "Reusable prompt-template catalog (M07 packet-factory memory). status AUTO_DISPATCH_APPROVED is per-template founder gate = unit of autonomy. DATA FILE NOT YET BUILT."
+    },
+    {
+      "path": "scripts/p0pgr_cycle_v1.py",
+      "kind": "script",
+      "purpose": "Phase-0 shadow cycle: evidence -> load packet -> lint -> route-decision-only -> loop-state receipt; lint fail files a repair_candidate, never lane STOP. No LLM, true $0."
+    },
+    {
+      "path": "scripts/p0pgr_packet_lint_v1.py",
+      "kind": "script",
+      "purpose": "Packet linter: JSON-schema + 7 semantic checks incl P0-CORE leak fingerprints, HYBRID_MAC/cloud_safe/deploy gates, HARD_BLOCK reason whitelist. Verdict PASS|REPAIR_CANDIDATE, exit 0 either way."
+    },
+    {
+      "path": "scripts/p0pgr_evidence_reader_v1.py",
+      "kind": "script",
+      "purpose": "Deterministic evidence bundle w/ bundle_hash (L13). Reads contract files, registry, alive docs, newest receipts, census, outbox/repair queue. Derived from file bytes, never self-report."
+    },
+    {
+      "path": "scripts/p0pgr_campaign_planner_v1.py",
+      "kind": "script",
+      "purpose": "Phase-1 strategic planner: generates 10 shadow packets across 6 board axes, runs CHESS pass, compiles+lints v1.1 packets, emits campaign receipt + phase1 scorecard. moves()/compile_packet()/chess_pass() are the plug points."
+    },
+    {
+      "path": "scripts/p0pgr_phase2_rank_v1.py",
+      "kind": "script",
+      "purpose": "Phase-2 deterministic ROI ranker (move M10). Weighted factor table (revenue35/trust25/workload15/cloud15/reversibility10) -> ranked cloud-only queue. Recommendation only; does NOT flip dispatch flags."
+    },
+    {
+      "path": ".github/workflows/p0pgr-shadow-cycle-v1.yml",
+      "kind": "worker",
+      "purpose": "R2 cloud shadow cycle. workflow_dispatch ONLY (cron line commented, gated on R3 unlock), permissions contents:read, runs Phase-0 tests + evidence + cycle + independent receipt validation. LOCKED: never actually run in cloud yet."
+    },
+    {
+      "path": "tests/test_p0pgr_phase0.py",
+      "kind": "test",
+      "purpose": "10 tests guarding lint + cycle (valid packet PASS, missing fields/HYBRID_MAC/HARD_BLOCK/cloud_safe/deploy/P0-leak -> REPAIR_CANDIDATE, cycle receipt validity, repair-candidate-not-lane-stop). Gate for the CI workflow."
+    },
+    {
+      "path": "receipts/p0pgr/phase2_queue_v1.json",
+      "kind": "data",
+      "purpose": "Live ranked ROI queue (M03:86 > M05:74 > M04:73.75 > ...), held items (M08 HOLD_CLOUD_UNSAFE), first_execution_candidate M03. Consumed by any dashboard/digest."
+    },
+    {
+      "path": "receipts/p0pgr/founder/FOUNDER-UNLOCK-PHASE2-CLOUD-ONLY-20260708.json",
+      "kind": "gate",
+      "purpose": "Founder authorization receipt that unlocked Phase-2 cloud-only execution. Scope limits: no Mac, one candidate at a time, no cron, deploy/merge/L5 stay FOUNDER_ONLY. Pattern for every future rung unlock."
+    }
+  ],
+  "extension_points": [
+    "scripts/p0pgr_packet_lint_v1.py lint_packet(): 7 semantic checks append to a reasons list (continuity: never raise) \u2014 new checks slot in as additional appends, guarded by the existing PASS|REPAIR_CANDIDATE contract.",
+    "P0_PROMPT_REGISTRY_SCHEMA_v1.json exists but data/p0pgr_prompt_registry_v1.json is UNBUILT \u2014 the M07 'packet factory' registry file + template compiler (merge packet_defaults + {{parameter_slots}}) is the widest-open plug point.",
+    "scripts/p0pgr_evidence_reader_v1.py collect(): add new evidence sources to the bundle dict before bundle_hash is computed \u2014 they automatically flow into every cycle's L13 replay hash.",
+    "scripts/p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables + campaign_planner moves() (line 130): new board moves / ROI factors are pure dict entries; ranking is deterministic authored constants.",
+    "receipts/p0pgr/repair_candidates/ is written by the cycle but nothing re-reads it \u2014 a repair re-linter is an obvious closed-loop slot.",
+    "Pipeline stage 11 'Receipt Verifier' is specified and P0_EXECUTION_RECEIPT_SCHEMA_v1.json exists, but there is NO scripts/p0pgr_receipt_verify_v1.py \u2014 the adversarial verifier is unbuilt.",
+    "Scorecards + queue JSON (phase1_scorecard, phase2_scorecard, phase2_queue) are stable machine-readable state that any read-only dashboard/digest consumes directly.",
+    "The workflow's cron line and R3/R4/R5 founder-unlock receipts are deliberate seams \u2014 but LOCKED (touching them is not sandbox-safe)."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Build the M07 prompt-registry data file (data/p0pgr_prompt_registry_v1.json) + a template compiler: extract the 10 shadow outbox packets into >=1 registered TPL-* template per recurring problem_class, each with packet_defaults + {{parameter_slots}} + >=2 evidence_basis receipts, ALL status DRAFT (never AUTO_DISPATCH_APPROVED, which is founder-gated). Turns founder prompt-writing into a reusable asset.",
+      "builds_on": "P0_PROMPT_REGISTRY_SCHEMA_v1.json + receipts/p0pgr/outbox/*.json + p0pgr_packet_lint_v1.py",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build the missing Receipt Verifier as scripts/p0pgr_receipt_verify_v1.py: read-only adversarial checker that validates any execution receipt against P0_EXECUTION_RECEIPT_SCHEMA_v1.json + provenance rules (executed_at must not predate packet created_at, founder_authorization_ref present for real exec, evidence_artifacts present, cost not bare $0 without accounting_note) and emits a verdict receipt. Fills the specified-but-unbuilt pipeline stage 11.",
+      "builds_on": "P0_EXECUTION_RECEIPT_SCHEMA_v1.json + P0PGR-EXEC-M03-20260708T1330Z.json",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a self-contained read-only HTML status dashboard (per founder 'presentation = simple HTML page' rule) that renders the R1-R5 rung ladder, phase gates, the ranked phase2 queue, executed moves (M10/M03), findings F1/F2, held items, founder_blocked snapshot, and cost=0. Kills the founder's manual status-reading. Build the file only \u2014 do NOT push to Cloudflare.",
+      "builds_on": "phase1_scorecard_v1.json + phase2_scorecard_v1.json + phase2_queue_v1.json + P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build scripts/p0pgr_repair_relint_v1.py: read each file in receipts/p0pgr/repair_candidates/, re-run lint_packet on the referenced packet, and emit a resolved/persisting/new report receipt. Closes the 'rejection re-enters the loop as repair' loop that the cycle currently only half-implements (it files candidates but never re-processes them).",
+      "builds_on": "p0pgr_packet_lint_v1.py + receipts/p0pgr/repair_candidates/",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a batch outbox linter: the R2 workflow cycles only ONE packet at a time, but 10 packets sit in the outbox and the mac_runner fallback_route was bulk-removed (phase2_scorecard notes a re-lint). A script that lints every receipts/p0pgr/outbox/*.json and emits a batch report catches drift across the whole queue in one pass.",
+      "builds_on": "p0pgr_packet_lint_v1.py + receipts/p0pgr/outbox/*.json",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a deterministic weekly founder ROI digest generator (markdown/HTML) that the R5 rung explicitly calls for: summarize ranked moves, executed candidates (M10 ranker, M03 PARTIAL), findings needing founder eyes (F1 pricing ambiguity, F2 doc-stale v71->v108), held cloud-unsafe items, and running cost/send/deploy counters \u2014 all already present in the queue + scorecard + exec receipt.",
+      "builds_on": "phase2_queue_v1.json + phase2_scorecard_v1.json + P0PGR-EXEC-M03-20260708T1330Z.json",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

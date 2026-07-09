@@ -1,0 +1,10 @@
+verdict on real step10a receipt: FAIL
+reasons: ['content identity not confirmed (post-deploy artifact sha256 != verifier-signed candidate)']
+rollback_hint: wrangler versions deploy 628ebc37-5c66-44e5-9cad-4e05fc2f3e92 --name sourcea-brain-chat-v1
+
+captured from a deliberately-wrong assertion (process exit 1):
+Traceback (most recent call last):
+  File "<string>", line 12, in <module>
+AssertionError: RED-CANARY: asserting real step10a (content_identity_confirmed=false) is PASS
+
+EXPECTED -> RED-CANARY FIRED: the real step10a watched-deploy receipt records content_identity_confirmed=false, so the auditor classifies it FAIL. Asserting it is PASS correctly raises AssertionError. The rollup is not green-by-construction — it rejects a real known-bad deploy receipt.

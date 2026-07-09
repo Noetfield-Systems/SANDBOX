@@ -1,0 +1,25 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_REJECTED",
+  "subject_packet_id": "P0PGR-20260708-004",
+  "schema_errors": [
+    "$: missing required field 'recorded_at'",
+    "$: missing required field 'evidence_artifacts'",
+    "$: missing required field 'founder_authorization_ref'"
+  ],
+  "provenance_reasons": [
+    "quality_state is 'PARTIAL', not PASS \u2014 not PASS-eligible",
+    "no founder_authorization_ref (real execution needs an in-repo unlock receipt)",
+    "no evidence_artifacts (stored proof, not prose)",
+    "bare $0 cost with no accounting_note (implausible for executed work)",
+    "executed_at '2026-07-08T13:30:00Z' is a round :00 timestamp (machine timestamps rarely land on :00)",
+    "recorded_at absent (cannot verify write-time provenance)"
+  ],
+  "reconcile": {
+    "receipt_self_quality_state": "PARTIAL",
+    "auditor_verdict": "CHECK_REJECTED",
+    "auditor_disagrees_with_receipt": false
+  },
+  "subject_receipt": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json"
+}

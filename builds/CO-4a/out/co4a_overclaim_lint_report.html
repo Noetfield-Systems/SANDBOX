@@ -1,0 +1,161 @@
+<!-- CO-4a offline overclaim lint report — self-contained, theme-aware, brand-neutral -->
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --ink:#1b1f24; --muted:#5b6570; --line:#e3e7ec;
+    --flag:#b3261e; --flagbg:#fdecea; --clean:#1a7f4b; --cleanbg:#e8f5ee;
+    --unpop:#8a6d00; --unpopbg:#fff6d6; --chip:#eef1f5; --code:#f0f2f5; --accent:#3a5bd9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1217; --card:#161b22; --ink:#e6e9ee; --muted:#9aa4af; --line:#2a313a;
+      --flag:#ff6b60; --flagbg:#2a1614; --clean:#54d08a; --cleanbg:#0f2419;
+      --unpop:#e8c65a; --unpopbg:#2a2410; --chip:#222a33; --code:#0e1217; --accent:#7d94ff;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1217; --card:#161b22; --ink:#e6e9ee; --muted:#9aa4af; --line:#2a313a;
+    --flag:#ff6b60; --flagbg:#2a1614; --clean:#54d08a; --cleanbg:#0f2419;
+    --unpop:#e8c65a; --unpopbg:#2a2410; --chip:#222a33; --code:#0e1217; --accent:#7d94ff;
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f8fa; --card:#ffffff; --ink:#1b1f24; --muted:#5b6570; --line:#e3e7ec;
+    --flag:#b3261e; --flagbg:#fdecea; --clean:#1a7f4b; --cleanbg:#e8f5ee;
+    --unpop:#8a6d00; --unpopbg:#fff6d6; --chip:#eef1f5; --code:#f0f2f5; --accent:#3a5bd9;
+  }
+  *{box-sizing:border-box}
+  .wrap{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:var(--bg); max-width:920px; margin:0 auto; padding:20px}
+  .donotpush{background:var(--flag); color:#fff; font-weight:700; letter-spacing:.02em;
+    text-align:center; padding:10px 14px; border-radius:8px; margin-bottom:14px}
+  .lintbanner{border:1px solid var(--line); background:var(--card); border-left:4px solid var(--accent);
+    padding:10px 14px; border-radius:8px; margin-bottom:14px; color:var(--muted); font-size:13.5px}
+  h1{font-size:22px; margin:6px 0 2px}
+  .sub{color:var(--muted); font-size:13.5px; margin:0 0 14px}
+  .wm{display:inline-block; font-size:11.5px; font-weight:700; color:var(--unpop);
+    background:var(--unpopbg); border:1px solid var(--unpop); border-radius:6px; padding:1px 7px; margin-left:6px}
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0}
+  .tile{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px}
+  .tile .k{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+  .num{font-size:30px; font-weight:800}
+  .num.flag{color:var(--flag)} .num.clean{color:var(--clean)}
+  .meta{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:12px 0; font-size:13px}
+  .meta div{margin:3px 0} .meta b{color:var(--ink)} .meta code{color:var(--muted)}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card)}
+  table{border-collapse:collapse; width:100%; min-width:640px}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted)}
+  td.id{font-weight:700; font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .badge{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:20px; border:1px solid transparent}
+  .badge.flag{color:var(--flag); background:var(--flagbg); border-color:var(--flag)}
+  .badge.clean{color:var(--clean); background:var(--cleanbg); border-color:var(--clean)}
+  .badge.unpop{color:var(--unpop); background:var(--unpopbg); border-color:var(--unpop)}
+  .chip{display:inline-block; font-size:12px; background:var(--chip); border-radius:6px; padding:1px 7px; margin:1px 3px 1px 0}
+  .chip.none{color:var(--muted); font-style:italic}
+  .subs{font-size:12.5px; color:var(--muted)}
+  .detailrow td{border-bottom:1px solid var(--line); padding-top:0}
+  .detail{font-size:13px; color:var(--muted)}
+  .detail code{background:var(--code); padding:2px 6px; border-radius:5px; display:inline-block; margin:3px 0; color:var(--ink)}
+  ul.reasons{margin:6px 0 2px; padding-left:18px} ul.reasons li{margin:2px 0}
+  .src{font-size:11px; color:var(--accent)}
+  .unpoprow{text-align:center; color:var(--muted); padding:18px}
+  footer{margin-top:16px; color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); padding-top:10px}
+</style>
+<div class="wrap">
+  <div class="donotpush">DO NOT PUSH — not for public hosting (CO-4a offline lint, synthetic fixture)</div>
+  <div class="lintbanner">lint result, not a legal/compliance determination; publishing is founder-gated</div>
+
+  <h1>Offline overclaim / regulatory-copy-risk lint <span class="wm">SYNTHETIC — not a guaranteed claim</span></h1>
+  <p class="sub">Block-pattern dry-run over a checked-in synthetic fixture. Offline only — no live repo or website was opened. This is a lint-only advisory; it makes no status determination.</p>
+
+  <div class="grid">
+    <div class="tile"><div class="k">Lines linted</div><div><span class="num">9</span></div></div>
+    <div class="tile"><div class="k">Flagged</div><div><span class="num flag">5</span></div></div>
+    <div class="tile"><div class="k">Clean</div><div><span class="num clean">4</span></div></div>
+  </div>
+
+  <div class="meta">
+    <div><b>Fixture status:</b> <code>SYNTHETIC_FIXTURE</code></div>
+    <div><b>Fixture source:</b> <code>authored fixture (CO-4a) — NOT scanned from the live TrustField-Technologies repo and NOT fetched from trustfield.ca</code></div>
+    <div><b>Grounding overlay:</b> <code>/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/language_gate/trustfield_dictionary_overlay_index_v1.json</code></div>
+    <div><b>block_private posture:</b> <code>ON (public surface)</code> &middot; <b>block patterns loaded:</b> <code>16</code></div>
+    <div><b>Note:</b> SYNTHETIC sample web copy authored in-repo for OFFLINE overclaim linting. Every line is an illustrative example only; NONE is a statement of fact about any entity, and NO line asserts RPAA / FINTRAC / MSB / MSP / PSP status for TrustField or anyone else. Do NOT publish.</div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Line</th><th>Result</th><th>Risk class</th><th>Subclass</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="id">R1</td>
+        <td><span class="badge flag">FLAGGED</span></td>
+        <td><span class="chip">Conflict phrase</span> <span class="chip">Regulatory copy risk</span></td>
+        <td class="subs">TF-OVL-034, MSP_SELF_ID, PSP_SELF_CLAIM</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Redacted copy:</b> <code>[flagged: tf-ovl-034] and [flagged: psp-self-claim] for merchants across Canada.</code><ul class="reasons"><li>overlay CONFLICT_PHRASE — regulatory/entity confusion, human review before rewrite <span class="src">[trustfield_overlay]</span></li><li>first-party MSP/MSB self-identification <span class="src">[co4a_reg_risk_bank]</span></li><li>claims first-party control of funds/settlement <span class="src">[co4a_reg_risk_bank]</span></li></ul></div></td></tr>
+      <tr>
+        <td class="id">R2</td>
+        <td><span class="badge flag">FLAGGED</span></td>
+        <td><span class="chip">Conflict phrase</span> <span class="chip">Regulatory copy risk</span></td>
+        <td class="subs">TF-OVL-035, PSP_SELF_CLAIM, PSP_SELF_CLAIM</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Redacted copy:</b> <code>[flagged: tf-ovl-035] and [flagged: psp-self-claim] on your behalf every day.</code><ul class="reasons"><li>overlay CONFLICT_PHRASE — regulatory/entity confusion, human review before rewrite <span class="src">[trustfield_overlay]</span></li><li>first-party payment-processing self-claim <span class="src">[co4a_reg_risk_bank]</span></li><li>claims first-party control of funds/settlement <span class="src">[co4a_reg_risk_bank]</span></li></ul></div></td></tr>
+      <tr>
+        <td class="id">R3</td>
+        <td><span class="badge flag">FLAGGED</span></td>
+        <td><span class="chip">Conflict phrase</span> <span class="chip">Regulatory copy risk</span></td>
+        <td class="subs">TF-OVL-033, ENTITY_ALIAS, MSP_SELF_ID</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Redacted copy:</b> <code>[flagged: tf-ovl-033] is a [flagged: msp-self-id] you can rely on.</code><ul class="reasons"><li>overlay CONFLICT_PHRASE — regulatory/entity confusion, human review before rewrite <span class="src">[trustfield_overlay]</span></li><li>retired/entity alias — regulatory/entity confusion <span class="src">[co4a_reg_risk_bank]</span></li><li>claims MSP/MSB registration status <span class="src">[co4a_reg_risk_bank]</span></li></ul></div></td></tr>
+      <tr>
+        <td class="id">R4</td>
+        <td><span class="badge flag">FLAGGED</span></td>
+        <td><span class="chip">Overclaim</span></td>
+        <td class="subs">OVERCLAIM, OVERCLAIM</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Redacted copy:</b> <code>Our platform is [flagged: overclaim] and independently [flagged: overclaim] for your peace of mind.</code><ul class="reasons"><li>unproven absolute claim <span class="src">[language_gate_core]</span></li><li>banned unless schema-cited <span class="src">[language_gate_core]</span></li></ul></div></td></tr>
+      <tr>
+        <td class="id">R5</td>
+        <td><span class="badge flag">FLAGGED</span></td>
+        <td><span class="chip">Overclaim</span></td>
+        <td class="subs">OVERCLAIM</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Redacted copy:</b> <code>Trusted by [flagged: overclaim] who settle with us every single day.</code><ul class="reasons"><li>unprovable customer roster <span class="src">[language_gate_core]</span></li></ul></div></td></tr>
+      <tr>
+        <td class="id">C1</td>
+        <td><span class="badge clean">CLEAN</span></td>
+        <td><span class="chip none">no block pattern matched</span></td>
+        <td class="subs">&mdash;</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Copy:</b> <code>TrustField is a program operations and evidence layer for licensed partners.</code></div></td></tr>
+      <tr>
+        <td class="id">C2</td>
+        <td><span class="badge clean">CLEAN</span></td>
+        <td><span class="chip none">no block pattern matched</span></td>
+        <td class="subs">&mdash;</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Copy:</b> <code>Our software helps licensed money services businesses manage their own program evidence.</code></div></td></tr>
+      <tr>
+        <td class="id">C3</td>
+        <td><span class="badge clean">CLEAN</span></td>
+        <td><span class="chip none">no block pattern matched</span></td>
+        <td class="subs">&mdash;</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Copy:</b> <code>The settlement party of record is always your regulated institution, never TrustField.</code></div></td></tr>
+      <tr>
+        <td class="id">C4</td>
+        <td><span class="badge clean">CLEAN</span></td>
+        <td><span class="chip none">no block pattern matched</span></td>
+        <td class="subs">&mdash;</td>
+      </tr>
+      <tr class="detailrow"><td></td><td colspan="3"><div class="detail"><b>Copy:</b> <code>We provide workflow tooling and receipts; your partner institution holds and moves the funds.</code></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Offending spans are redacted in this report; raw overclaim strings are not reproduced. All counts are
+    computed over synthetic fixture copy (SYNTHETIC — not a guaranteed claim) and are not statements of fact about any entity.
+    This report authors no RPAA / FINTRAC / MSB / MSP / PSP status assertion. Publishing any web copy is
+    founder-gated. CO-4b (live wiring) is out of scope for this build.
+  </footer>
+</div>

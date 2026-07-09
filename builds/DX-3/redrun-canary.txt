@@ -1,0 +1,3 @@
+worktree=/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox
+legacy pin=/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sina-governance-SSOT
+EXPECTED FAILURE -> RED-CANARY FIRED: a still-pinned REPO (legacy) != this worktree -> the de-pin assertion is real, not vacuous.

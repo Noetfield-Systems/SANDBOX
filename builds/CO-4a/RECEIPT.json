@@ -1,0 +1,59 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. CO-4a is OFFLINE ONLY: a block-pattern lint engine + a dry-run REGULATORY_COPY_RISK report over a checked-in SYNTHETIC fixture. Proof is (1) data-driven discrimination (MSP/PSP self-claim lines flagged, clean lines not; mutating a clean line flips the flag) and (2) the repo language_gate dogfood (CHECK_OK on the real report, CHECK_REJECTED when an overclaim is injected). Never a bare governance PASS.",
+  "catalog_item": "CO-4a", "phase": "B4",
+  "title": "TrustField overclaim enforcement (OFFLINE ONLY) — block-pattern engine + dry-run REGULATORY_COPY_RISK lint report",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox" },
+  "scope": {
+    "offline_only": true,
+    "did_not_open_live_repo": "TrustField-Technologies repo NOT opened/scanned",
+    "did_not_fetch_website": "trustfield.ca NOT fetched (no network)",
+    "co4b_out_of_scope": "live wiring (CO-4b) is out of scope and founder-gated"
+  },
+  "subject": {
+    "grounding": [
+      "language_gate/trustfield_dictionary_overlay_index_v1.json (CONFLICT_PHRASE + REGULATORY_COPY_RISK classes; read-only)",
+      "language_gate/language_gate_core_v1.py (OVERCLAIM_PATTERNS imported verbatim; public-surface block_private -> private_only)"
+    ],
+    "modified": false,
+    "note": "engine loads CONFLICT_PHRASE literals from the overlay + a REGULATORY_COPY_RISK regex bank (MSP_SELF_ID / PSP_SELF_CLAIM / ENTITY_ALIAS) + OVERCLAIM_PATTERNS + block_private posture. Sources read-only."
+  },
+  "what_it_proves": [
+    "block-pattern engine flags only FIRST-PARTY MSP/PSP self-claims and entity-alias/overclaim copy; the 5 risky fixture lines are flagged and the 4 clean lines are not",
+    "red-capable (data-driven): mutating a clean fixture line into an MSP/PSP self-claim flips its flagged status under the SAME engine",
+    "red-capable (dogfood): the REAL rendered report does NOT FAIL the language_gate (public) -> CHECK_OK; a minimal mutation injecting '100% guaranteed' FAILs the same gate -> CHECK_REJECTED (OVERCLAIM)",
+    "minimality: reversing the single injection reproduces the clean artifact byte-for-byte (same gate, opposite verdicts)",
+    "offending spans are REDACTED in the report ([flagged: <subclass>]) so no raw overclaim string is reproduced; the report authors NO RPAA/FINTRAC/MSB/MSP/PSP status assertion",
+    "Lock 10: HTML written only to local out/, carries the DO-NOT-PUSH banner + the lint banner 'lint result, not a legal/compliance determination; publishing is founder-gated'",
+    "EMPTY-SINK guard: an empty fixture renders UNPOPULATED badges, never 0/blank as all-clear; computed counts are watermarked 'SYNTHETIC — not a guaranteed claim'",
+    "the dogfood uses scan/decide in-process, writing NO receipt into the tracked language_gate/receipts dir"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (overlay + language_gate read-only; all writes confined to catalog/builds/CO-4a)",
+    "Lock 10 commercial (generated HTML to local out/ only, visible DO-NOT-PUSH + lint banner, redacted evidence, synthetic watermark, no status/outcome claim)",
+    "no live call (no network/CF/Supabase/sends; no live TrustField repo or trustfield.ca access; gate run in-process with no receipt write)",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "engine_and_renderer": "catalog/builds/CO-4a/co4a_overclaim_lint_report.py",
+    "template": "catalog/builds/CO-4a/report_template.html",
+    "fixture": "catalog/builds/CO-4a/sample_web_copy_fixture.json",
+    "generated_report": "catalog/builds/CO-4a/out/co4a_overclaim_lint_report.html",
+    "test": "catalog/builds/CO-4a/test_co4a_overclaim_lint_report.py",
+    "red_run_canary": "catalog/builds/CO-4a/redrun-canary.txt",
+    "results": {
+      "lint_discrimination": "5 flagged (R1-R5) / 4 clean (C1-C4), matches authored expectations",
+      "clean_report_gate": "WARN (undefined-term only) -> verdict CHECK_OK, exit 0",
+      "overclaim_injected_gate": "FAIL (OVERCLAIM: '100% guaranteed certified') -> verdict CHECK_REJECTED",
+      "self_runner": "8/8 green exit 0",
+      "pytest": "8 passed",
+      "raw_trigger_leak_check": "none of the 6 raw overclaim strings appear in the rendered HTML (all redacted)",
+      "red_run_canary": "FIRED (asserting CHECK_OK on the overclaim mutant raised AssertionError, exit 1)",
+      "pollution_outside_build_dir": "none (git status tracked changes outside CO-4a == 0)"
+    }
+  },
+  "exit_gate_B4": "CO-4a done — offline block-pattern lint engine flags MSP/PSP self-claims + overclaims over a synthetic fixture, redacts the evidence, dogfoods clean through the language_gate, and rejects an injected overclaim by minimal mutation.",
+  "next_action": "CO-4b (founder-gated): live wiring against real web copy is OUT OF SCOPE for this build."
+}

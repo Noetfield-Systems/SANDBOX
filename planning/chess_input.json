@@ -1,0 +1,8 @@
+{
+  "mission": "Build the 50-idea buildable catalog in the isolated sandbox worktree, in 5 locked phases (B0 harnesses -> B1 verifiers -> B2 wiring -> B3 bridges+motors -> B4 dashboards+commercial+CI), starting with TH-1.",
+  "raw_move": "Simplify, clean, and wire governance subsystems; add validators, bridges, dashboards; enforce regulatory copy claims; populate motors; build commercial deliverables in sandbox.",
+  "immediate_goal": "Lock a phased build plan via CHESS, then start TH-1 (promotion-gate refusal-teeth pytest harness).",
+  "protected_assets": ["P0-PGR execution lock", "live Cloudflare deploys", "live Supabase workflow_census tables", "receipt immutability (append-only)", "primary checkout cursor/language-layer-v1", "founder DECIDE authority (0.2)", "author!=subject (0.1)", "no outbound sends"],
+  "explicit_removals": [],
+  "verification_after_execution": ["each verifier proven by a negative-proof fixture it rejects", "git worktree isolation intact", "no live writes/deploys/sends", "receipts advisory only, never PASS", "primary checkout untouched"]
+}

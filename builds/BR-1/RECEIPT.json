@@ -1,0 +1,31 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory bridge. Emits DRAFT packet PROPOSALS, never a governance PASS, never dispatches.",
+  "catalog_item": "BR-1", "phase": "B3 — FUSE THE BRAINS",
+  "title": "DLM -> P0-PGR packet bridge (founder-authority gated)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "precondition": "GV-6 built — BR-1 imports and REQUIRES a GV-6 CHECK_OK verdict on the apply_map",
+  "subject": {
+    "files": ["decision_language_machine_v1/dlm_apply_map_v1.py (apply_map shape)", "catalog/builds/GV-6/gv6_apply_map_fence_verify.py (the fence gate)", "receipts/p0pgr/outbox/*.json (packet shape)"],
+    "modified": false,
+    "method": "reads a persisted apply_map + processed; DLM run (in tests) redirected to temp -> zero writes to tracked DLM dirs; never calls build_apply_map"
+  },
+  "what_it_proves": [
+    "REAL default leaky apply_map (GV-6 CHECK_REJECTED, 51 silent drops) -> BR-1 REFUSES, 0 packets",
+    "GV-6-passed conformant apply_map -> 18 DRAFT packets (MACHINE_VALIDATABLE only)",
+    "NO FOUNDER_FACT ever bridged; the 2 FOUNDER_FACT + all unvalidated items go to a machine_closed_without_founder manifest for founder eyes",
+    "every packet hardcodes status=DRAFT, dispatch_now=false, authority_scope=observe; no AUTO_DISPATCH anywhere",
+    "never imports/calls build_apply_map (does not touch the founder-gated fence)"
+  ],
+  "chess_patches_applied": [
+    "consumes ONLY a GV-6-passed apply_map; refuses raw/leaky maps",
+    "bridges MACHINE_VALIDATABLE + validated-advisor only; excludes FOUNDER_FACT + unvalidated",
+    "hardcoded DRAFT / dispatch_now=false independent of apply_map status; no AUTO_DISPATCH, no cron",
+    "machine_closed_without_founder manifest emitted for founder eyes"
+  ],
+  "locks_respected": ["Lock 1 no dispatch/execution (DRAFT only)", "Lock 5 append-only (DLM dirs 0 writes, fence untouched)", "no live call", "worktree not pushed"],
+  "evidence": { "bridge": "catalog/builds/BR-1/br1_dlm_p0pgr_bridge.py", "test": "catalog/builds/BR-1/test_br1_bridge.py",
+    "red_run_canary": "catalog/builds/BR-1/redrun-canary.txt", "results": { "self_runner": "6/6", "packets_on_conformant": 18, "founder_fact_excluded": 2, "DLM_pollution": 0 } },
+  "next_action": "MO-1 (M07 prompt-registry + template compiler)"
+}

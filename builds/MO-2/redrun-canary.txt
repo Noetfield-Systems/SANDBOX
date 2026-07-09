@@ -1,0 +1,21 @@
+RED-RUN CANARY — MO-2 dead-motor detector
+
+Deliberately-wrong assertion (run against the REAL census):
+    assert res["verdict"] == "CHECK_OK" and res["dead_count"] == 0
+
+Actual detector output on data/workflow_census_extensions_v1.json:
+    verdict      = CHECK_REJECTED
+    dead_count   = 4
+    dead_motors  = ['cf_gateway_ops_v1', 'cf_gateway_heartbeat_v1',
+                    'railway_sina_gateway_v1', 'gh_gateway_railway_deadman_v1']
+
+Result:
+    AssertionError: RED-CANARY FIRED: real census is CHECK_REJECTED with 4 dead
+    motors ['cf_gateway_ops_v1', 'cf_gateway_heartbeat_v1',
+    'railway_sina_gateway_v1', 'gh_gateway_railway_deadman_v1']
+
+EXPECTED -> the canary FIRED. Four motors declare a receipt_glob that matches ZERO
+on-disk receipts, so asserting "no dead motors" correctly fails. The detector has
+teeth: it is not an always-exit-0 stub, and the two real path-glob motors
+(agent-read-staleness, auth-surface-probe) DO match receipts, so a zero-hit cannot
+be a broken-glob false-clean.

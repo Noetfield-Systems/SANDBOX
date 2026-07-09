@@ -1,0 +1,109 @@
+{
+  "schema": "p0pgr-prompt-registry-v1",
+  "version": "0.1-DRAFT",
+  "updated_at": "2026-07-09T00:00:00Z",
+  "templates": [
+    {
+      "template_id": "TPL-architecture-v1",
+      "title": "architecture packet template (compiled from 3 outbox packets)",
+      "problem_class": "architecture",
+      "lane": "SG",
+      "status": "DRAFT",
+      "packet_defaults": {
+        "execution_mode": "CLOUD_ONLY",
+        "authority_scope": "observe",
+        "model_tier": "cheap",
+        "cost_limit_usd": 5.0
+      },
+      "parameter_slots": [
+        {
+          "name": "task_specifics",
+          "description": "the concrete task text for this instance",
+          "example": "wire X as a subpage under Y"
+        },
+        {
+          "name": "target_surface",
+          "description": "the surface/route this packet acts on",
+          "example": "sourcea.app/sourcea"
+        }
+      ],
+      "evidence_basis": [
+        "P0PGR-20260708-008",
+        "P0PGR-20260708-009",
+        "P0PGR-20260708-011"
+      ],
+      "lint_status": {
+        "verdict": "PASS",
+        "linted_at": "2026-07-09T00:00:00Z"
+      }
+    },
+    {
+      "template_id": "TPL-revenue-v1",
+      "title": "revenue packet template (compiled from 2 outbox packets)",
+      "problem_class": "revenue",
+      "lane": "TrustField",
+      "status": "DRAFT",
+      "packet_defaults": {
+        "execution_mode": "CLOUD_ONLY",
+        "authority_scope": "observe",
+        "model_tier": "capable",
+        "cost_limit_usd": 5.0
+      },
+      "parameter_slots": [
+        {
+          "name": "task_specifics",
+          "description": "the concrete task text for this instance",
+          "example": "wire X as a subpage under Y"
+        },
+        {
+          "name": "target_surface",
+          "description": "the surface/route this packet acts on",
+          "example": "sourcea.app/sourcea"
+        }
+      ],
+      "evidence_basis": [
+        "P0PGR-20260708-005",
+        "P0PGR-20260708-006"
+      ],
+      "lint_status": {
+        "verdict": "PASS",
+        "linted_at": "2026-07-09T00:00:00Z"
+      }
+    },
+    {
+      "template_id": "TPL-verification-v1",
+      "title": "verification packet template (compiled from 4 outbox packets)",
+      "problem_class": "verification",
+      "lane": "SG",
+      "status": "DRAFT",
+      "packet_defaults": {
+        "execution_mode": "CLOUD_ONLY",
+        "authority_scope": "observe",
+        "model_tier": "cheap",
+        "cost_limit_usd": 4.0
+      },
+      "parameter_slots": [
+        {
+          "name": "task_specifics",
+          "description": "the concrete task text for this instance",
+          "example": "wire X as a subpage under Y"
+        },
+        {
+          "name": "target_surface",
+          "description": "the surface/route this packet acts on",
+          "example": "sourcea.app/sourcea"
+        }
+      ],
+      "evidence_basis": [
+        "P0PGR-20260708-002",
+        "P0PGR-20260708-003",
+        "P0PGR-20260708-004",
+        "P0PGR-20260708-010"
+      ],
+      "lint_status": {
+        "verdict": "PASS",
+        "linted_at": "2026-07-09T00:00:00Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+verdict on REAL registries: CHECK_REJECTED
+dangling_count: 7
+cited: ["FT-FOUNDER-TIER-ROUTING", "FT-FOUNDER-MISSION-PICK", "FT-FOUNDER-VALIDATOR-CHECK", "FT-DUP-IMPL-FOUNDER", "FT-FOUNDER-RECEIPT-READ", "FT-FOUNDER-CI-TRIAGE", "FT-FOUNDER-UNCERTAINTY"]
+EXPECTED -> RED-CANARY FIRED: real registries carry 7 dangling retires_trigger_ids -> asserting CHECK_OK correctly fails. The reconciler has teeth.

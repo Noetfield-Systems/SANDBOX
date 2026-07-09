@@ -1,0 +1,1947 @@
+{
+  "mappers": [
+    {
+      "subsystem": "CI + git hooks + GitHub automation (.github/ + .githooks/)",
+      "what_it_is": "The repo's automation control plane: five GitHub Actions workflows (all cron-scheduled or manual dispatch), one local pre-commit language gate, a Copilot instruction file, and a governance PR template. Workflows run governance/verifier scripts on a timer and upload receipts as run artifacts; the pre-commit hook runs the language gate on staged prose/receipt files. Notably, NOTHING is enforced automatically on push or pull_request via Actions \u2014 the PR-time gating surface is entirely empty.",
+      "current_state": {
+        "status": "partial",
+        "note": "5 live workflows but zero run on push/PR (all cron + workflow_dispatch). brain-loop-autorun (every 30m) is LIVE and can deploy to Cloudflare when CF_* secrets are set (BRAIN_CI_AUTONOMOUS=1) \u2014 do not touch. p0pgr-shadow-cycle is scaffolded+locked: dispatch-only, cron commented pending FOUNDER-UNLOCK-R3-CRON-SHADOW receipt, shadow=compile/lint/route with zero execution. census/staleness/auth-probe are live scheduled. The pre-commit hook exists but is INERT here: core.hooksPath is unset and no installer wires it. PR template + copilot forbidden-marker rules are documented but unenforced by any CI."
+      },
+      "key_assets": [
+        {
+          "path": ".github/workflows/brain-loop-autorun-v1.yml",
+          "kind": "worker",
+          "purpose": "Every-30-min autorun; checks out SourceA, installs wrangler, runs scripts/brain_loop_autorun_v1.sh; deploys to Cloudflare when CF_MAIN_TOKEN+CF_VERIFIER_TOKEN present (BRAIN_CI_AUTONOMOUS=1). LIVE-DEPLOY BOUNDARY \u2014 do not modify."
+        },
+        {
+          "path": ".github/workflows/p0pgr-shadow-cycle-v1.yml",
+          "kind": "worker",
+          "purpose": "Rung R2 shadow cycle. workflow_dispatch only; cron intentionally commented pending R3 founder receipt. Runs Phase-0 tests, evidence reader, p0pgr_cycle_v1 in shadow mode, then an INDEPENDENT jsonschema receipt validation. LOCKED P0-PGR execution boundary."
+        },
+        {
+          "path": ".github/workflows/sg-auth-surface-probe-v1.yml",
+          "kind": "worker",
+          "purpose": "Every-6h auth surface probe via scripts/verify_auth_surfaces_e2e_v1.py; exits 1 on FAIL, optional --fail-on-warn strict gate. The only workflow that actually fails/blocks on a status."
+        },
+        {
+          "path": ".github/workflows/workflow-census-weekly-v1.yml",
+          "kind": "worker",
+          "purpose": "Weekly (Mon 08:00) WORKFLOW_CENSUS_v1: idempotent Supabase migration + census write (--write-supabase), continue-on-error, uploads census receipt."
+        },
+        {
+          "path": ".github/workflows/agent-read-staleness-weekly-v1.yml",
+          "kind": "worker",
+          "purpose": "Weekly (Mon 09:00) agent-read staleness inspect via run_agent_read_governance_cycle_v1.sh; uploads staleness receipt + governance_stale_pointer_queue_v1.json."
+        },
+        {
+          "path": ".githooks/pre-commit",
+          "kind": "gate",
+          "purpose": "Local pre-commit language gate: runs language_gate/language_gate_pipeline_v1.py on staged .md/.mdc/.txt/.json (skips language_gate/receipts/ + node_modules). Present but not wired (core.hooksPath unset)."
+        },
+        {
+          "path": ".github/pull_request_template.md",
+          "kind": "doc",
+          "purpose": "Governance PR template: required lane declaration, motor_id_or_human_gate, task cell, receipt_id proof, and two non-duplication checkboxes. Machine-parseable fields, but no CI parses/enforces them."
+        },
+        {
+          "path": ".github/copilot-instructions.md",
+          "kind": "doc",
+          "purpose": "Agent/Copilot rules: repo-local changes, receipts immutable, canonical repo identity, and forbidden active-config marker 'kazemnezhadsina144-dot'. Unenforced by CI."
+        }
+      ],
+      "extension_points": [
+        "No push/pull_request-triggered workflow exists \u2014 the entire PR/push CI gating surface is open and unclaimed",
+        ".githooks/pre-commit shells out to language_gate/language_gate_pipeline_v1.py <file> --surface auto \u2014 same gate can be mirrored into a PR job so it runs even when the hook isn't installed",
+        "PR template fields (lane, motor_id_or_human_gate, receipt_id, two non-duplication checkboxes) are structured and greppable \u2014 ready for a template-linter job",
+        "p0pgr-shadow-cycle's 'Independent receipt validation' step (Draft202012Validator vs P0_PROMPT_LOOP_STATE_SCHEMA_v1.json) is a reusable pattern; other workflows upload receipts with NO schema validation",
+        "Every workflow ends with actions/upload-artifact over receipts/*.json globs \u2014 a central pre-upload receipt-validation hook point",
+        "copilot-instructions forbidden marker 'kazemnezhadsina144-dot' is a single greppable string \u2014 trivially gate-able",
+        "workflow_dispatch inputs (packet, strict_warn, traffic_visits_24h) are the existing parameterization surface for new dispatch entry points",
+        "core.hooksPath is unset + no installer script \u2014 an install/verify step is a clean plug-in"
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Add a pull_request-triggered 'pr-governance-lint' workflow that parses .github/pull_request_template.md fields on the PR body: fail if lane is unset/not in the allowed enum, if receipt_id is blank while autorun/done is claimed, or if the two non-duplication checkboxes are unchecked. Closes the gap where the template exists but zero CI enforces it.",
+          "builds_on": ".github/pull_request_template.md + .github/copilot-instructions.md (no existing push/PR workflow)",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a pull_request 'language-gate-ci' job that reuses the exact pre-commit logic \u2014 run language_gate/language_gate_pipeline_v1.py --surface auto over changed .md/.mdc/.txt/.json \u2014 so the gate is enforced in the cloud even for contributors who never installed the hook (currently inert since core.hooksPath is unset).",
+          "builds_on": ".githooks/pre-commit + language_gate/language_gate_pipeline_v1.py",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a reusable composite action .github/actions/validate-receipt that generalizes p0pgr-shadow-cycle's 'independent receipt validation' step (jsonschema Draft202012 vs a schema), then add a non-blocking validation step before the upload-artifact in the census, staleness, and auth-probe workflows \u2014 which currently upload receipts with no schema check.",
+          "builds_on": "p0pgr-shadow-cycle-v1.yml independent-validation step + upload-artifact receipt globs across all 4 workflows",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a tiny 'forbidden-marker' PR grep gate that fails if 'kazemnezhadsina144-dot' appears in staged/changed active config or executable paths, directly enforcing the copilot-instructions rule that is today documentation-only.",
+          "builds_on": ".github/copilot-instructions.md line 6 (forbidden active-config marker)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a scripts/install_git_hooks.sh helper (sets core.hooksPath=.githooks) plus a PR 'hooks-present' check that asserts .githooks/pre-commit exists and is executable \u2014 fixing the inert-hook state where core.hooksPath is unset and nothing wires the gate.",
+          "builds_on": ".githooks/pre-commit + unset core.hooksPath (no installer exists)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a pull_request dry-run smoke job that runs scripts/workflow_census_v1.py --json WITHOUT --write-supabase/--write-receipt and runs the auth probe in report-only mode, so census/probe script regressions are caught on PR without any Supabase write or deploy. (Wiring the P0-PGR shadow cycle itself onto PR would instead be phase-unsafe \u2014 it invokes the locked P0-PGR pipeline \u2014 so it is deliberately excluded.)",
+          "builds_on": "workflow-census-weekly-v1.yml + sg-auth-surface-probe-v1.yml (their scripts already support --json / report-only flags)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "decision_language_machine_v1",
+      "what_it_is": "A deterministic, LLM-free 8-stage Python pipeline that turns messy decision backlogs (form rows, chat forks, audit findings, agent questions, markdown bullets) into a reduced founder-review sheet plus a validation-gated apply-map. Each stage emits a JSON receipt. Its stated thesis is \"the form is not the product, the machine is the product\" \u2014 it normalizes raw statements, rewrites jargon to plain English, checks terminology against the sibling language_gate dictionary, clusters duplicates, classifies each item into MACHINE_VALIDATABLE / ADVISOR_REVIEW / FOUNDER_FACT / DEFER, and only presents advisor clusters + founder facts to the founder while machine-closing the rest.",
+      "current_state": {
+        "status": "live",
+        "note": "Runs end-to-end via `python3 dlm_v1.py <input>`; 8 committed sample runs exist under output/ and receipts/ (committed Jul 8 2026, commit 4ad2f5c). It is a working v1 but rule-based: clustering (THEME_RULES) and classification (FOUNDER_FACT/DEFER/ADVISOR/MACHINE_EVIDENCE pattern lists) are hardcoded regex tuned to one founder corpus, so it won't generalize to new corpora without editing those lists. Two hard couplings/caveats: (1) dlm_terms_v1.py imports the OUT-OF-SCOPE sibling language_gate/ (language_gate_core_v1.py + dictionary_index.json) for the dictionary check \u2014 that dependency exists on disk and resolves; (2) committed output manifests carry a stale absolute path (/Users/.../Desktop/Noetfield-Systems/...) from an earlier machine, so old artifacts are cosmetically stale though the code recomputes paths correctly at runtime. The apply-map stage is deliberately fenced: it never auto-submits FORM_OFFICIAL and blocks on unvalidated advisor/founder picks unless partial_batch is on."
+      },
+      "key_assets": [
+        {
+          "path": "decision_language_machine_v1/dlm_v1.py",
+          "kind": "cli",
+          "purpose": "argparse entry point; flags --validated-picks, --skip-apply-map, --no-partial-batch, --json; calls run_pipeline"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_pipeline_v1.py",
+          "kind": "script",
+          "purpose": "orchestrates the 8 stages in order, writes a stage receipt per stage plus founder_sheet/processed/apply_map/manifest outputs, returns summary dict"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_core_v1.py",
+          "kind": "schema",
+          "purpose": "canonical dataclasses (DecisionItem, ProcessedItem, Cluster), ItemSource enum, CLASSIFICATIONS + STAGES constants, run-id/receipt/manifest writers (write_stage_receipt, write_run_manifest), OUTPUT_DIR/RECEIPTS_DIR"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_intake_v1.py",
+          "kind": "script",
+          "purpose": "normalizes 4+ input shapes (form open_questions, backlog items/decisions/rows JSON, FORM_OFFICIAL markdown sections, plain markdown bullet lines) into DecisionItem list; load_items() dispatches by suffix/content"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_plain_english_v1.py",
+          "kind": "script",
+          "purpose": "jargon rewrite pass; JARGON_REPLACEMENTS + ACRONYM_EXPAND tables, option simplification, 45-word/320-char truncation"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_terms_v1.py",
+          "kind": "script",
+          "purpose": "term extraction + dictionary check; imports language_gate_core_v1 allowlists/TERM_RE/load_dictionary; emits per-term status DICTIONARY_OK / ALIAS_RETIRED / RETIRED / DICTIONARY_FIX_NEEDED and a fix_needed flag"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_cluster_v1.py",
+          "kind": "script",
+          "purpose": "keyword-scored clustering into 12 hardcoded THEME_RULES buckets (+ CLUSTER-OTHER / CLUSTER-FOUNDER-FACT / CLUSTER-DICT-FIX fallbacks); merges member questions and controls"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_classify_v1.py",
+          "kind": "script",
+          "purpose": "ordered pattern cascade classifying each item into FOUNDER_FACT / DEFER / MACHINE_VALIDATABLE / ADVISOR_REVIEW with a reason + evidence_hint; four regex pattern lists drive it"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_founder_sheet_v1.py",
+          "kind": "script",
+          "purpose": "builds the reduced founder sheet (advisor clusters + founder facts only, machine/deferred as id lists) as JSON and renders markdown via render_founder_sheet_md"
+        },
+        {
+          "path": "decision_language_machine_v1/dlm_apply_map_v1.py",
+          "kind": "gate",
+          "purpose": "validation fence: load_validated_picks parses multiple pick formats; build_apply_map produces READY/EMPTY/BLOCKED_UNVALIDATED, lists machine_closed_without_founder, never auto-submits FORM_OFFICIAL"
+        },
+        {
+          "path": "decision_language_machine_v1/test_fixtures/form_official_80_open_v1.json",
+          "kind": "test",
+          "purpose": "80-item FORM_OFFICIAL open-questions corpus (primary fixture; produces 10 advisor clusters, 38 machine-validatable, 2 founder facts)"
+        },
+        {
+          "path": "decision_language_machine_v1/test_fixtures/messy_backlog_sample_v1.json",
+          "kind": "test",
+          "purpose": "small mixed-source corpus (audit_finding, chat_fork, agent_question, backlog) exercising every intake path"
+        },
+        {
+          "path": "decision_language_machine_v1/receipts/",
+          "kind": "data",
+          "purpose": "per-stage receipt store: {run_id}.{stage}.{scan_id}.receipt.json, one per stage per run (schema decision_language_machine_stage_receipt_v1)"
+        },
+        {
+          "path": "decision_language_machine_v1/output/",
+          "kind": "data",
+          "purpose": "per-run artifacts: {run_id}.manifest.json / .founder_sheet.json+.md / .processed.json / .apply_map.json"
+        }
+      ],
+      "extension_points": [
+        "dlm_plain_english_v1.py: JARGON_REPLACEMENTS list + ACRONYM_EXPAND dict \u2014 add domain jargon/acronym rewrites without touching pipeline wiring",
+        "dlm_cluster_v1.py: THEME_RULES list of (cluster_id, name, keywords) \u2014 append new decision themes; assign_cluster/build_clusters pick them up automatically",
+        "dlm_classify_v1.py: the four pattern lists (FOUNDER_FACT_PATTERNS, MACHINE_EVIDENCE_PATTERNS with hints, DEFER_PATTERNS, ADVISOR_PATTERNS) \u2014 tune routing by editing regex; classify_item cascade is fixed but data-driven",
+        "dlm_intake_v1.py: add a from_<source>() loader and wire it into load_items() suffix/content dispatch to support new input formats (CSV, JSONL, receipt streams)",
+        "dlm_core_v1.py: STAGES tuple + write_stage_receipt() \u2014 insert a new pipeline stage and it inherits receipt/manifest plumbing for free",
+        "dlm_founder_sheet_v1.py: render_founder_sheet_md() is the render seam \u2014 add render_founder_sheet_html() (or other formats) reading the same sheet dict",
+        "dlm_apply_map_v1.py: load_validated_picks() format handlers + SKIP_KEYS \u2014 add new validated-pick input schemas without changing the fence logic",
+        "language_gate/dictionary_index.json (out of scope, read by dlm_terms_v1.py) \u2014 dictionary entries flow directly into DICTIONARY_FIX_NEEDED / ALIAS_RETIRED / RETIRED statuses"
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Add render_founder_sheet_html() beside render_founder_sheet_md() in dlm_founder_sheet_v1.py and have the pipeline also write output/{run_id}.founder_sheet.html \u2014 a single self-contained page showing advisor clusters, options, founder facts, and the machine/deferred counts. Directly satisfies the founder's standing rule that 'presentation' means a simple HTML page, not a deck.",
+          "builds_on": "dlm_founder_sheet_v1.py (render_founder_sheet_md + build_founder_sheet dict), dlm_pipeline_v1.py sheet-writing block",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build dlm_eval_v1.py: a golden-fixture harness that adds an expected_classification (and expected cluster) field per item in the test fixtures, runs the pipeline, and diffs actual vs expected classification counts/labels, emitting an eval receipt. Turns the hardcoded regex classifier into something regression-testable before anyone tunes the pattern lists.",
+          "builds_on": "dlm_classify_v1.py cascade, test_fixtures/*.json, write_stage_receipt in dlm_core_v1.py",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a DICTIONARY_FIX_NEEDED batch emitter stage that aggregates every DICTIONARY_FIX_NEEDED / ALIAS_RETIRED / RETIRED term across all items into output/{run_id}.dictionary_batch.json as a proposal file (proposed canonical entries + source item ids) \u2014 proposal only, never writing to language_gate/dictionary_index.json. The 80-item fixture already surfaces 62 fix-needed items, so this closes the biggest bucket of open work.",
+          "builds_on": "dlm_terms_v1.py check_terms statuses + dictionary_flags, dictionary_fix_needed counts already in the pipeline",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Extend classify_item to record which rule fired (cluster-forced vs which named pattern vs default-defer) and a confidence tier, surfaced in processed.json and flagged on the founder sheet so low-confidence DEFER/ADVISOR items are visibly 'guessed'. Makes the opaque regex cascade auditable and tells the founder where the machine is least sure.",
+          "builds_on": "dlm_classify_v1.py ordered cascade (classification_reason/evidence_hint already exist), dlm_founder_sheet_v1.py rendering",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Write an apply-map round-trip validator (dlm_verify_apply_map_v1.py) that loads an emitted apply_map.json + the source backlog and asserts the invariants: every ADVISOR_REVIEW/FOUNDER_FACT id is either in picks or missing_ids, machine_closed_without_founder never overlaps picks, and status is never a FORM_OFFICIAL auto-submit \u2014 emitting a verification receipt. Hardens the one governance fence in the whole subsystem.",
+          "builds_on": "dlm_apply_map_v1.py build_apply_map/load_validated_picks + SKIP_KEYS, write_stage_receipt",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a from_jsonl()/from_csv() intake adapter and wire it into load_items() suffix dispatch so backlogs exported as line-delimited rows (a common form/agent export shape) flow through unchanged. Extends reach without touching any downstream stage.",
+          "builds_on": "dlm_intake_v1.py loader pattern (from_form_open_questions/from_backlog_json) + load_items dispatch",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "Edge verifier worker + Supabase census layer (workers/ + infrastructure/)",
+      "what_it_is": "Two coupled pieces of the governance SSOT's trust/judging layer. (1) workers/github-app-advisory is a Cloudflare Worker acting as the INDEPENDENT second-account verifier in the brain-worker promotion chain: it authenticates as GitHub App 4179901 (installation 143449507), mints an installation token at the edge, pulls the SSOT and candidate artifacts (knowledge bundles + brain-worker code) from Noetfield-Systems/sina-governance-SSOT and Noetfield-Systems/SourceA, recomputes SHA256 over them, validates them against a declared artifact descriptor, and writes a PASS/FAIL/MATCH/BLOCKED advisory receipt to KV. PASS is only granted when it proves it ran on the SECONDARY CF account (b7282b4a5c17b84d62e3ef8866b878f8) and at the edge (cf-ray + WORKER_URL match) \u2014 i.e. runtime separation from the main SourceA account. (2) infrastructure/supabase/migrations/001_workflow_census_v1.sql is the WORKFLOW_CENSUS_v1 judging schema (per-loop rows + weekly rollups with deterministic GREEN/YELLOW/RED audit flags) that names every loop's receipt and value_class, populated weekly into the noetfield Supabase project.",
+      "current_state": {
+        "status": "partial",
+        "note": "Both pieces are LIVE but sit on locked/live surfaces. Advisory worker is deployed and serving on the secondary CF account (b7282b4a5c17b84d62e3ef8866b878f8) at sina-governance-ssot-advisory.kazemnezhadsina144.workers.dev \u2014 DEPLOYMENT_CHAIN_STATUS_v1.md shows it 'up; pass_claimed: false (gate)', and its /receipt/latest is consumed by gates/promotion_gate.py, so it is load-bearing in the LOCKED promotion path (promote gate correctly BLOCKED until verifier PASS). Census schema + workflow-census-weekly-v1 GH cron (Mon 08:00) write live to Supabase tkgpapowwplupyekpivy. Editing/redeploying index.js or writing to the live census tables is NOT sandbox-safe; offline harnesses over the same code/schema are."
+      },
+      "key_assets": [
+        {
+          "path": "workers/github-app-advisory/index.js",
+          "kind": "worker",
+          "purpose": "Cloudflare Worker: GitHub-App JWT/installation-token minting, SSOT+artifact SHA256 recompute, knowledge-bundle & brain-worker-bundle validation, edge/secondary-account PASS proof, receipt write to KV; routes /run, /receipt/latest, default info"
+        },
+        {
+          "path": "wrangler.github-app-advisory.jsonc",
+          "kind": "config",
+          "purpose": "Wrangler config pinning the worker to secondary CF account b7282b4a5c17b84d62e3ef8866b878f8, WORKER_URL, observability, and KV namespace RECEIPTS (id cf97659f15f14d06be4400caad4823c2)"
+        },
+        {
+          "path": "infrastructure/supabase/migrations/001_workflow_census_v1.sql",
+          "kind": "schema",
+          "purpose": "WORKFLOW_CENSUS_v1 tables: workflow_census_v1 (per-loop: host/schedule/cost/receipt_target/value_class enums) + workflow_census_runs_v1 (weekly rollup with audit_flags jsonb + audit_status GREEN/YELLOW/RED)"
+        },
+        {
+          "path": "scripts/workflow_census_v1.py",
+          "kind": "script",
+          "purpose": "Weekly census motor that classifies every loop and writes rows/rollups (--write-receipt --write-supabase --json); the populator behind the census schema"
+        },
+        {
+          "path": "scripts/apply_workflow_census_migration_v1.py",
+          "kind": "script",
+          "purpose": "Idempotent asyncpg applier for 001_workflow_census_v1.sql via NOETFIELD_SUPABASE_DATABASE_URL"
+        },
+        {
+          "path": ".github/workflows/workflow-census-weekly-v1.yml",
+          "kind": "config",
+          "purpose": "Mon 08:00 cron that applies the migration then runs the census against the noetfield Supabase secrets"
+        },
+        {
+          "path": "gates/promotion_gate.py",
+          "kind": "gate",
+          "purpose": "Consumer of the worker's /receipt/latest; enforces candidate_ref/path/sha + secondary-account/edge proof before any brain-worker deploy (referenced by promote_brain_worker_v1.sh)"
+        },
+        {
+          "path": "scripts/validate-governance-public-e2e-v1.sh",
+          "kind": "script",
+          "purpose": "E2E that reads VERIFIER_RECEIPT_URL=/receipt/latest and runs the public proof chain against the secondary CF account"
+        }
+      ],
+      "extension_points": [
+        "fetch() route table in index.js \u2014 currently only /run, /receipt/latest, and default info; new read-only routes (/health, /receipt/<id>, /receipts index) plug in here",
+        "ALLOWED_ARTIFACT_TYPES Set (currently knowledge_bundle, brain_worker_bundle) + matching validate* branch in buildReceipt \u2014 new artifact types slot in",
+        "ALLOWED_CANDIDATE_REPOS Set (Noetfield-Systems/sina-governance-SSOT + /SourceA) \u2014 additional repos to verify",
+        "validateKnowledgeBundleBytes dual-shape check (legacyChunk || sourceaChunk) \u2014 a third bundle chunk shape plugs into the same OR pattern; KNOWLEDGE_BUNDLE_LIMITS caps are one constant",
+        "edgeMetadata() PASS-eligibility predicate (edge_execution_proven && secondary_account_proven) \u2014 the trust criteria surface",
+        "buildReceipt() receipt schema \u2014 new fields/checks and status transitions (PASS/MATCH/FAIL/BLOCKED)",
+        "KV RECEIPTS store \u2014 only receipt:<id> and latest today; indexable/listable",
+        "workflow_census_v1 host CHECK enum + value_class enum + metadata jsonb, and workflow_census_runs_v1 audit_flags jsonb + audit_status enum \u2014 new hosts, value classes, and deterministic audit rules extend here",
+        "workflow-census-weekly-v1.yml workflow_dispatch inputs (traffic_visits_24h) \u2014 additional founder-snapshot inputs feed the census"
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Offline receipt-replay verifier harness: lift the pure functions from index.js (validateArtifactDescriptor, validateKnowledgeBundleBytes, sha256FromSortedHashMap, edgeMetadata) into a Node test module and replay captured receipts (receipts/step6-deliberate-non-pass-receipt.json, step8-tampered-independence-receipt.json) to re-derive status/PASS math without hitting GitHub or the live edge. Gives a regression test for the verifier logic.",
+          "builds_on": "workers/github-app-advisory/index.js validation functions + existing receipts/*.json fixtures",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Knowledge-bundle shape linter CLI: a standalone command that runs index.js's exact validateKnowledgeBundleBytes checks (both legacy and sourcea chunk shapes, KNOWLEDGE_BUNDLE_LIMITS caps) against a local candidate bundle file so authors get the pass/fail checks map BEFORE POSTing to the live /run worker.",
+          "builds_on": "validateKnowledgeBundleBytes + KNOWLEDGE_BUNDLE_LIMITS in workers/github-app-advisory/index.js",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Census dashboard as a simple HTML page rendering the weekly rollup: value_class breakdown (REVENUE/GUARD/META/NONE), cost_usd_month per class, and audit_status GREEN/YELLOW/RED from receipts/workflow-census-latest-summary.json + the workflow_census_runs_v1 shape. Pure read, no DB writes.",
+          "builds_on": "infrastructure/supabase/migrations/001_workflow_census_v1.sql + scripts/workflow_census_v1.py --json output",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Advisory-verifier-as-census-row generator: emit a workflow_census_v1 upsert payload for the verifier worker itself (host='cloudflare', receipt_target='/receipt/latest', value_class='GUARD', schedule='on /run') by reading a captured receipt; the census is meant to name every loop and this GUARD loop is currently unnamed. Produce the payload only (run against a sandbox DB, not live noetfield Supabase).",
+          "builds_on": "worker /receipt/latest schema + workflow_census_v1 table columns",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Deterministic census audit-rule expansion: add standing-audit flags to workflow_census_runs_v1.audit_flags (e.g. value_class='NONE' loop still costing >$0/mo; last_receipt_at staler than its schedule cadence) computed in workflow_census_v1.py, tested offline against a fixture census run so audit_status transitions are verifiable before any live write.",
+          "builds_on": "workflow_census_runs_v1 audit_flags/audit_status schema + scripts/workflow_census_v1.py",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a new artifact_type (e.g. 'census_snapshot') to ALLOWED_ARTIFACT_TYPES with a validator branch so the independent worker can also attest census-run receipts from the secondary account, extending runtime-separated verification beyond brain workers. Requires editing and redeploying the LIVE secondary-account worker and wiring it into the promotion/verify path, so not sandbox-safe.",
+          "builds_on": "ALLOWED_ARTIFACT_TYPES + buildReceipt artifact branches in workers/github-app-advisory/index.js",
+          "effort": "L",
+          "value": "med",
+          "phase_safe": false
+        }
+      ]
+    },
+    {
+      "subsystem": "In-repo Agent Skills + macOS desktop eval/audit apps (the auditing & skill-packaging layer)",
+      "what_it_is": "Seven Claude Code Agent Skills (SKILL.md = YAML frontmatter + markdown playbook) that wrap the repo's Python governance-enforcement scripts so an agent runs and interprets them correctly (real numbers + escalation posture) instead of skimming for a bare PASS/FAIL. Four of the audit skills are also packaged as double-click macOS .app bundles: a bash launcher runs a generate.py that shells the underlying script read-only and renders a live HTML dashboard to /tmp. One skill (pr-conflict-resolver) additionally ships an eval harness proving a +0.24 pass-rate lift versus no-skill.",
+      "current_state": {
+        "status": "partial",
+        "note": "Skills themselves are LIVE and complete: every script/data file they wrap was verified to exist on disk (audit_receipt_ledger_v1.py, agent_read_staleness_engine_v1.py, verify_agent_read_staleness_v1.sh, validate_parallel_automation_governance_v1.py, audit_automation_surface_v1.py, check.py, and all 5 referenced data/*.json). BUT: (1) only 1 of the 4 audit skills (pr-conflict-resolver) has an evals/ harness \u2014 the other three have none. (2) All 4 desktop apps HARDCODE REPO=/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sina-governance-SSOT (the founder's Desktop clone, NOT this worktree) \u2014 verified that path exists, so they run only on the founder's Mac against a different checkout. (3) The PR-Conflict-Resolver app is the odd one out: it ships a frozen 85KB static report.html and does NOT regenerate, while the other three regenerate live each launch. (4) .app bundles are unsigned and hand-maintained \u2014 no build/packaging script exists in-tree; STYLE CSS + launcher bash are copy-pasted across bundles. Note: the four audit skills are in-repo files but are NOT in this session's active skill list, whereas the adjacent p0pgr-* trio is."
+      },
+      "key_assets": [
+        {
+          "path": "skills/pr-conflict-resolver/SKILL.md",
+          "kind": "skill",
+          "purpose": "Governance-aware git merge-conflict playbook: classifies each conflicted file (append-only receipt / structured registry / LOCKED canon / generated artifact / ordinary code / lane doc), does structural JSON registry merge via git show :2:/:3:, and escalates duplicate-owner / LOCKED conflicts instead of auto-picking."
+        },
+        {
+          "path": "skills/staleness-gate-auditor/SKILL.md",
+          "kind": "skill",
+          "purpose": "Wraps verify_agent_read_staleness_v1.sh / agent_read_staleness_engine_v1.py; interprets blocker_count vs warn_count vs alive_surfaces, and flags the missing_read_surface false-blocker caveat for sibling-repo docs in sandboxed sessions."
+        },
+        {
+          "path": "skills/receipt-ledger-auditor/SKILL.md",
+          "kind": "skill",
+          "purpose": "Wraps audit_receipt_ledger_v1.py; interprets malformed_count / missing_timestamp_count / cluster_count (cross-motor same-second collisions) as post-hoc single-tree analog of the pr-conflict-resolver collision signal."
+        },
+        {
+          "path": "skills/registry-motor-validator/SKILL.md",
+          "kind": "skill",
+          "purpose": "Wraps validate_parallel_automation_governance_v1.py + audit_automation_surface_v1.py; enforces L1 (one writer per task cell) and L4 (registry is routing truth): duplicate motor_id, unregistered workflow, missing task cell."
+        },
+        {
+          "path": "skills/pr-conflict-resolver/evals/evals.json",
+          "kind": "test",
+          "purpose": "4-scenario eval suite (L1 registry violation, receipt-filename collision, LOCKED doc, generated sidecar) with per-scenario expectations[] \u2014 the schema template any other skill's evals would mirror."
+        },
+        {
+          "path": "skills/pr-conflict-resolver/evals/benchmark.json",
+          "kind": "test",
+          "purpose": "Benchmark run output: with-skill 100% vs without-skill 76% pass rate (+0.24), 3 runs/config, with per-expectation evidence and analyst notes on which evals discriminate."
+        },
+        {
+          "path": "desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py",
+          "kind": "script",
+          "purpose": "Reference generator pattern: subprocess.run([python3, scripts/<engine>, --json, --fail-on never], cwd=REPO) then renders a stat-row + blockers/warns/alive tables to /tmp/*.html. Read-only (no --write-receipt/--write-queue)."
+        },
+        {
+          "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py",
+          "kind": "script",
+          "purpose": "Same live-dashboard pattern for the receipt ledger audit (clusters/malformed/missing-timestamp cards); shares the identical STYLE CSS block with the other two generators."
+        },
+        {
+          "path": "desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py",
+          "kind": "script",
+          "purpose": "Runs both governance validators and shows dual PASS/FAIL mini-badges + raw stdout/stderr; notes that audit_automation_surface_v1.py writes its own receipt each run by design."
+        },
+        {
+          "path": "desktop-app/PR-Conflict-Resolver-Report.app/Contents/Resources/report.html",
+          "kind": "data",
+          "purpose": "Frozen 85KB static eval report (does NOT regenerate) \u2014 the only bundle that ships a snapshot instead of a live generate.py."
+        },
+        {
+          "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/MacOS/launcher",
+          "kind": "script",
+          "purpose": "Bash launcher template (near-identical across all 4 apps): runs generate.py, then opens the /tmp HTML as a chromeless Chrome/Edge/Brave --app window with fallback to the OS default handler."
+        },
+        {
+          "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/Info.plist",
+          "kind": "config",
+          "purpose": "macOS bundle metadata (CFBundleIdentifier systems.noetfield.sg.*, CFBundleExecutable launcher, unsigned) \u2014 the manifest that would be stamped by any bundle-build script."
+        }
+      ],
+      "extension_points": [
+        "Add a new skills/<name>/SKILL.md dir with the established frontmatter (name / description / compatibility) to register a new governance capability \u2014 the compatibility: block already declares the exact scripts+data a skill depends on.",
+        "generate.py contract: each wraps a script that emits --json and renders HTML to /tmp/<slug>-report.html; a new dashboard plugs onto any script that speaks --json.",
+        "The single REPO = Path('/Users/.../Desktop/.../sina-governance-SSOT') constant in all 3 live generate.py is the one pin point to parameterize (env var / git rev-parse / bundle-relative).",
+        "The identical STYLE CSS block (duplicated verbatim across 3 generate.py) and the near-identical launcher bash + Info.plist are factor-out points for a shared template.",
+        "evals/ schema (id / prompt / expected_output / expectations[] in evals.json; run_summary delta in benchmark.json) is a reusable harness \u2014 currently only pr-conflict-resolver uses it.",
+        "The four audit surfaces (staleness, receipt-ledger, registry/motor, pr-conflict) each already produce a machine JSON verdict, so they can be chained into one roll-up console or a single combined receipt.",
+        "compatibility: frontmatter lists each skill's required scripts/data \u2014 a lint pass can cross-check those declarations against files actually on disk."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Build the 3 missing eval suites (staleness-gate-auditor, receipt-ledger-auditor, registry-motor-validator) mirroring skills/pr-conflict-resolver/evals/ \u2014 e.g. staleness: a stale-law pattern matching an ACTIVE surface must be reported as a named blocker not a bare FAIL; receipt-ledger: a cross-type same-second cluster must be surfaced not auto-picked; registry: a duplicate motor_id must be called an L1 violation. Gives all four skills the same +pass-rate evidence pr-conflict-resolver has.",
+          "builds_on": "skills/pr-conflict-resolver/evals/{evals.json,benchmark.json,benchmark.md}",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Ship a unified 'Governance Console' HTML dashboard (or 5th .app) that runs all three live generate.py scripts plus a pr-conflict summary and shows one CLEAN/FINDINGS roll-up with the four sub-badges \u2014 the four generators already emit a common badge/stat-row vocabulary, so it's a compose, not a rewrite. All wrappers stay read-only (no --write-receipt), so it never mutates the tree.",
+          "builds_on": "the three generate.py live-dashboard scripts + shared STYLE block + launcher pattern",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "De-pin the apps: change the hardcoded REPO constant in all 3 generate.py to resolve the repo root from a NOETFIELD_SG_REPO env var, then git rev-parse --show-toplevel, then bundle-relative fallback \u2014 so the apps run on any checkout (incl. sandboxes/CI) instead of only the founder's Desktop clone. Small, surgical, unblocks every other app idea.",
+          "builds_on": "REPO = Path('/Users/.../Desktop/.../sina-governance-SSOT') in the 3 generate.py + the launcher's DIR resolution",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Give PR-Conflict-Resolver-Report.app parity with the other three: replace its frozen 85KB static report.html with a generate.py that renders skills/pr-conflict-resolver/evals/benchmark.json live (pass-rate delta, per-eval expectations, analyst notes) so reopening the app reflects the latest benchmark run instead of a snapshot.",
+          "builds_on": "evals/benchmark.json + the generate.py render pattern from the other bundles",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a build/packaging script (scripts or desktop-app/build.py) that stamps out a .app bundle from a shared launcher template + shared STYLE.css + a per-app config (name, bundle id, generator) \u2014 eliminating the copy-pasted CSS/launcher/Info.plist and making a new audit-app a one-line config addition. Codifies the currently hand-maintained bundle layout.",
+          "builds_on": "the 3 identical STYLE blocks, 4 near-identical launcher scripts, and the *.app/Contents/Info.plist manifests",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Write a skill-manifest self-linter (skill + tiny script) that parses every skills/*/SKILL.md compatibility: block and asserts each referenced script/data path actually exists on disk \u2014 catching a skill that points at a moved/renamed script, which is the same 'authority pointing at something that no longer resolves' failure mode staleness-gate-auditor exists to catch, but applied to the skills layer itself. I verified the wrapped files exist today; this keeps it true.",
+          "builds_on": "the compatibility: frontmatter in all 7 SKILL.md files + the existence-check pattern (all wrapped scripts/data confirmed present)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "D4 Independent Verifier + Promotion Gate",
+      "what_it_is": "The trust boundary between a sandbox-authored candidate artifact (knowledge_bundle / brain_worker_bundle) and a live production Worker deploy. An independent verifier \u2014 a Cloudflare Worker running on a SECONDARY CF account (b7282b4a...), authing via a GitHub App installation token, whose source lives remotely in SourceA (not in this repo) \u2014 emits signed receipts proving edge execution, account independence, and candidate-hash match. The promotion gate (gates/promotion_gate.py) is a local Python CLI that fetches that receipt and REFUSES to deploy unless it passes a battery of invariants (status/result==PASS, pass_claimed, edge_execution_proven, secondary_account_proven, cf_account_id, candidate_ref/path/sha256, no failures), then optionally executes a founder-confirmed / semi-auto-window / autonomous deploy and writes a deploy receipt. verifier/ holds the specs, JSON Schema, and independence birth-receipt; gates/ holds the enforcement engine.",
+      "current_state": {
+        "status": "partial",
+        "note": "The gate (gates/promotion_gate.py, 763 lines) is LIVE and exercised: it has real callers (scripts/promote_brain_worker_v1.sh) and has produced real deploy receipts (receipts/phase0.3-step10a-watched-deploy-receipt.json shows deploy_executed:true, and even caught a FAILED_INVARIANT content-identity mismatch). Confirm-each-time and semi-auto-window modes work. But the AUTONOMOUS deploy path is LOCKED behind flags (~/.sina/brain-autonomous-deploy-v1.flag) and step7 note states autonomous gate-triggered deploy is Step 10, 'founder-gated and not yet authorized'. The verifier side (verifier/) is SPEC/SCAFFOLD: knowledge-bundle-spec-v0.1.md and brain-worker-code-spec-v0.1.md are v0.1 SPEC docs ('Status: SUBMITTED / SPEC / NO LIVE DEPLOY'); the code that actually ENFORCES those specs is not in verifier/ (it lives in the remote Worker). The birth receipt is REMOTE_CHECK_ADVISORY with pass_claimed:false. Live Cloudflare deploys and the P0-PGR runtime are locked/out-of-scope."
+      },
+      "key_assets": [
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/gates/promotion_gate.py",
+          "kind": "gate",
+          "purpose": "The entire promotion gate: refusal_reasons() (receipt PASS/FAIL invariants), independence/rollback/autonomous refusals, source_refusal_reasons() (clean-main + dirty-tree guard + committed-vs-worktree-vs-expected sha256), bundle-artifacts-only allowlist, execute_deploy_flow() (pre/post live version diff, IDENTITY_MISMATCH, health, brain-live smoke, post-promote hook, mac SIGKILL recovery, autonomous-hold-on-fail), write_deploy_receipt(). Emits PROMOTION_GATE: REFUSED / BLOCKED / APPROVED_* lines with exit codes 2-6."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/gates/cf_tokens.py",
+          "kind": "config",
+          "purpose": "Loads CF_MAIN_TOKEN / CF_VERIFIER_TOKEN / CLOUDFLARE_API_TOKEN from ~/.sina/secrets/cloudflare-tokens.env into env without printing values; the main-vs-verifier token split enforces the two-account independence boundary."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/knowledge-bundle-spec-v0.1.md",
+          "kind": "doc",
+          "purpose": "SPEC for a knowledge_bundle candidate: two accepted shapes (original proposal + current SourceA Brain), size bounds (2 bytes-1MB, <=2000 chunks, <=20000 char/chunk), must-parse rules, required chunk metadata + content_sha256, hash rule (submitted bytes SHA256 must equal descriptor proposed_sha256), and the 11 required verifier-receipt fields. Prose only; no executable validator in-repo."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/brain-worker-code-spec-v0.1.md",
+          "kind": "doc",
+          "purpose": "SPEC for brain_worker_bundle (4-file deploy set: index.js, guardrails.js, brain-core-gate-v1.js, knowledge-bundle.json). Defines the three-hash rule: worker_code_sha256 and proposed_sha256 = SHA256 of a compact, sorted-keys JSON object mapping each path->its SHA256. PASS when remote bytes at candidate_ref match all three hashes + bundle validation. Points to receipts/verifier-independence-proof-latest.json."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+          "kind": "schema",
+          "purpose": "JSON Schema 2020-12 for the sandbox->verifier submission descriptor. additionalProperties:false; author_id const 'sandbox', subject const 'live Worker', artifact_type const 'knowledge_bundle', candidate_repo enum (SSOT or SourceA), proposed/base sha256 patterns. This is the machine-checkable candidate contract."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/independent-verifier-birth-receipt-61d95d74.json",
+          "kind": "data",
+          "purpose": "The independence birth proof: REMOTE_CHECK_ADVISORY, verifier_runtime cloudflare_worker, credential github_app_installation_token, secondary cf_account b7282b4a..., edge proof via cf_ray/cf_colo=YVR/TLSv1.3, edge_execution_proven+secondary_account_proven=true, pass_eligible:true but pass_claimed:false (advisory-only)."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/step7-manual-live-deploy-note-v0.1.md",
+          "kind": "doc",
+          "purpose": "Records the live Brain baseline (514 chunks live, version 628ebc37..., MAIN CF account 0d0b967b vs verifier secondary b7282b4a \u2014 'must not be merged'), that Step 7 was a founder-approved MANUAL deploy (not gate-triggered), and names the next step: 'Step 8: gate refusal teeth \u2014 feed a non-PASS receipt and prove the gate blocks deploy; does not require the live SourceA repo.'"
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/receipts/verifier-independence-proof-latest.json",
+          "kind": "data",
+          "purpose": "SEAM (out of gates/ but consumed by it): the gate's default --independence-receipt-path. Must be result/status==PASS, secondary_account_proven=true, recorded_at fresh (<=30d default) or the gate refuses any deploy. Regenerated by scripts/prove_verifier_independence_v1.sh."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/data/brain_domain_sandboxes_v1.json",
+          "kind": "data",
+          "purpose": "SEAM: the sandbox registry. Each row (brain_worker, knowledge_bundle, locked_definitions, contract_pages, pattern_export) carries a gate_profile (deploy_command, source_bundle_path, bundle_artifacts_only, post_promote_command, brain_live_smoke_default) that apply_sandbox_profile() loads by --sandbox-id. Adding a row creates a new promotion lane with zero gate code change."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_autonomous_controls_v1.py",
+          "kind": "script",
+          "purpose": "SEAM: the flag API the gate imports \u2014 autonomous_deploy_enabled(), autonomous_hold_active(), set_autonomous_hold(), clear_autonomous_hold(), mutation_trials_enabled(). Backed by ~/.sina/brain-autonomous-deploy-v1.flag and ~/.sina/enforcement/brain-autonomous-hold-v1.flag; this is the lock keeping autonomous deploy disabled."
+        }
+      ],
+      "extension_points": [
+        "Sandbox registry rows in data/brain_domain_sandboxes_v1.json -> gate_profile, loaded by apply_sandbox_profile(): a new row adds a full promotion lane (deploy_command, source_bundle_path, post_promote_command, bundle_artifacts_only, smoke default) without touching gate code.",
+        "artifact_type dispatch inside refusal_reasons(): currently handles 'knowledge_bundle' and adds extra hash checks (worker_code_sha256, knowledge_bundle_sha256) for 'brain_worker_bundle'. New artifact types plug in here paired with a new spec doc in verifier/.",
+        "The verifier->gate receipt field contract (status, result, pass_claimed, edge_execution_proven, secondary_account_proven, cf_account_id, candidate_ref/path/sha256, candidate_validation_failures, failures): any new deploy invariant = one new emitted field + one new check line.",
+        "The descriptor JSON Schema (verifier/brain-config-artifact-descriptor-schema-v0.1.json): the machine-checkable sandbox-submission contract; new fields/artifact_type consts extend it.",
+        "post_promote_command hook in execute_deploy_flow()/run_post_promote_command(): runs arbitrary post-deploy validation (e.g. promote_locked_definitions_v1.py, validate-sourcea-contract-pages-e2e-v1.sh) \u2014 a generic post-promotion validator seam per sandbox.",
+        "Independence proof gate independence_refusal_reasons(): consumes receipts/verifier-independence-proof-latest.json with a configurable --independence-max-age-days freshness window.",
+        "Deploy-receipt output schema in write_deploy_receipt(): structured JSON receipts (receipt_type, deploy_executed, content_identity_ok, versions, smoke, post_promote) written to disk for downstream auditors."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Build the missing executable knowledge-bundle validator: a pure-offline Python module that turns knowledge-bundle-spec-v0.1.md + brain-worker-code-spec-v0.1.md into enforced checks (UTF-8 decode, JSON-object root, size bounds <=1MB / <=2000 chunks / <=20000 char per chunk, BOTH accepted chunk shapes, content_sha256/content_hash format, submitted-bytes SHA256 == descriptor proposed_sha256). Today the spec is prose and the enforcing validator only exists in the remote Worker. Emits the 11 spec-required receipt fields as a local advisory receipt.",
+          "builds_on": "verifier/knowledge-bundle-spec-v0.1.md and verifier/brain-worker-code-spec-v0.1.md",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Implement the step7 note's explicit next task \u2014 'Step 8: gate refusal teeth' \u2014 as a pytest harness that feeds crafted non-PASS receipts (status!=PASS, missing edge_execution_proven, wrong cf_account_id, mismatched candidate_sha256, non-empty failures, stale/absent independence proof, autonomous-hold flag active) into refusal_reasons()/main() with --receipt-url pointed at a local mock, asserting REFUSED and exit code 2 for each. step7 note states this 'does not require the live SourceA repo'.",
+          "builds_on": "gates/promotion_gate.py refusal_reasons()/independence_refusal_reasons()/autonomous_refusal_reasons()",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Ship a three-hash descriptor computer CLI implementing the brain-worker-code-spec exactly: build the sorted-keys, compact-separator JSON path->SHA256 map and hash it to produce worker_code_sha256 and proposed_sha256, so a sandbox author can generate a spec-correct descriptor and self-verify hashes offline BEFORE submitting to the verifier. The spec fully defines the algorithm but no committed tool computes it.",
+          "builds_on": "verifier/brain-worker-code-spec-v0.1.md hash rules + brain-config-artifact-descriptor-schema-v0.1.json",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Sandbox-registry gate-profile linter: statically validate every row of brain_domain_sandboxes_v1.json against what apply_sandbox_profile() consumes \u2014 deploy_root expands, deploy_command is never the banned 'bash scripts/brain_cli_v1.sh deploy' (which execute_deploy_flow refuses), source_bundle_path present when bundle_artifacts_only, post_promote_command script path exists, health_url well-formed. Catches a misconfigured lane before any real gate run.",
+          "builds_on": "data/brain_domain_sandboxes_v1.json + apply_sandbox_profile() in gates/promotion_gate.py",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Wire brain-config-artifact-descriptor-schema-v0.1.json into a jsonschema-based descriptor validator plus a valid/invalid fixture generator, so submissions are checked against additionalProperties:false, author_id const 'sandbox', subject const 'live Worker', candidate_repo enum, and sha256 patterns before the gate ever fetches a receipt. Makes adding a new artifact_type a one-const change.",
+          "builds_on": "verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Deploy-receipt auditor: a read-only rollup over receipts/*deploy-receipt*.json that reproduces the gate's own success logic (content_identity_ok, deploy_exit_code, smoke ok, post_promote ok) and classifies each as PASS/FAIL/BLOCKED with the exact rollback_hint. Grounded in a real produced failure \u2014 phase0.3-step10a-watched-deploy-receipt.json has content_identity_confirmed:false + gate_failure_after_deploy \u2014 so it immediately surfaces already-recorded FAILED_INVARIANT deploys.",
+          "builds_on": "write_deploy_receipt() output schema + receipts/phase0.3-step10a-watched-deploy-receipt.json",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "scripts/ \u2014 automation/motor layer (50 files)",
+      "what_it_is": "The 50-script motor layer that drives the governance SSOT: it runs the Mac/CI brain autorun loop (verify \u2192 self-heal \u2192 matrix \u2192 gated promote), the P0-PGR shadow dispatch pipeline (evidence \u2192 lint \u2192 route \u2192 receipt), the weekly workflow census + agent-read staleness governance cycles, auth/Supabase e2e probes, receipt-ledger audits, and heuristic chess-risk pre-checks. Every motor is receipt-emitting and registry-driven; most transitions are deterministic shell/Python with no LLM calls, so shadow cost is a true 0.0.",
+      "current_state": {
+        "status": "partial",
+        "note": "Mixed maturity. LIVE + scheduled: brain_loop_autorun (CI cron */30 + Mac launchd), workflow_census (weekly), agent_read_staleness (weekly Mon), sg_auth_surface_probe (every 6h). SCAFFOLDED/shadow-only: entire p0pgr_* pipeline \u2014 shadow-cycle CI is workflow_dispatch ONLY, the cron is commented pending a FOUNDER-UNLOCK-R3 receipt, and the cycle does route-decision-only with zero execution (matches memory: P0-PGR runtime scaffolded, execution locked). LOCKED for sandbox purposes: promote_brain_worker --autonomous-deploy (touches live Cloudflare sourcea-brain-chat-v1 Worker via promotion_gate) and the autonomous-hold path in brain_loop_autorun. STALE/stub: write_roi_heartbeat emits all-\"unknown\" metrics; living_system_chain_validate is an LS-021 stub. audit_* tools always exit 0 (surface findings, never gate)."
+      },
+      "key_assets": [
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_loop_autorun_v1.sh",
+          "kind": "script",
+          "purpose": "Core 30m autorun motor. Sequences _run_step self-heal \u2192 parallel candidates \u2192 e2e matrix, then either OBSERVE_ONLY or (founder-flag) autonomous promote. Reads flags under ~/.sina/, writes receipts/brain-loop-autorun-*.json. This is the heartbeat of the whole layer."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_mac_env_v1.sh",
+          "kind": "config",
+          "purpose": "Shared sourced lib for all brain_* / promote / validate shell motors: SourceA worktree resolution, TCC/SIGKILL (rc 137/139) handling, overlap-lock (brain_acquire_lock), BRAIN_PYTHON pinning. Single point every shell motor depends on."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/promote_brain_worker_v1.sh",
+          "kind": "gate",
+          "purpose": "Deploy gate wrapper \u2014 resolves candidate ref/sha from live verifier receipt, invokes gates/promotion_gate.py with confirm-each-time or --autonomous-deploy to the secondary CF account. The one script that reaches live Cloudflare; LOCKED for sandbox work."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_loop_self_heal_v1.py",
+          "kind": "script",
+          "purpose": "Self-heal tick: compares live verifier receipt candidate_sha256/ref vs local bundle_sha256 + git HEAD (ancestor logic) to decide skip vs reverify, optionally re-triggers /run. Writes brain-self-heal-tick receipt."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_domain_registry_v1.py",
+          "kind": "data",
+          "purpose": "SSOT loader for data/brain_domain_sandboxes_v1.json \u2014 get_sandbox, resolve_sourcea_root, git_ref, bundle_sha256. Imported by self-heal, trigger_verifier_run, parallel candidates. Registry is the plug-point for new brain sandboxes."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_cycle_v1.py",
+          "kind": "script",
+          "purpose": "P0-PGR shadow cycle motor: evidence \u2192 load packet \u2192 lint \u2192 ROUTE-DECISION-ONLY \u2192 schema-validated loop-state receipt (receipts/p0pgr/). Non-binary verdicts (PASS/REPAIR_CANDIDATE/DEGRADED); bad packet becomes a repair_candidates file, lane never stops. Zero execution in Phase-0."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_packet_lint_v1.py",
+          "kind": "script",
+          "purpose": "Packet linter: jsonschema + 7 semantic rules (delivery fields, HARD_BLOCK enum, CLOUD_ONLY/cloud_safe, HYBRID_MAC reqs, FOUNDER_ONLY for deploy/authority, P0-CORE leak fingerprints). HARD_BLOCK_REASONS/DELIVERY_REQUIRED are the rule tables."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/p0pgr_phase2_rank_v1.py",
+          "kind": "script",
+          "purpose": "Deterministic ROI ranker (move M10): WEIGHTS + authored FACTORS table (0-1) over campaign moves \u2192 ranked cloud-only queue + HOLD_CLOUD_UNSAFE for Mac-bound. Emits receipts/p0pgr/phase2_queue_v1.json. Recommendation only \u2014 does not flip dispatch flags."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/workflow_census_v1.py",
+          "kind": "script",
+          "purpose": "Crawls all motors (GH Actions, CF workers, launchd), classifies each by which receipt it serves + value_class, writes Supabase + census receipt. Reads data/automation_surface_inventory + workflow_census_extensions + value_class_rules. Weekly CI."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/audit_receipt_ledger_v1.py",
+          "kind": "script",
+          "purpose": "Scans receipts/ for collision/anomaly classes (malformed JSON, missing timestamp, near-simultaneous different-identity receipts within 5s, duplicate basename across dirs). Always exit 0 \u2014 audit, not gate. TIMESTAMP_KEYS + checks are extensible."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/chess_pass_cli_v1.py",
+          "kind": "cli",
+          "purpose": "Heuristic risk pre-check: reads mission/raw_move JSON, matches RISK_WORDS (clean/simplify/\u2026) + IRREVERSIBLE_HINTS (delete/send/spend/\u2026), emits a CHESS_PASS skeleton with likely_misread/second-move-risk and PROCEED/PROCEED_WITH_PATCH/ASK_IF_IRREVERSIBLE action. Standalone stdin/file CLI."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/agent_read_staleness_engine_v1.py",
+          "kind": "script",
+          "purpose": "Alive-doc law motor: reads data/agent_read_surfaces_v1.json + stale_law_guard_patterns, flags stale governance pointers, files into governance_stale_pointer_queue, emits receipt. Weekly cycle via run_agent_read_governance_cycle_v1.sh."
+        },
+        {
+          "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/write_roi_heartbeat_v1.py",
+          "kind": "script",
+          "purpose": "Weekly ROI heartbeat receipt. Currently a STUB \u2014 every metric is literal \"unknown\" (no fabrication). Clear target for a real collector."
+        }
+      ],
+      "extension_points": [
+        "data/workflow_census_extensions_v1.json \u2014 declarative registry of extra motors (CF workers, Railway, GH workflows, traffic probes) merged into the census with no code change; add an object to register a new loop + its receipt_glob + value_class.",
+        "data/brain_domain_sandboxes_v1.json (via brain_domain_registry_v1.py) \u2014 add a sandbox_id and self-heal + run_parallel_brain_candidates + trigger_verifier_run pick it up automatically.",
+        "p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables \u2014 authored constants; a new campaign move needs one FACTORS row to be ranked (currently hardcoded in-file).",
+        "p0pgr_packet_lint_v1.py HARD_BLOCK_REASONS / DELIVERY_REQUIRED / the 7 numbered semantic checks \u2014 add a rule to tighten packet governance.",
+        "p0pgr_cycle_v1.py ROUTE_VERDICT map \u2014 execution_mode \u2192 route decision; extend to add routing modes.",
+        "chess_pass_cli_v1.py RISK_WORDS / IRREVERSIBLE_HINTS lists \u2014 extend the heuristic vocabulary.",
+        "audit_receipt_ledger_v1.py check functions + TIMESTAMP_KEYS \u2014 add new receipt-anomaly detectors.",
+        "brain_loop_autorun_v1.sh _run_step sequence \u2014 add a governed step to the 30m cycle (self-heal/parallel/matrix pattern).",
+        "receipts/ + receipts/p0pgr/ \u2014 the common bus; any new motor plugs in by writing a schema-tagged JSON receipt that the ledger/census/rollup can read.",
+        "write_roi_heartbeat_v1.py metrics dict \u2014 replace \"unknown\" values with a collector reading real receipts/Supabase."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Dead-motor detector: a read-only motor that cross-references each census loop's receipt_glob (data/workflow_census_extensions_v1.json + inventory) against actual files in receipts/, flagging any loop with no matching receipt in N days as a silent/dead motor and emitting a census-liveness receipt. Directly answers the file's own 'which receipt does this loop serve?' question with evidence of whether it actually served one.",
+          "builds_on": "workflow_census_v1.py + data/workflow_census_extensions_v1.json + audit_receipt_ledger_v1.py receipt-scan pattern",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "ROI heartbeat populator: replace write_roi_heartbeat's all-\"unknown\" metrics dict with a collector that derives receipt_chain_verifier, pattern_exports_per_week, and blocker_count from real receipts/ files (count by schema, newest brain-loop-autorun gate_note, p0pgr repair_candidates backlog). Keeps 'unknown stays unknown' for genuinely missing sources.",
+          "builds_on": "write_roi_heartbeat_v1.py + receipts/ + workflow_census receipts",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Autonomous-pause explainer: read-only brain_hold_report_v1.py that reads the ~/.sina/enforcement/brain-autonomous-hold-v1.flag reason string plus the last N receipts/brain-loop-autorun-*.json (gate_note, self_heal_rc/parallel_rc/matrix_rc, mac_sigkill) and renders a simple HTML timeline of why autonomous deploy is held or last promoted. Pure observability over the autorun receipts; never touches the promote path.",
+          "builds_on": "brain_loop_autorun_v1.sh receipts + brain_autonomous_controls_v1.py hold flags",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Chess-pass \u2192 packet-lint bridge: a shadow wrapper that runs chess_pass_cli over a packet's task/context_summary text and injects its likely_misread / IRREVERSIBLE_HINTS findings as extra REPAIR_CANDIDATE reasons in the lint result, so ambiguous 'clean/simplify/delete' wording is caught before a packet is routed. Files-only, Phase-0 shadow.",
+          "builds_on": "chess_pass_cli_v1.py + p0pgr_packet_lint_v1.py",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Externalize the Phase-2 rank factor table: load WEIGHTS/FACTORS from a new data/p0pgr_phase2_factors_v1.json registry, assert weights sum to 100 and every campaign move has a factor row (else DEGRADED), so new moves get ranked without editing Python. Still recommendation-only \u2014 no dispatch flags flipped, matches the script's own contract.",
+          "builds_on": "p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Receipt-ledger rollup page: extend audit_receipt_ledger's scan into a receipts_rollup_v1.py that aggregates receipts/ by schema/receipt_type with newest-timestamp, anomaly count, and per-type freshness, rendered as a single simple HTML page (per founder 'deliverables = simple web' rule) for onboarding/at-a-glance health. Read-only, exit 0 like the ledger.",
+          "builds_on": "audit_receipt_ledger_v1.py + receipts/ directory",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "P9 Pattern Factory + P10 Product Layers (Noetfield sellable patterns & commercial product/service layer)",
+      "what_it_is": "P9 is a library of sellable, receipt-backed governance PATTERNS (the reusable \"features\" products are sold on: signal-factory, brain-audit, zero-drift, anti-theater, auto-heal, plus two v1 governance patterns for alive-doc staleness and operational-language). P10 is the commercial \"what is sold\" layer: entity/product docs (Noetfield parent, SourceA, TrustField-as-separate-venture), full service definitions with tiered pricing (Agentic Cost Governance, Operational Language Audit, Alive-Doc Audit), two live-product blueprints (Sina Gateway, TrustField Partner Access Platform), and venture dictionary overlays. Together they encode the staged commercial ladder: Brain Audit (sells now) -> Zero-Drift proof -> Operating Brain Install -> Managed Brain -> VIP. These are SSOT definition docs; the actual execution machinery (language_gate/, P8-MACHINE-LOOPS, scripts, CF workers) lives OUTSIDE this scope.",
+      "current_state": {
+        "status": "partial",
+        "note": "Definition layer is rich and current (dated 2026-07-03 to 07-07). Some referenced products are LIVE outside this scope: Sina Gateway (Railway), TrustField Partner Access Platform (trustfield.ca W1-W10 green), SourceA Brain chatbot (CF Worker). But the commercial tiers are STAGED/GATED by the brain-as-a-service proof-gate: Tier-1 audits sell now, Tier-3 Managed Brain is locked until SourceA runs 24/7 with receipts. pattern-factory-index.md self-marks 'Members (TODO to expand)'. Services (agentic-cost-governance) are explicitly pre-launch/pilot. The live language_gate already scans these docs (9 *.language_gate_review.json sidecars present, with open UNDEFINED_TERM warnings on brain-as-a-service.md x8, auto-heal x3, anti-theater x2)."
+      },
+      "key_assets": [
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/pattern-factory-index.md",
+          "kind": "doc",
+          "purpose": "Index + doctrine of sellable patterns; states the commercial ladder and explicitly flags 'Members (TODO to expand)' \u2014 the plug-in point for new patterns."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-as-a-service.md",
+          "kind": "doc",
+          "purpose": "Central commercial doctrine: the staged proof-gate and 4-tier offer ladder (Brain Audit -> Operating Brain Install -> Managed Brain -> VIP), front door = 'Operating Brain Install'."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-audit-v1.md",
+          "kind": "doc",
+          "purpose": "Tier-1 sellable-NOW offer: diagnoses 7 stack pathologies -> 'Brain Coherence Report + roadmap'. No proof required; fastest cash path. Has no report template yet."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/signal-factory-v1.md",
+          "kind": "doc",
+          "purpose": "Signal Factory skill spec: fixed triage output contract (classification, 4 scores, next_action, JSON receipt author!=subject). Live as anthropic-skills:signal-factory but 'structural verifier worker-build pending'."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/operational-language-governance-pattern-v1.md",
+          "kind": "doc",
+          "purpose": "Richest pattern: full machine reference (language_gate artifacts, 7-bucket classification, RC3 receipts 158 files/0 WARN, reusable client checklist). The proven engine behind the language audit product."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/alive-doc-staleness-governance-pattern-v1.md",
+          "kind": "doc",
+          "purpose": "Staleness/stale-pointer governance pattern (7 finding classes, repair-queue loop) backing the Alive-Doc Governance Audit product."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/zero-drift-target.md",
+          "kind": "doc",
+          "purpose": "First proof module: same-input->same-decision across model swaps; the credibility anchor that unlocks Tier-2. Also anti-theater.md + auto-heal-hospital.md define the other saleable feature-patterns."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/product-vs-canon-boundary.md",
+          "kind": "doc",
+          "purpose": "Boundary law: Canon governs HOW the system runs; Product layers govern WHAT is sold; they cross-reference but never compete."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-service.md",
+          "kind": "doc",
+          "purpose": "Full 5-tier service definition (AI Spend Leak Audit -> Policy Pack -> Firewall Pilot -> ROI Advisory -> Cost Ledger) with pricing bands, explicit non-claims, and Noetfield/SourceA/NOOS role split."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-SSOT.md",
+          "kind": "schema",
+          "purpose": "Binding vocabulary + policy rules + ROI metrics table (cost-per-successful-task, leak_rate, policy compliance, premium justification rate) for the cost-governance service \u2014 directly implementable metric specs."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/operational-language-governance-audit.md",
+          "kind": "doc",
+          "purpose": "Commercial surface for the language pattern: 3 tiers with fixed scope + price bands ($4K-8K audit), proof artifacts, reusable client checklist. Ready-to-sell offer shape."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md",
+          "kind": "doc",
+          "purpose": "LOCKED, BUILT & LIVE (Railway) personal gateway: mirror->route->capture->tag wizard, gateway_leads Supabase schema, rule-based priority_tag, and an explicit DEFERRED backlog (scoring engine, admin dashboard, segmentation)."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/TRUSTFIELD_PARTNER_ACCESS_PLATFORM_v1.md",
+          "kind": "doc",
+          "purpose": "LIVE on trustfield.ca: two partner surfaces + 5-tier GTM ladder (Sandbox -> RPAA Discovery CAD4k -> MSP channel -> Integration Program -> Partner Access), non-negotiable regulatory boundary table."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SOURCEA_DICTIONARY_OVERLAY_v1.md",
+          "kind": "data",
+          "purpose": "Venture overlay pattern instance: local terms point to SG canon (never redefine), cross-refs machine index language_gate/sourcea_dictionary_overlay_index_v1.json. Template for new-venture overlays (TrustField draft mirrors it)."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-as-a-service.md.language_gate_review.json",
+          "kind": "gate",
+          "purpose": "Live language-gate sidecar output; one per doc (9 total). Shows open UNDEFINED_TERM queue (System Architect, Brain Coherence Report, Managed Deterministic Brain, etc.) \u2014 proof the gate runs on these files and a concrete backlog to clear."
+        }
+      ],
+      "extension_points": [
+        "pattern-factory-index.md explicitly says 'Members (TODO to expand)' \u2014 new patterns plug in as new .md files following the template (definition / proving-ground / receipts / buyer-pain / how-to-sell).",
+        "The 9 *.language_gate_review.json sidecars are emitted by the live language_gate pipeline; new/edited docs get scanned and produce UNDEFINED_TERM warnings \u2014 a self-refreshing backlog and a place a product-terms overlay plugs in.",
+        "Dictionary overlays (SOURCEA_DICTIONARY_OVERLAY_v1, TRUSTFIELD_DICTIONARY_OVERLAY_DRAFT_v1) each point to a machine index (language_gate/*_overlay_index_v1.json); adding a new venture = add an overlay doc + index following the fixed class taxonomy.",
+        "Every service doc (agentic-cost-governance, operational-language-audit, alive-doc-audit) exposes an explicit Tier 1-5 ladder with fixed scope + price bands per the UNLOCK doctrine \u2014 new tiers/deliverables slot into that ladder.",
+        "agentic-cost-governance-SSOT.md defines a concrete vocabulary + policy-rules + ROI-metrics table that audit tooling / policy templates are meant to compute against.",
+        "SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md \u00a77 has a named DEFERRED backlog (learned scoring, admin dashboard, segmentation UI, cross-venture matching) that reads exported gateway_leads rows.",
+        "signal-factory-v1.md defines a fixed JSON receipt contract and requires a structural verifier (author!=subject) that is marked 'worker-build pending'.",
+        "brain-audit-v1.md enumerates 7 diagnostic categories for the 'Brain Coherence Report' but no report template/rubric exists yet."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Build a static HTML Pattern Factory catalog / storefront page that renders all 7 patterns and their matching commercial surfaces (buyer pain, tier, price band, proof receipts, ladder position) pulled from the P9 pattern docs + P10 service docs. Directly answers the index's 'TODO to expand' and fits the founder-law that deliverables are simple web pages, not decks.",
+          "builds_on": "pattern-factory-index.md + brain-as-a-service.md ladder + operational-language-governance-audit.md / agentic-cost-governance-service.md pricing",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Create a NOETFIELD_PRODUCT_DICTIONARY_OVERLAY (+ machine index) following the SourceA/TrustField overlay pattern to classify the commercial/product terms the live language_gate currently flags as UNDEFINED_TERM (System Architect, Native Pattern Thinker, Brain Coherence Report, Managed Deterministic Brain, BaaS HOLD, Sellable NOW...). Clears the open sidecar warnings via point-to-canon + NEEDS_SG_ENTRY queue, dry-scan only.",
+          "builds_on": "the *.language_gate_review.json sidecars (brain-as-a-service x8, auto-heal x3, anti-theater x2) + SOURCEA_DICTIONARY_OVERLAY_v1.md pattern",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Author the missing 'Brain Coherence Report' deliverable template + scoring rubric (HTML/markdown) with the 7 diagnostic sections brain-audit-v1 names (stack fragmentation, definition drift, agent theater, missing receipts, dead workflows, founder overload, missing decision-spine). Turns the 'sellable NOW, fastest cash path' Tier-1 offer from prose into a repeatable, deliverable artifact.",
+          "builds_on": "brain-audit-v1.md (offer + 7 diagnosis targets) and brain-as-a-service.md Tier-1 honesty anchor",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Prototype a Tier-1 AI Spend Leak Audit scanner in the sandbox that ingests a mock agent-run/token log and computes the SSOT's defined metrics (leak_rate, cost-per-successful-task, top-5 optimization targets) and emits the promised audit JSON. Proves the cost-governance Tier-1 deliverable on synthetic data without touching any customer infra or CF.",
+          "builds_on": "agentic-cost-governance-SSOT.md ROI metrics table (\u00a73) + agentic-cost-governance-service.md Tier-1 deliverable spec",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build the still-pending Signal Factory structural receipt verifier: a JSON schema for the fixed triage receipt + a checker that validates all fixed fields exist, scores are 0-5, risk>=4 sets the human-review routing flag, and author!=subject. Completes the 'worker-build pending' piece behind the already-live signal-factory skill.",
+          "builds_on": "signal-factory-v1.md output contract + receipt requirement (author!=subject)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a static Gateway lead-intelligence dashboard prototype (from the blueprint's DEFERRED list) that reads EXPORTED/mock gateway_leads rows and visualizes priority_tag distribution, venture_route funnel, and lead_type segments. Phase-safe ONLY as a mock/exported-data prototype \u2014 do NOT wire it to the live Railway app or Supabase.",
+          "builds_on": "SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md \u00a77 DEFERRED backlog + gateway_leads schema (\u00a75)",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "Canonical Library P0-P8 (noetfield-library: doctrine, SSOT, canon, line-engine, machine-loops)",
+      "what_it_is": "The ratified single-source-of-truth store for the governance system's laws, schemas, templates and data-registries across authority tiers P0-P8. It holds the constitution/invariants (P0), operational canon + machine-loop registry (P1), ratified SSOT rules (P2), cloud-kernel PDFs (P4), the Line-Engine execution architecture + a working Prompt-Forge compiler (P5), locked brain definitions (P6), the thinking-law doctrine + language layer (P7), and the validation/critique/repair loop specs (P8). It is the authority the rest of the repo reads first; higher tier wins on conflict.",
+      "current_state": {
+        "status": "partial",
+        "note": "Live and ratified as AUTHORITY (v0.9-SG-RATIFIED, merged PR#6, 143-file SHA256 manifest, 4/4 governance passes) and actively enforced (92 *.language_gate_review.json sidecars prove the wording gate runs against these files). But it is spec-complete / tool-incomplete within scope: the executable runners its own manifests reference live OUTSIDE this folder. CHESS-v2/manifest.json lists TOOLS/chess_pass_cli.py (no TOOLS/ dir in-scope); LANGUAGE_LAYER_v1 names build_dictionary_index.py + language_gate_pipeline_v1.py (absent in-library); and all 14 entry_script paths in machine-process-loops-v1.json point to repo-root scripts/ (locked P0-PGR execution). So the doctrine/schema/template/data layer is the buildable surface; the runners are the gap."
+      },
+      "key_assets": [
+        {
+          "path": "SG-Canonical-Library/noetfield-library/00-INDEX.md",
+          "kind": "doc",
+          "purpose": "Library truth table + authority order + current-state ledger; the mandated first read."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/ARCHITECT_START_HERE.md",
+          "kind": "doc",
+          "purpose": "Portable orientation spine: authority order, the 6 SSOT-v6 Level-0 invariants (author!=subject, Sina owns DECIDE, reality>report, etc.), core thesis."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/BIG_PICTURE_RELATION_MAP.md",
+          "kind": "doc",
+          "purpose": "One-view authority stack P0->Ledger + the 7 key law-chains (truth down / proposals up, contracts run, immutable floor, receipts-not-diagrams)."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json",
+          "kind": "data",
+          "purpose": "Registry of 14 machine loops (worker-exec, validation, adversarial critic x2, receipt-chain HMAC, dispatch reconciler, merge, self-repair, outside-audit, research, earned-autonomy) each with entry_script + receipt_path + founder_substitute + retires_trigger_ids. The machine-replaces-founder spine."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/founder-trigger-retirement-registry-v1.json",
+          "kind": "data",
+          "purpose": "Earned-autonomy registry: each founder trigger has a machine_substitute + green_receipts_required + consecutive_green + never_auto_retire list. Defines when the system may retire a human gate."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_pass.schema.json",
+          "kind": "schema",
+          "purpose": "JSON-Schema contract for a CHESS reasoning pass: 9 required fields, action enum PROCEED|PROCEED_WITH_PATCH|ASK_IF_IRREVERSIBLE, additionalProperties:false (BLOCK is forbidden)."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_receipt.schema.json",
+          "kind": "schema",
+          "purpose": "Receipt contract wrapping a chess_pass ($ref) + protected_feature_verification + status PASS|PARTIAL|FAILED. Paired with protected_feature_ledger.schema.json."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/CHESS-v2/manifest.json",
+          "kind": "config",
+          "purpose": "Package descriptor for the non-blocking reasoning machine: core_loop, action_labels, forbidden_action_labels:[BLOCK], and a 25-file inventory (references TOOLS/chess_pass_cli.py NOT present in-scope)."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P0-DOCTRINE/CHESS_PATTERN_REASONING_MACHINE_v2.0.md",
+          "kind": "doc",
+          "purpose": "Tier-0 doctrine: Forecast->Patch->Proceed->Verify move-improvement machine that upgrades a move before execution and never emits BLOCK."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py",
+          "kind": "script",
+          "purpose": "Working two-layer compiler: deterministic policy (lint/mode-detect/fact-extract/template + guardrail injection) with optional OpenRouter LLM pass that policy code re-asserts. The 'LLM proposes, policy enforces' pattern as runnable code."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/LANGUAGE_LAYER_v1.md",
+          "kind": "doc",
+          "purpose": "Dictionary(meaning)->Terminology(wording) mint gate + language_gate pipeline spec (build_dictionary_index.py, language_gate_pipeline_v1.py, .cursor/hooks, pre-commit). Undefined terms fail-closed."
+        },
+        {
+          "path": "SG-Canonical-Library/noetfield-library/SKILLS/SKILL_01_CHESS_PASS.md",
+          "kind": "skill",
+          "purpose": "Seven CHESS skills (SKILL_01..07: chess-pass, feature-parity-ledger, prompt-patcher, live-truth-verifier, restore-playbook, consequence-simulator, non-blocking-router) \u2014 the operator procedures for the reasoning machine."
+        }
+      ],
+      "extension_points": [
+        "SCHEMAS/*.schema.json (chess_pass, chess_receipt, protected_feature_ledger): stable JSON-Schema contracts any new validator/tool can validate objects against.",
+        "CHESS-v2/manifest.json: files[] inventory + forbidden_action_labels:[BLOCK] \u2014 a package-assembly + label-enforcement surface (currently references a TOOLS/chess_pass_cli.py that does not exist in-scope).",
+        "machine-process-loops-v1.json loops[]: each loop is a pluggable record (entry_script, validator, receipt_path, retires_trigger_ids) \u2014 new loops register here; a reconciler reads it.",
+        "founder-trigger-retirement-registry-v1.json triggers[]: green_receipts_required vs consecutive_green + never_auto_retire \u2014 the input surface for an autonomy scoreboard.",
+        "LANGUAGE_LAYER pipeline hooks: NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md is the meaning source that build_dictionary_index.py (absent in-library) is meant to compile into dictionary_index.json; the mint gate is the plug point.",
+        "*.language_gate_review.json (92 sidecars, one per governed file): a uniform {file, agent_review:[{type,line,reason,hint}]} shape ready to be aggregated.",
+        "PromptForge PIPELINE descriptor + module-level KNOWN_SYSTEMS / STANDING_CONSTRAINTS / SSOT_SYSTEM_PROMPT: extension points to widen the compiler or drive it from the dictionary.",
+        "CHESS-v2/INSTALL/WIRING_CHECKLIST.md: defined grep-proofs + acceptance criteria \u2014 an install-verification contract a harness can execute.",
+        "P0-TEMPLATES/*.md (CHESS pass prompt, agent execution contract, receipt): instantiation surface for generating new governed artifacts."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Build the missing in-library CHESS pass validator CLI: a zero-dep Python tool that validates a chess_pass JSON against SCHEMAS/chess_pass.schema.json AND enforces CHESS-v2/manifest.json forbidden_action_labels (reject any action=='BLOCK'), tested against EXAMPLES/sample_chess_pass.json. Closes the manifest's dangling TOOLS/chess_pass_cli.py reference.",
+          "builds_on": "SCHEMAS/chess_pass.schema.json + CHESS-v2/manifest.json (forbidden_action_labels) + EXAMPLES/sample_chess_pass.json",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build the offline dictionary index builder + mint-gate checker that LANGUAGE_LAYER_v1 names but that is absent in-library: parse NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md into dictionary_index.json, then verify every row in NOETFIELD_TERMINOLOGY_v1.md maps to a dictionary entry (undefined term = fail). Ship as a standalone CLI only \u2014 do NOT wire .cursor/hooks or pre-commit \u2014 which keeps it sandbox-safe.",
+          "builds_on": "P7-DOCTRINE/NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md + NOETFIELD_TERMINOLOGY_v1.md + LANGUAGE_LAYER_v1.md",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a wording-debt rollup dashboard that aggregates all 92 *.language_gate_review.json sidecars into one HTML/JSON report grouped by file and by review reason, ranking the most-flagged files. Pure read over existing sidecars (uniform {file, agent_review:[{line,reason,hint}]} shape).",
+          "builds_on": "the 92 *.language_gate_review.json sidecars (e.g. ARCHITECT_START_HERE.md.language_gate_review.json)",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a static reconciler + autonomy scoreboard over the two P0 data registries: check referential integrity (every loops[].retires_trigger_ids resolves to a trigger_id; every trigger.receipt_sources maps to a loop.receipt_path) and render each founder trigger's retire-readiness (consecutive_green vs green_receipts_required, honoring never_auto_retire). Reads only the two JSON registries, never the live receipts/ tree, so it never touches locked P0-PGR execution.",
+          "builds_on": "P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json + founder-trigger-retirement-registry-v1.json",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a golden/snapshot test harness for the Prompt-Forge compiler running only in --no-llm deterministic mode, using EXAMPLES/raw_to_patched_prompt_examples.md as fixtures and the built-in --demo, asserting stable compiled output and that STANDING_CONSTRAINTS + IF_BLOCKED are always injected. No network, no LLM key, so fully sandboxed.",
+          "builds_on": "P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py + EXAMPLES/raw_to_patched_prompt_examples.md",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a CHESS wiring-proof harness that executes WIRING_CHECKLIST.md's grep-proofs (Forecast->Patch->Proceed->Verify, PROCEED_WITH_PATCH, no BLOCK language) against a sandbox copy of a prompt set and emits a receipt that validates against SCHEMAS/chess_receipt.schema.json. Target sandbox prompt copies only \u2014 not live prompts or auto-merge \u2014 to stay phase-safe.",
+          "builds_on": "CHESS-v2/INSTALL/WIRING_CHECKLIST.md + SCHEMAS/chess_receipt.schema.json",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "language_gate (terminology / dictionary wording gate)",
+      "what_it_is": "A fail-closed wording-authority gate. It builds a canonical plain-English dictionary index from an A-Z doctrine batch, then regex-lints any file for retired aliases, banned register, overclaims, private-only leakage, and undefined Title-Case/ALLCAPS system terms; a deterministic agent pass rewrites to public phrasing and emits a review sidecar. Every scan writes a JSON receipt and returns exit 1 on FAIL (and on WARN when strict), which is what git/Cursor hooks enforce.",
+      "current_state": {
+        "status": "live",
+        "note": "Core engine is operational: `python3 language_gate/language_gate_pipeline_v1.py <file>` runs, dictionary_index.json holds 225 terms + 10 aliases, tool_version is language_gate_rc3_pile_v1, and a full 160-file library scan receipt exists (3 FAIL / 87 WARN / 34 PASS_WITH_REWRITE / 36 PASS). Enforcement is wired outside scope via .cursor/hooks.json (afterFileEdit + preToolUse block) and .githooks/pre-commit installed by scripts/install_language_gate_hooks_v1.sh (confirmed present, not deep-read per scope). Two integration gaps: (1) the two overlay index JSONs are produced but ORPHANED \u2014 no core/pipeline/agent code loads them; (2) no automated test harness exists despite test_files/ fixtures. Only dictionary_rc2_supplement.json is actually merged at load time."
+      },
+      "key_assets": [
+        {
+          "path": "language_gate/language_gate_core_v1.py",
+          "kind": "gate",
+          "purpose": "THE enforcement engine: SURFACES, SURFACE_POLICY toggles, load_dictionary (merges rc2 supplement), scan() (alias/synonym/banned/overclaim/private/undefined findings), decide() (FAIL/WARN/PASS_WITH_REWRITE/PASS), write_receipt(). Holds the big hardcoded allowlists (STATUS_LABEL, CENSUS_VERB, FRAGMENT, TECH_REFERENCE, STRUCTURAL, ENTITY, vendor)."
+        },
+        {
+          "path": "language_gate/language_gate_pipeline_v1.py",
+          "kind": "cli",
+          "purpose": "Orchestrator: infer_surface -> scan -> regex rewrite -> agent plain_english_pass -> write_receipt; exit_code() returns 1 on FAIL and on WARN when strict_undefined. Flags: --surface --write --skip-agent --soft-undefined --json."
+        },
+        {
+          "path": "language_gate/language_gate_agent_rewrite_v1.py",
+          "kind": "script",
+          "purpose": "Deterministic plain-English pass using dictionary public_phrasing + jargon table; write_sidecar() produces the <file>.language_gate_review.json sidecars (agent_review + dictionary_warnings)."
+        },
+        {
+          "path": "language_gate/build_dictionary_index.py",
+          "kind": "script",
+          "purpose": "Parses NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md into dictionary_index.json: terms, alias_map, retired_terms, private_only, code_alias (+ legacy tombstone_map)."
+        },
+        {
+          "path": "language_gate/generate_batch_markdown_v1.py",
+          "kind": "script",
+          "purpose": "Reverse direction \u2014 regenerates the A-Z batch markdown from the index with CANONICAL_PROMOTIONS and SYNONYM_ALIASES, so plain-English canonical wins and old jargon becomes retired aliases."
+        },
+        {
+          "path": "language_gate/dictionary_index.json",
+          "kind": "data",
+          "purpose": "Live compiled dictionary: 225 terms, 10-entry alias_map, 13 retired, 3 private_only, 2 code_alias. Loaded by every scan."
+        },
+        {
+          "path": "language_gate/dictionary_rc2_supplement.json",
+          "kind": "data",
+          "purpose": "The ONE live extension file: 43 gap-fill terms + 48-item structural_allowlist + alias_index, merged in load_dictionary() and effective_structural_allowlist()."
+        },
+        {
+          "path": "language_gate/sourcea_dictionary_overlay_index_v1.json",
+          "kind": "data",
+          "purpose": "127 SourceA overlay entries classed COMMAND_FRAGMENT/FORM_OPTION/STATUS_LABEL/SOURCEA_LOCAL_TERM with cleanup_rules \u2014 produced but NOT consumed by the gate (orphaned)."
+        },
+        {
+          "path": "language_gate/trustfield_dictionary_overlay_index_v1.json",
+          "kind": "data",
+          "purpose": "38 TrustField overlay entries (DRAFT) including CONFLICT_PHRASE and REGULATORY_COPY_RISK classes (e.g. RPAA MSP/PSP self-claim guards) \u2014 produced but NOT consumed by the gate (orphaned)."
+        },
+        {
+          "path": "language_gate/rc2_dry_scan_v1.py",
+          "kind": "script",
+          "purpose": "Read-only harness scanning 5 controlled canon files across surfaces; writes receipts/rc2_dry_scan_report.json (currently all PASS)."
+        },
+        {
+          "path": "language_gate/cold_session_proof_v1.sh",
+          "kind": "script",
+          "purpose": "Proves the gate reads the dictionary from disk (SHA of index+batch) with no chat memory; emits a cold-session proof receipt."
+        },
+        {
+          "path": "language_gate/receipts/SG-Canonical-Library.library_scan.056cec9f66a064c7.details.json",
+          "kind": "data",
+          "purpose": "Aggregate 160-file library scan output (file/surface/decision/findings_count/regex_would_change/agent_would_change) \u2014 shows the schema a library-scan runner emits, but that runner is NOT in language_gate/."
+        },
+        {
+          "path": "language_gate/test_files/",
+          "kind": "test",
+          "purpose": "Fixtures: clean_example.md, violations_example.md, tombstone_only.md, cold_session_doctrine_sample_v1.md \u2014 used manually; no assertion harness runs them."
+        },
+        {
+          "path": "language_gate/README.md",
+          "kind": "doc",
+          "purpose": "Authority chain, surface table, pipeline usage, hook wiring, RC2 fixes, strict-vs-soft undefined policy."
+        }
+      ],
+      "extension_points": [
+        "effective_structural_allowlist() / effective_entity_allowlist() in language_gate_core_v1.py \u2014 the merge point that today only pulls supplement.structural_allowlist; the natural hook to fold in overlay-index entries",
+        "load_dictionary() SUPPLEMENT_PATH merge \u2014 add terms/alias_map/code_alias without editing code (rc2 supplement is the working template)",
+        "SURFACE_POLICY dict (internal/public/website/contract/prompt/receipt) \u2014 per-surface block_* toggles are data-shaped and easy to extend with a new surface or policy flag",
+        "Regex tables SYNONYM_AUTOFIX, BANNED_REGISTER, OVERCLAIM_PATTERNS \u2014 pattern lists that new wording rules plug into",
+        "write_receipt() -> receipts/*.receipt.json and write_sidecar() -> *.language_gate_review.json \u2014 structured outputs any aggregator/dashboard can consume",
+        "infer_surface() path-prefix rules \u2014 where new path->surface mappings register",
+        "The two overlay index JSONs (sourcea/trustfield) \u2014 already built to a stable schema (entries[].term/class/note) but not yet wired into scan()"
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Wire the orphaned overlay indexes into the gate: extend effective_structural_allowlist()/effective_entity_allowlist() to fold overlay entries[] by class (COMMAND_FRAGMENT, FORM_OPTION, STATUS_LABEL, *_LOCAL_TERM -> skip as undefined; keep CONFLICT_PHRASE/REGULATORY_COPY_RISK separate). Kills UNDEFINED_TERM noise the overlays were built to suppress and finally connects 165 produced-but-unused entries.",
+          "builds_on": "sourcea_dictionary_overlay_index_v1.json + trustfield_dictionary_overlay_index_v1.json + effective_structural_allowlist() in language_gate_core_v1.py",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Add a pytest regression harness (language_gate/test_language_gate_v1.py) that runs the pipeline over test_files/ and asserts expected decisions: violations_example -> FAIL with the exact BANNED/OVERCLAIM findings, clean_example -> PASS, tombstone_only -> autofix. Locks current behavior before anyone touches the allowlists; today nothing guards the gate.",
+          "builds_on": "language_gate/test_files/* fixtures + decide()/run_pipeline()",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build an in-gate read-only library scan runner (language_gate/library_scan_v1.py) that globs a path, calls scan() with write=False, and emits the existing library_scan details.json schema plus a decision rollup. Re-owns the capability that produced the 160-file receipt (whose runner is not in the gate) so the 3 FAIL / 87 WARN can be re-derived and tracked.",
+          "builds_on": "receipts/SG-Canonical-Library.library_scan.*.details.json schema + scan()/decide()",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Promote TrustField overlay REGULATORY_COPY_RISK and CONFLICT_PHRASE entries into surface-scoped overclaim/banned patterns (e.g. block MSP/PSP self-claims on website/public), driven by the overlay JSON instead of the hardcoded OVERCLAIM_PATTERNS list. Turns the DRAFT TrustField overlay into real enforcement for regulated web copy.",
+          "builds_on": "trustfield_dictionary_overlay_index_v1.json entries + OVERCLAIM_PATTERNS/block_private path in scan()",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Externalize the six large hardcoded allowlists (STATUS_LABEL/CENSUS_VERB/FRAGMENT/TECH_REFERENCE/STRUCTURAL/ENTITY) out of language_gate_core_v1.py into a JSON allowlist file loaded like dictionary_rc2_supplement.json, so vocabulary edits stop requiring Python changes and stay reviewable as data.",
+          "builds_on": "effective_structural_allowlist() merge pattern + dictionary_rc2_supplement.json.structural_allowlist",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a simple static HTML rollup (per founder 'simple web format' rule) that reads receipts/*.receipt.json and *.language_gate_review.json sidecars into one board: decision counts, top undefined terms, open agent_review flags, worst offending files. Gives visibility over gate output with no new enforcement surface.",
+          "builds_on": "write_receipt() receipts/*.receipt.json + write_sidecar() *.language_gate_review.json",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "state-registry-receipt-ledger (machine-readable governance state surface: data/ receipts/ ledger/ ssot/)",
+      "what_it_is": "The SSOT's machine-readable state surface: JSON registries in data/ declare the \"truth\" (every automation motor, agent lane, alive-doc pointer, live Brain deploy state, value-class rules, guard patterns), receipts/ is the append-only evidence corpus (92 receipts incl. the entire P0-PGR dispatch-brain state machine under receipts/p0pgr/), and ledger/ + ssot/ hold the human-readable decision log and parent governance law. Agents query these files instead of scattered prose; \"which receipt does this loop serve?\" is the judging question and receipt identity (not a mode flag) computes PASS/FAIL.",
+      "current_state": {
+        "status": "partial",
+        "note": "Registries are LIVE and actively written (github_automation_registry_v1.json v1.1.0 saved 2026-07-08T13:11:47Z; agent_read_surfaces v1.3.0). P0-PGR is SCAFFOLDED/shadow: motor status DECLARED phase0_shadow, yet phase1/phase2 scorecards exist with 2 real cloud-only executions (M10 ranker, M03 audit) under a founder unlock receipt. Execution beyond cloud-only read-only ranking is LOCKED (deploy/merge/authority = FOUNDER_ONLY). STALE spots: brain_deployment_state.bundle_sha256=null, automation_baseline_freeze from 20260703, ledger is a Level-2 hand-authored stopgap 'subordinate to git', governance_stale_pointer_queue is empty (0 open)."
+      },
+      "key_assets": [
+        {
+          "path": "data/github_automation_registry_v1.json",
+          "kind": "data",
+          "purpose": "Motor truth (v1.1.0): 16 motors across 6 repos + agent_lanes + task_cell_owners + duplication_forbidden CAS rules. Law: 'one motor per task cell; unregistered workflow = defect'. p0pgr_shadow_cycle_v1 registered, status DECLARED, must_not_own execution/deploy/merge."
+        },
+        {
+          "path": "data/agent_read_surfaces_v1.json",
+          "kind": "data",
+          "purpose": "Alive-doc registry (v1.3.0): per-lane must_read[] with ACTIVE/READ_SURFACE/SUPERSEDED/RETIRED status. Law: agents act only on ACTIVE surfaces; retired pointers must not drive deploy/spend."
+        },
+        {
+          "path": "data/brain_deployment_state.json",
+          "kind": "data",
+          "purpose": "Single source for live Brain Cloudflare deploy state: live_target worker, live_version, gate_flags (autonomous deploy/hold flag paths), knowledge_chunks_live=514. bundle_sha256 still null."
+        },
+        {
+          "path": "data/brain_domain_sandboxes_v1.json",
+          "kind": "data",
+          "purpose": "5 brain deploy sandbox lanes (brain_worker, knowledge_bundle, locked_definitions, contract_pages, pattern_export[HOLD]) each with gate_profile deploy/post-promote commands and health_url."
+        },
+        {
+          "path": "data/commercial_pulse_queue_v1.json",
+          "kind": "data",
+          "purpose": "CASL outbound draft state machine (lane: metabolism): 11 states, 8 dispatchability_predicates, draft_template with founder-blocked send gate. queue[] and history[] currently empty; checker = scripts/commercial_pulse_dispatch_check_v1.py."
+        },
+        {
+          "path": "data/workflow_census_value_class_rules_v1.json",
+          "kind": "data",
+          "purpose": "Maps each task_cell to REVENUE/GUARD/META/NONE value-class + receipt_target; the classification the weekly census audit uses to flag dead loops."
+        },
+        {
+          "path": "data/stale_law_guard_patterns_v1.json",
+          "kind": "data",
+          "purpose": "Regex guard patterns (Vercel=BLOCKER, mac-only-24/7=WARN) with replacement + severity, scanned over ACTIVE surfaces to catch stale law."
+        },
+        {
+          "path": "data/governance_stale_pointer_queue_v1.json",
+          "kind": "data",
+          "purpose": "Work queue for stale/dangling governance pointers; schema present but empty (open_count 0) \u2014 a ready sink for a sweep to populate."
+        },
+        {
+          "path": "receipts/p0pgr/phase2_queue_v1.json",
+          "kind": "data",
+          "purpose": "Deterministic ROI-ranked dispatch queue (weights: direct_revenue35/trust25/workload15/cloud15/reversibility10) over 8 cloud-only moves + held_items; dispatch flags NOT flipped by ranker."
+        },
+        {
+          "path": "receipts/p0pgr/campaigns/P0PGR-CAMPAIGN-20260708-001.json",
+          "kind": "data",
+          "purpose": "Chess-method campaign receipt: 10 moves (M01-M10) each with board_signal, patch_before_execution, roi_score, packet_id, lint verdict \u2014 the strategic board that seeded the 10 outbox packets."
+        },
+        {
+          "path": "receipts/p0pgr/outbox/P0PGR-20260708-004.json",
+          "kind": "data",
+          "purpose": "Representative compiled prompt packet (P0_PROMPT_PACKET_SCHEMA): task/allowed_actions/forbidden_actions/constraints/success_receipt fields, execution_mode CLOUD_ONLY, dispatch_mode shadow. 10 such packets in outbox/."
+        },
+        {
+          "path": "receipts/p0pgr/repair_candidates/P0PGR-CYCLE-20260708T143639Z-P0PGR-20260708-001.json",
+          "kind": "data",
+          "purpose": "Lint-fail repair candidate keyed by cycle_id+packet_id listing missing required schema props (execution_mode, canonical_path, mac_required_reason) \u2014 the retry loop's work item."
+        },
+        {
+          "path": "receipts/p0pgr/evidence/evidence-dd61a460b6927e46.json",
+          "kind": "data",
+          "purpose": "Evidence bundle (hashed): census counts (REVENUE3/GUARD5/META22/NONE8, audit RED, 38 loops), registry motor_ids/lanes snapshot, alive_docs sha256, staleness gate, latest_receipts index \u2014 the pre-dispatch fact bundle."
+        },
+        {
+          "path": "receipts/p0pgr/founder/FOUNDER-UNLOCK-PHASE2-CLOUD-ONLY-20260708.json",
+          "kind": "gate",
+          "purpose": "Founder authorization receipt unlocking PHASE_2_CLOUD_ONLY_ROI_TRACK with explicit scope_limits (no Mac, no deploy/merge, one candidate at a time); execution receipts must cite founder_authorization_ref."
+        },
+        {
+          "path": "ledger/session-decision-ledger.md",
+          "kind": "doc",
+          "purpose": "Hand-authored Level-2 stopgap decision log (D4 receipt-law, no-self-verify, open blockers); explicitly SUBMITTED/UNVERIFIED and to be superseded by a future git-derived GOVERNANCE_DOCUMENT_REGISTRY."
+        },
+        {
+          "path": "ssot/PARALLEL_AUTOMATION_GOVERNANCE_v1.md",
+          "kind": "doc",
+          "purpose": "Parent governance law that github_automation_registry_v1.json enforces (one motor per task cell, lane boundaries); MULTI_REPO_WORKER_REGISTRY_v1.md carries worker routing."
+        }
+      ],
+      "extension_points": [
+        "data/github_automation_registry_v1.json \u2192 append to motors[] / task_cell_owners{} / duplication_forbidden[] to register a new automation under the 'one motor per task cell' law (must declare owns/must_not_own/receipt_path)",
+        "receipts/p0pgr/outbox/ \u2192 drop new P0PGR-YYYYMMDD-NNN.json packets conforming to P0_PROMPT_PACKET_SCHEMA; the cycle linter validates them and files repair_candidates/ on failure",
+        "receipts/p0pgr/phase2_queue_v1.json \u2192 ranked_queue[] is regenerated by a deterministic ROI ranker (move M10 pattern); a new ranker run replays same-input\u2192same-order",
+        "data/agent_read_surfaces_v1.json \u2192 lanes[].must_read[] is where new alive-doc pointers register with ACTIVE/SUPERSEDED status so agents pick them up",
+        "data/commercial_pulse_queue_v1.json \u2192 queue[] + draft_template feed scripts/commercial_pulse_dispatch_check_v1.py, which evaluates the 8 dispatchability_predicates before any founder-gated send",
+        "data/workflow_census_value_class_rules_v1.json \u2192 by_task_cell{} is the plug point for classifying a new loop into REVENUE/GUARD/META/NONE for the weekly census",
+        "data/governance_stale_pointer_queue_v1.json \u2192 items[] (empty) is a ready sink for a stale_law_guard_patterns sweep to populate",
+        "living_system_subsystems_v1.json \u2192 pulse_receipt_globs are the receipt patterns a homeostasis pulse consumes; new receipt families become health signals by adding a glob",
+        "receipts/ globs referenced in registry receipt_path fields \u2192 any new motor writes receipts matching its declared glob, which the census/audit machinery then reads back"
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "State-surface index generator: a read-only script that joins github_automation_registry_v1.json (motors/lanes), workflow_census value-class counts + evidence census (RED, NONE:8), agent_read_surfaces alive-docs, and the P0-PGR phase2 scorecard/queue into one HTML/JSON 'machine-readable state surface' dashboard for onboarding (per memory: simple web format, no decks).",
+          "builds_on": "data/github_automation_registry_v1.json + receipts/p0pgr/phase2_scorecard_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Registry cross-consistency linter: verify every motor_id in github_automation_registry appears in automation_surface_inventory + evidence bundle motor_ids, every task_cell_owner resolves to a real motor/agent, duplication_forbidden.allowed_motors all exist, and no owns/must_not_own collision across lanes. Emits a receipt; fails CI-style on drift.",
+          "builds_on": "data/github_automation_registry_v1.json + data/automation_surface_inventory_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+          "effort": "S",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Offline P0-PGR packet lint + repair-candidate harness: validate every receipts/p0pgr/outbox/*.json against the packet schema (required props like execution_mode/canonical_path/mac_required_reason) and regenerate repair_candidates/ entries \u2014 pure validation, dispatch_now stays false, zero packet execution.",
+          "builds_on": "receipts/p0pgr/outbox/*.json + receipts/p0pgr/repair_candidates/*.json (repair-candidate schema)",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Value-class cost attribution table (executes designed-but-unrun move M06/P0PGR-20260708-007 as a sandbox report): attribute monthly cost per loop/value_class from census + value-class rules, flag every NONE-class dollar (~$20/mo dead spend), output attribution table only \u2014 kill/throttle stays a ranked recommendation, never an action.",
+          "builds_on": "data/workflow_census_value_class_rules_v1.json + receipts/p0pgr/evidence/evidence-*.json census + campaign move M06",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Stale-law sweep that populates the empty governance_stale_pointer_queue: run stale_law_guard_patterns_v1 regexes across all ACTIVE paths in agent_read_surfaces + the registries, writing BLOCKER/WARN hits into governance_stale_pointer_queue_v1.items[] with severity and replacement suggestion (report-only, no edits).",
+          "builds_on": "data/stale_law_guard_patterns_v1.json + data/agent_read_surfaces_v1.json + data/governance_stale_pointer_queue_v1.json",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Commercial-pulse dispatch-check dry-run: exercise scripts/commercial_pulse_dispatch_check_v1.py against a clearly-labeled test draft to score the 8 dispatchability_predicates and emit a per-predicate readiness verdict (move M05 audit) \u2014 queue stays empty, send stays founder_blocked, zero external send.",
+          "builds_on": "data/commercial_pulse_queue_v1.json (dispatchability_predicates + draft_template) + campaign move M05",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    },
+    {
+      "subsystem": "P0-PGR / P0-PDR Dispatch Brain Runtime",
+      "what_it_is": "A governed prompt-authoring + delivery loop that replaces the founder as prompt writer/router/critic/dispatcher. It reads system evidence deterministically, classifies a problem into one of 9 classes, runs a 12-stage pipeline (Evidence Reader \u2192 ... \u2192 Main Brain Decision \u2192 Prompt Compiler \u2192 Dispatch Router \u2192 Receipt Verifier \u2192 Harvest), and compiles delivery-aware \"prompt packets\" that carry execution_mode/route/executor/authority. Contract v1.1 adds a delivery rail (P0-PDR) plus RUNTIME_CONTINUITY_LAW_v1 (degrade, never freeze the lane) and non-binary result states. Workers receive ONLY the packet \u2014 never P0 doctrine (leak = lint rejection).",
+      "current_state": {
+        "status": "partial",
+        "note": "Docs say 'current rung R1' but the filesystem is further along: Phase-0 scripts are real and tested (10/10 tests), lane p0pgr IS registered in data/github_automation_registry_v1.json, Phase-1 shadow is DONE (10 packets in outbox, campaign receipt, phase1 scorecard 10/10 compiled 0 leakage awaiting founder diff-accept), and Phase-2 CLOUD_ONLY ROI track is founder-UNLOCKED and has EXECUTED twice (M10 ranker + M03 live trustfield.ca audit, PARTIAL, 0 sends/deploys/merges). LOCKED/unbuilt: R2 cloud run is BUILT but never actually run (blocked on founder push+click, R2 proof = PARTIAL); R3 cron, R4 auto-dispatch, R5 ROI-autonomy all gated behind founder unlock receipts that do not exist; Mac runner (Phase 3) DEFERRED, fallback removed from packets; prompt registry SCHEMA exists but data/p0pgr_prompt_registry_v1.json is NOT built. Real dispatch, deploy, merge, cron, and auto-dispatch are all locked."
+      },
+      "key_assets": [
+        {
+          "path": "p0-pgr/P0_DISPATCH_BRAIN_RUNTIME_v1.1.md",
+          "kind": "doc",
+          "purpose": "Operating contract v1.1 (supersedes v1.0). RUNTIME_CONTINUITY_LAW_v1, 12-stage pipeline, execution modes CLOUD_ONLY/HYBRID_MAC/HUMAN_REVIEW/FOUNDER_ONLY, HARD_BLOCK whitelist."
+        },
+        {
+          "path": "p0-pgr/P0_DISPATCH_ROUTER_RULES_v1.md",
+          "kind": "doc",
+          "purpose": "Routing table (packet type -> destination -> mode), rail reliability ranking, Mac Runner safety rules 1-10, spend governor caps ($1.5k pre-revenue)."
+        },
+        {
+          "path": "p0-pgr/P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md",
+          "kind": "doc",
+          "purpose": "R1-R5 rung ladder from session-driven to full autonomy; each rung has entry gate + exit receipt + founder unlock. Names the exact locked seams."
+        },
+        {
+          "path": "p0-pgr/P0_PROMPT_PACKET_SCHEMA_v1.json",
+          "kind": "schema",
+          "purpose": "Packet v1.1 (the dispatch unit). Enums for owner_agent/delivery_route/target_executor + conditional requires for HYBRID_MAC, cloud_safe=false, deploy->FOUNDER_ONLY."
+        },
+        {
+          "path": "p0-pgr/P0_PROMPT_LOOP_STATE_SCHEMA_v1.json",
+          "kind": "schema",
+          "purpose": "One cycle's loop-state receipt (deterministic L13 replay via bundle_hash, non-binary quality_state, founder_blocked_snapshot)."
+        },
+        {
+          "path": "p0-pgr/P0_EXECUTION_RECEIPT_SCHEMA_v1.json",
+          "kind": "schema",
+          "purpose": "Real (non-shadow) execution receipt: evidence_artifacts (proof not prose), founder_authorization_ref required, cost never bare $0 without accounting_note."
+        },
+        {
+          "path": "p0-pgr/P0_PROMPT_REGISTRY_SCHEMA_v1.json",
+          "kind": "schema",
+          "purpose": "Reusable prompt-template catalog (M07 packet-factory memory). status AUTO_DISPATCH_APPROVED is per-template founder gate = unit of autonomy. DATA FILE NOT YET BUILT."
+        },
+        {
+          "path": "scripts/p0pgr_cycle_v1.py",
+          "kind": "script",
+          "purpose": "Phase-0 shadow cycle: evidence -> load packet -> lint -> route-decision-only -> loop-state receipt; lint fail files a repair_candidate, never lane STOP. No LLM, true $0."
+        },
+        {
+          "path": "scripts/p0pgr_packet_lint_v1.py",
+          "kind": "script",
+          "purpose": "Packet linter: JSON-schema + 7 semantic checks incl P0-CORE leak fingerprints, HYBRID_MAC/cloud_safe/deploy gates, HARD_BLOCK reason whitelist. Verdict PASS|REPAIR_CANDIDATE, exit 0 either way."
+        },
+        {
+          "path": "scripts/p0pgr_evidence_reader_v1.py",
+          "kind": "script",
+          "purpose": "Deterministic evidence bundle w/ bundle_hash (L13). Reads contract files, registry, alive docs, newest receipts, census, outbox/repair queue. Derived from file bytes, never self-report."
+        },
+        {
+          "path": "scripts/p0pgr_campaign_planner_v1.py",
+          "kind": "script",
+          "purpose": "Phase-1 strategic planner: generates 10 shadow packets across 6 board axes, runs CHESS pass, compiles+lints v1.1 packets, emits campaign receipt + phase1 scorecard. moves()/compile_packet()/chess_pass() are the plug points."
+        },
+        {
+          "path": "scripts/p0pgr_phase2_rank_v1.py",
+          "kind": "script",
+          "purpose": "Phase-2 deterministic ROI ranker (move M10). Weighted factor table (revenue35/trust25/workload15/cloud15/reversibility10) -> ranked cloud-only queue. Recommendation only; does NOT flip dispatch flags."
+        },
+        {
+          "path": ".github/workflows/p0pgr-shadow-cycle-v1.yml",
+          "kind": "worker",
+          "purpose": "R2 cloud shadow cycle. workflow_dispatch ONLY (cron line commented, gated on R3 unlock), permissions contents:read, runs Phase-0 tests + evidence + cycle + independent receipt validation. LOCKED: never actually run in cloud yet."
+        },
+        {
+          "path": "tests/test_p0pgr_phase0.py",
+          "kind": "test",
+          "purpose": "10 tests guarding lint + cycle (valid packet PASS, missing fields/HYBRID_MAC/HARD_BLOCK/cloud_safe/deploy/P0-leak -> REPAIR_CANDIDATE, cycle receipt validity, repair-candidate-not-lane-stop). Gate for the CI workflow."
+        },
+        {
+          "path": "receipts/p0pgr/phase2_queue_v1.json",
+          "kind": "data",
+          "purpose": "Live ranked ROI queue (M03:86 > M05:74 > M04:73.75 > ...), held items (M08 HOLD_CLOUD_UNSAFE), first_execution_candidate M03. Consumed by any dashboard/digest."
+        },
+        {
+          "path": "receipts/p0pgr/founder/FOUNDER-UNLOCK-PHASE2-CLOUD-ONLY-20260708.json",
+          "kind": "gate",
+          "purpose": "Founder authorization receipt that unlocked Phase-2 cloud-only execution. Scope limits: no Mac, one candidate at a time, no cron, deploy/merge/L5 stay FOUNDER_ONLY. Pattern for every future rung unlock."
+        }
+      ],
+      "extension_points": [
+        "scripts/p0pgr_packet_lint_v1.py lint_packet(): 7 semantic checks append to a reasons list (continuity: never raise) \u2014 new checks slot in as additional appends, guarded by the existing PASS|REPAIR_CANDIDATE contract.",
+        "P0_PROMPT_REGISTRY_SCHEMA_v1.json exists but data/p0pgr_prompt_registry_v1.json is UNBUILT \u2014 the M07 'packet factory' registry file + template compiler (merge packet_defaults + {{parameter_slots}}) is the widest-open plug point.",
+        "scripts/p0pgr_evidence_reader_v1.py collect(): add new evidence sources to the bundle dict before bundle_hash is computed \u2014 they automatically flow into every cycle's L13 replay hash.",
+        "scripts/p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables + campaign_planner moves() (line 130): new board moves / ROI factors are pure dict entries; ranking is deterministic authored constants.",
+        "receipts/p0pgr/repair_candidates/ is written by the cycle but nothing re-reads it \u2014 a repair re-linter is an obvious closed-loop slot.",
+        "Pipeline stage 11 'Receipt Verifier' is specified and P0_EXECUTION_RECEIPT_SCHEMA_v1.json exists, but there is NO scripts/p0pgr_receipt_verify_v1.py \u2014 the adversarial verifier is unbuilt.",
+        "Scorecards + queue JSON (phase1_scorecard, phase2_scorecard, phase2_queue) are stable machine-readable state that any read-only dashboard/digest consumes directly.",
+        "The workflow's cron line and R3/R4/R5 founder-unlock receipts are deliberate seams \u2014 but LOCKED (touching them is not sandbox-safe)."
+      ],
+      "buildable_ideas": [
+        {
+          "idea": "Build the M07 prompt-registry data file (data/p0pgr_prompt_registry_v1.json) + a template compiler: extract the 10 shadow outbox packets into >=1 registered TPL-* template per recurring problem_class, each with packet_defaults + {{parameter_slots}} + >=2 evidence_basis receipts, ALL status DRAFT (never AUTO_DISPATCH_APPROVED, which is founder-gated). Turns founder prompt-writing into a reusable asset.",
+          "builds_on": "P0_PROMPT_REGISTRY_SCHEMA_v1.json + receipts/p0pgr/outbox/*.json + p0pgr_packet_lint_v1.py",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build the missing Receipt Verifier as scripts/p0pgr_receipt_verify_v1.py: read-only adversarial checker that validates any execution receipt against P0_EXECUTION_RECEIPT_SCHEMA_v1.json + provenance rules (executed_at must not predate packet created_at, founder_authorization_ref present for real exec, evidence_artifacts present, cost not bare $0 without accounting_note) and emits a verdict receipt. Fills the specified-but-unbuilt pipeline stage 11.",
+          "builds_on": "P0_EXECUTION_RECEIPT_SCHEMA_v1.json + P0PGR-EXEC-M03-20260708T1330Z.json",
+          "effort": "M",
+          "value": "high",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a self-contained read-only HTML status dashboard (per founder 'presentation = simple HTML page' rule) that renders the R1-R5 rung ladder, phase gates, the ranked phase2 queue, executed moves (M10/M03), findings F1/F2, held items, founder_blocked snapshot, and cost=0. Kills the founder's manual status-reading. Build the file only \u2014 do NOT push to Cloudflare.",
+          "builds_on": "phase1_scorecard_v1.json + phase2_scorecard_v1.json + phase2_queue_v1.json + P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md",
+          "effort": "M",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build scripts/p0pgr_repair_relint_v1.py: read each file in receipts/p0pgr/repair_candidates/, re-run lint_packet on the referenced packet, and emit a resolved/persisting/new report receipt. Closes the 'rejection re-enters the loop as repair' loop that the cycle currently only half-implements (it files candidates but never re-processes them).",
+          "builds_on": "p0pgr_packet_lint_v1.py + receipts/p0pgr/repair_candidates/",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a batch outbox linter: the R2 workflow cycles only ONE packet at a time, but 10 packets sit in the outbox and the mac_runner fallback_route was bulk-removed (phase2_scorecard notes a re-lint). A script that lints every receipts/p0pgr/outbox/*.json and emits a batch report catches drift across the whole queue in one pass.",
+          "builds_on": "p0pgr_packet_lint_v1.py + receipts/p0pgr/outbox/*.json",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        },
+        {
+          "idea": "Build a deterministic weekly founder ROI digest generator (markdown/HTML) that the R5 rung explicitly calls for: summarize ranked moves, executed candidates (M10 ranker, M03 PARTIAL), findings needing founder eyes (F1 pricing ambiguity, F2 doc-stale v71->v108), held cloud-unsafe items, and running cost/send/deploy counters \u2014 all already present in the queue + scorecard + exec receipt.",
+          "builds_on": "phase2_queue_v1.json + phase2_scorecard_v1.json + P0PGR-EXEC-M03-20260708T1330Z.json",
+          "effort": "S",
+          "value": "med",
+          "phase_safe": true
+        }
+      ]
+    }
+  ],
+  "catalog": {
+    "categories": [
+      {
+        "name": "New Gates & Validators (turn prose specs into executable checks)",
+        "why_this_category": "The single most recurring gap across every subsystem: a spec/schema exists and is treated as authority, but the enforcing code lives remotely, in a comment, or nowhere. These fill specified-but-unbuilt enforcement seams, all read-only/advisory, all Phase-0 safe.",
+        "ideas": [
+          {
+            "title": "Build the missing P0-PGR Receipt Verifier (pipeline stage 11)",
+            "description": "scripts/p0pgr_receipt_verify_v1.py: a read-only adversarial checker validating any execution receipt against P0_EXECUTION_RECEIPT_SCHEMA_v1.json plus provenance rules (executed_at not predating packet created_at, founder_authorization_ref present for real exec, evidence_artifacts present, cost never bare $0 without accounting_note). Emits a verdict receipt. The pipeline names stage 11 and the schema exists, but no script does it.",
+            "builds_on": "p0-pgr/P0_EXECUTION_RECEIPT_SCHEMA_v1.json + receipts/p0pgr/founder/FOUNDER-UNLOCK-PHASE2-CLOUD-ONLY-20260708.json (confirmed no scripts/p0pgr_receipt_verify_v1.py on disk)",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read P0_EXECUTION_RECEIPT_SCHEMA_v1.json and one real exec receipt (receipts/p0pgr/... M03), then scaffold a jsonschema+provenance checker that emits a verdict receipt to a scratch path."
+          },
+          {
+            "title": "Executable knowledge-bundle + three-hash validator (D4 verifier, offline)",
+            "description": "A pure-offline Python module turning knowledge-bundle-spec-v0.1.md and brain-worker-code-spec-v0.1.md into enforced checks (UTF-8 decode, JSON-object root, size bounds <=1MB/<=2000 chunks/<=20000 char, both accepted chunk shapes, content_sha256 format, submitted-bytes SHA256 == descriptor proposed_sha256, and the sorted-keys compact path->SHA256 map that yields worker_code_sha256/proposed_sha256). Today this enforcement only exists in the remote CF Worker.",
+            "builds_on": "verifier/knowledge-bundle-spec-v0.1.md + verifier/brain-worker-code-spec-v0.1.md + verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read both v0.1 spec docs, then write a hash-map computer that reproduces the sorted-keys/compact-separator path->SHA256 rule and self-checks against a local 4-file fixture bundle."
+          },
+          {
+            "title": "In-library CHESS pass validator CLI (close the dangling TOOLS/ reference)",
+            "description": "A zero-dep Python tool validating a chess_pass JSON against SCHEMAS/chess_pass.schema.json AND enforcing CHESS-v2/manifest.json forbidden_action_labels (reject any action=='BLOCK'), tested against EXAMPLES/sample_chess_pass.json. Closes the manifest's dangling TOOLS/chess_pass_cli.py reference that has no in-scope file.",
+            "builds_on": "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_pass.schema.json + CHESS-v2/manifest.json",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read chess_pass.schema.json and manifest.json forbidden_action_labels, then write a validator that loads a sample pass and asserts schema + no-BLOCK."
+          },
+          {
+            "title": "Registry cross-consistency linter",
+            "description": "Verify every motor_id in github_automation_registry_v1.json appears in automation_surface_inventory + the evidence bundle motor_ids, every task_cell_owner resolves to a real motor/agent, duplication_forbidden.allowed_motors all exist, and no owns/must_not_own collision across lanes. Emits a receipt; can run CI-style on drift.",
+            "builds_on": "data/github_automation_registry_v1.json + data/automation_surface_inventory_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Load the three JSON files and cross-join motor_ids into sets; print any id present in one but missing in another."
+          },
+          {
+            "title": "Sandbox-registry gate-profile linter",
+            "description": "Statically validate every row of brain_domain_sandboxes_v1.json against what apply_sandbox_profile() consumes: deploy_root expands, deploy_command is never the banned 'bash scripts/brain_cli_v1.sh deploy', source_bundle_path present when bundle_artifacts_only, post_promote_command script path exists, health_url well-formed. Catches a misconfigured promotion lane before any real gate run. Read-only, never invokes the gate deploy path.",
+            "builds_on": "data/brain_domain_sandboxes_v1.json + apply_sandbox_profile() in gates/promotion_gate.py",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the gate_profile keys apply_sandbox_profile() reads in promotion_gate.py, then iterate rows asserting each field."
+          }
+        ]
+      },
+      {
+        "name": "Test & Eval Harnesses (lock current behavior before anyone tunes it)",
+        "why_this_category": "Multiple live subsystems are rule-based (hardcoded regex, allowlists, factor tables) with NO regression guard. Adding golden/pytest harnesses is the cheapest way to make the fragile parts safe to edit, and directly executes named next-steps (step7 note's 'Step 8: gate refusal teeth').",
+        "ideas": [
+          {
+            "title": "Promotion-gate 'refusal teeth' pytest harness (step7's Step 8)",
+            "description": "Feed crafted non-PASS receipts (status!=PASS, missing edge_execution_proven, wrong cf_account_id, mismatched candidate_sha256, non-empty failures, stale/absent independence proof, autonomous-hold flag active) into refusal_reasons()/independence_refusal_reasons()/autonomous_refusal_reasons() with --receipt-url pointed at a local mock, asserting REFUSED and exit code 2 each. The step7 note explicitly names this and says it 'does not require the live SourceA repo'.",
+            "builds_on": "gates/promotion_gate.py refusal_reasons()/independence_refusal_reasons() + verifier/step7-manual-live-deploy-note-v0.1.md",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read promotion_gate.py refusal_reasons() to list the exact invariant checks, then craft one non-PASS receipt JSON fixture and assert the gate REFUSES it."
+          },
+          {
+            "title": "DLM classifier golden-fixture eval harness",
+            "description": "dlm_eval_v1.py: add expected_classification (and expected cluster) per item in the test fixtures, run the pipeline, diff actual vs expected classification counts/labels, emit an eval receipt. Turns the hardcoded regex classifier (FOUNDER_FACT/DEFER/ADVISOR/MACHINE pattern lists) into something regression-testable before anyone tunes the pattern lists.",
+            "builds_on": "decision_language_machine_v1/dlm_classify_v1.py + test_fixtures/*.json + write_stage_receipt in dlm_core_v1.py",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Run python3 dlm_v1.py on form_official_80_open_v1.json, snapshot the current classification counts as the initial golden baseline."
+          },
+          {
+            "title": "language_gate pytest regression harness",
+            "description": "language_gate/test_language_gate_v1.py runs the pipeline over test_files/ and asserts expected decisions: violations_example -> FAIL with the exact BANNED/OVERCLAIM findings, clean_example -> PASS, tombstone_only -> autofix. Today the fixtures exist but nothing asserts against them; the gate's allowlists are unguarded.",
+            "builds_on": "language_gate/test_files/* + decide()/run_pipeline() in language_gate_core_v1.py/pipeline_v1.py",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Run the pipeline on each test_files/ fixture, capture the current decision+findings, and write them as pytest asserts."
+          },
+          {
+            "title": "Three missing skill eval suites",
+            "description": "Build evals for staleness-gate-auditor, receipt-ledger-auditor, registry-motor-validator mirroring skills/pr-conflict-resolver/evals/. E.g. staleness: a stale-law pattern matching an ACTIVE surface must be reported as a named blocker not a bare FAIL; registry: a duplicate motor_id must be called an L1 violation. Gives all four audit skills the same +pass-rate evidence pr-conflict-resolver already has (+0.24).",
+            "builds_on": "skills/pr-conflict-resolver/evals/{evals.json,benchmark.json,benchmark.md} (confirmed only this one skill has evals/)",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read pr-conflict-resolver/evals/evals.json schema, then author one scenario for registry-motor-validator (duplicate motor_id -> expect L1 violation label)."
+          },
+          {
+            "title": "Offline receipt-replay verifier harness (CF worker logic)",
+            "description": "Lift the pure functions from workers/github-app-advisory/index.js (validateArtifactDescriptor, validateKnowledgeBundleBytes, sha256FromSortedHashMap, edgeMetadata) into a Node test module and replay captured receipts (step6-deliberate-non-pass, step8-tampered-independence) to re-derive status/PASS math without hitting GitHub or the live edge. A regression test for the verifier logic without touching the live secondary-account worker.",
+            "builds_on": "workers/github-app-advisory/index.js validation functions + receipts/*.json fixtures",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Copy the pure validation functions out of index.js into a scratch test module and feed it the captured non-PASS receipt fixture."
+          },
+          {
+            "title": "Prompt-Forge deterministic snapshot harness (--no-llm)",
+            "description": "Golden/snapshot tests for the P5 Prompt-Forge compiler running only in --no-llm deterministic mode, using EXAMPLES/raw_to_patched_prompt_examples.md as fixtures and --demo, asserting stable compiled output and that STANDING_CONSTRAINTS + IF_BLOCKED are always injected. No network, no LLM key.",
+            "builds_on": "SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py + EXAMPLES/raw_to_patched_prompt_examples.md",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Run prompt_forge_pipeline_v1.py --no-llm --demo, capture output as the golden snapshot."
+          }
+        ]
+      },
+      {
+        "name": "Pattern Factory & Commercial Layer (turn sellable-NOW prose into deliverables)",
+        "why_this_category": "P9/P10 are rich definition docs but the Tier-1 offers that 'sell now' have no repeatable deliverable artifact yet. These convert doctrine into things a client actually receives, on synthetic/mock data only, honoring the brain-as-a-service proof-gate (no Tier-3 claims).",
+        "ideas": [
+          {
+            "title": "'Brain Coherence Report' deliverable template + scoring rubric",
+            "description": "Author the missing Tier-1 deliverable (HTML/markdown) with the 7 diagnostic sections brain-audit-v1 names (stack fragmentation, definition drift, agent theater, missing receipts, dead workflows, founder overload, missing decision-spine). Turns the 'sellable NOW, fastest cash path' offer from prose into a repeatable artifact.",
+            "builds_on": "SG-Canonical-Library/.../P9-PATTERN-FACTORY/brain-audit-v1.md + brain-as-a-service.md Tier-1 anchor",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read brain-audit-v1.md's 7 diagnostic categories and draft a single self-contained HTML report template with one scored section per category."
+          },
+          {
+            "title": "Pattern Factory catalog / storefront (simple HTML)",
+            "description": "A static HTML catalog rendering all 7 patterns and their matching commercial surfaces (buyer pain, tier, price band, proof receipts, ladder position) pulled from P9 pattern docs + P10 service docs. Answers the index's explicit 'Members (TODO to expand)' and fits the founder-law that deliverables are simple web pages, not decks.",
+            "builds_on": "pattern-factory-index.md + brain-as-a-service.md ladder + operational-language-governance-audit.md / agentic-cost-governance-service.md pricing",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read pattern-factory-index.md and list the 7 patterns + their P10 pricing docs, then build one HTML page with a card per pattern."
+          },
+          {
+            "title": "Tier-1 AI Spend Leak Audit scanner (synthetic data)",
+            "description": "A sandbox scanner ingesting a mock agent-run/token log and computing the SSOT's defined metrics (leak_rate, cost-per-successful-task, top-5 optimization targets), emitting the promised audit JSON. Proves the cost-governance Tier-1 deliverable on synthetic data without touching customer infra or CF.",
+            "builds_on": "SG-Canonical-Library/.../P10-PRODUCT-LAYERS/agentic-cost-governance-SSOT.md ROI metrics table + agentic-cost-governance-service.md Tier-1 spec",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the ROI metrics table in agentic-cost-governance-SSOT.md, generate a synthetic token-log fixture, and compute leak_rate over it."
+          },
+          {
+            "title": "Signal Factory structural receipt verifier",
+            "description": "A JSON schema for the fixed triage receipt + a checker validating all fixed fields exist, scores are 0-5, risk>=4 sets the human-review routing flag, and author!=subject. Completes the 'worker-build pending' piece behind the already-live signal-factory skill.",
+            "builds_on": "SG-Canonical-Library/.../P9-PATTERN-FACTORY/signal-factory-v1.md output contract",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read signal-factory-v1.md's output contract and encode it as a JSON schema, then write a checker asserting author!=subject and score bounds."
+          },
+          {
+            "title": "Gateway lead-intelligence dashboard (mock/exported data only)",
+            "description": "A static dashboard from the blueprint's DEFERRED list reading EXPORTED/mock gateway_leads rows and visualizing priority_tag distribution, venture_route funnel, and lead_type segments. Phase-safe ONLY as a mock prototype; do NOT wire to the live Railway app or Supabase.",
+            "builds_on": "SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md \u00a77 DEFERRED backlog + gateway_leads schema \u00a75",
+            "effort": "M",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the gateway_leads schema \u00a75, synthesize a mock rows JSON, render a priority_tag bar breakdown."
+          }
+        ]
+      },
+      {
+        "name": "Automation Motors & Closed Loops (finish the half-built loops)",
+        "why_this_category": "Several motors emit work items nothing re-reads, or emit stub/unknown metrics. These close existing loops using already-present receipt buses \u2014 deterministic, no LLM, true $0 shadow cost, no locked execution.",
+        "ideas": [
+          {
+            "title": "Build the M07 prompt-registry data file + template compiler",
+            "description": "The widest-open plug point: data/p0pgr_prompt_registry_v1.json is unbuilt. Extract the 10 shadow outbox packets into >=1 registered TPL-* template per recurring problem_class, each with packet_defaults + {{parameter_slots}} + >=2 evidence_basis receipts, ALL status DRAFT (never AUTO_DISPATCH_APPROVED, which is founder-gated). Turns founder prompt-writing into a reusable asset.",
+            "builds_on": "p0-pgr/P0_PROMPT_REGISTRY_SCHEMA_v1.json + receipts/p0pgr/outbox/*.json (10 confirmed) + scripts/p0pgr_packet_lint_v1.py",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the registry schema + 2-3 outbox packets, cluster by problem_class, and draft one DRAFT-status TPL-* template with parameter slots."
+          },
+          {
+            "title": "Repair-candidate re-linter (close the rejection loop)",
+            "description": "scripts/p0pgr_repair_relint_v1.py: read each file in receipts/p0pgr/repair_candidates/, re-run lint_packet on the referenced packet, emit a resolved/persisting/new report receipt. The cycle files candidates but nothing re-processes them today.",
+            "builds_on": "scripts/p0pgr_packet_lint_v1.py + receipts/p0pgr/repair_candidates/",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "List repair_candidates/, read one, re-run p0pgr_packet_lint_v1.py against its referenced packet and diff the reasons."
+          },
+          {
+            "title": "Batch outbox linter",
+            "description": "The R2 workflow cycles ONE packet at a time, but 10 sit in the outbox and the mac_runner fallback_route was bulk-removed. Lint every receipts/p0pgr/outbox/*.json in one pass and emit a batch drift report.",
+            "builds_on": "scripts/p0pgr_packet_lint_v1.py + receipts/p0pgr/outbox/*.json",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Glob outbox/*.json and run p0pgr_packet_lint_v1.py over each, collecting verdicts into one summary."
+          },
+          {
+            "title": "Dead-motor detector",
+            "description": "Cross-reference each census loop's receipt_glob (workflow_census_extensions + inventory) against actual files in receipts/, flagging any loop with no matching receipt in N days as a silent/dead motor; emit a census-liveness receipt. Answers the census's own 'which receipt does this loop serve?' with evidence of whether it actually served one.",
+            "builds_on": "scripts/workflow_census_v1.py + data/workflow_census_extensions_v1.json + audit_receipt_ledger_v1.py scan pattern",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read workflow_census_extensions_v1.json receipt_globs, glob each against receipts/, list globs with zero recent matches."
+          },
+          {
+            "title": "ROI heartbeat populator",
+            "description": "Replace write_roi_heartbeat's all-'unknown' metrics dict with a collector deriving receipt_chain_verifier, pattern_exports_per_week, and blocker_count from real receipts/ files (count by schema, newest brain-loop-autorun gate_note, p0pgr repair backlog). Keeps 'unknown stays unknown' for genuinely missing sources.",
+            "builds_on": "scripts/write_roi_heartbeat_v1.py + receipts/ + workflow_census receipts",
+            "effort": "M",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read write_roi_heartbeat_v1.py's metrics dict and replace one 'unknown' (blocker_count) with a real count from receipts/."
+          },
+          {
+            "title": "Stale-law sweep to populate the empty governance queue",
+            "description": "Run stale_law_guard_patterns_v1 regexes across all ACTIVE paths in agent_read_surfaces + the registries, writing BLOCKER/WARN hits into governance_stale_pointer_queue_v1.items[] with severity + replacement suggestion (report-only, no edits). The queue schema exists but is empty (open_count 0).",
+            "builds_on": "data/stale_law_guard_patterns_v1.json + data/agent_read_surfaces_v1.json + data/governance_stale_pointer_queue_v1.json",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Load stale_law_guard_patterns_v1.json regexes and grep them across ACTIVE surface paths from agent_read_surfaces, printing hits."
+          },
+          {
+            "title": "Value-class cost attribution table (executes designed move M06 as a report)",
+            "description": "Attribute monthly cost per loop/value_class from census + value-class rules, flag every NONE-class dollar (~$20/mo dead spend), output an attribution table only. Kill/throttle stays a ranked recommendation, never an action.",
+            "builds_on": "data/workflow_census_value_class_rules_v1.json + receipts/p0pgr/evidence/evidence-*.json census + campaign move M06",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Join value_class_rules by_task_cell with the evidence census counts and print cost grouped by value_class."
+          }
+        ]
+      },
+      {
+        "name": "Developer Experience, Dashboards & Onboarding (read-only visibility)",
+        "why_this_category": "The founder currently reads status by hand across scorecards, queues, receipts, and sidecars. Every subsystem emits stable machine-readable JSON that a simple self-contained HTML page can render. All read-only, all honoring the 'simple web page, not a deck' founder-law, none pushed to Cloudflare.",
+        "ideas": [
+          {
+            "title": "P0-PGR read-only status dashboard (R1-R5 ladder + queue + gates)",
+            "description": "A self-contained HTML page rendering the R1-R5 rung ladder, phase gates, the ranked phase2 queue (M03:86 > M05:74 > ...), executed moves (M10/M03), findings F1/F2, held items, founder_blocked snapshot, and cost=0. Kills the founder's manual status-reading. Build the file only; do NOT push to Cloudflare.",
+            "builds_on": "receipts/p0pgr/phase1_scorecard_v1.json + phase2_scorecard_v1.json + phase2_queue_v1.json + P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md",
+            "effort": "M",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read phase2_queue_v1.json + phase2_scorecard, then render a single static HTML page (via the Artifact tool) showing the ranked queue and gate states."
+          },
+          {
+            "title": "Unified 'Governance Console' dashboard (compose the 4 auditors)",
+            "description": "One HTML dashboard (or 5th .app) running all three live generate.py scripts plus a pr-conflict summary, showing a CLEAN/FINDINGS roll-up with four sub-badges. The generators already emit a common badge/stat-row vocabulary, so it's a compose not a rewrite; all wrappers stay read-only (no --write-receipt).",
+            "builds_on": "the three desktop-app generate.py live-dashboard scripts + shared STYLE block + launcher pattern",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read one generate.py to learn the badge/stat-row HTML vocabulary, then draft a parent page that embeds all four sub-reports."
+          },
+          {
+            "title": "De-pin the desktop audit apps (make them run on any checkout)",
+            "description": "Change the hardcoded REPO=/Users/.../Desktop/... constant in the 3 live generate.py to resolve NOETFIELD_SG_REPO env var, then git rev-parse --show-toplevel, then bundle-relative fallback. Small surgical change that unblocks every other app idea (today they only run on the founder's Desktop clone).",
+            "builds_on": "REPO constant in the 3 desktop-app generate.py (all 3 confirmed pinned to Desktop/Noetfield-Systems)",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read one generate.py's REPO line, replace with an env-var/git-rev-parse/bundle-relative resolver, and run it from this worktree."
+          },
+          {
+            "title": "Wording-debt rollup over the 92 language_gate_review sidecars",
+            "description": "Aggregate all 92 *.language_gate_review.json sidecars into one HTML/JSON report grouped by file and by review reason, ranking the most-flagged files. Pure read over the uniform {file, agent_review:[{line,reason,hint}]} shape (92 sidecars confirmed on disk).",
+            "builds_on": "the 92 *.language_gate_review.json sidecars under SG-Canonical-Library",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Glob the 92 sidecars, tally agent_review reasons per file, and render a ranked HTML table."
+          },
+          {
+            "title": "State-surface index dashboard for onboarding",
+            "description": "A read-only script joining github_automation_registry (motors/lanes), workflow_census value-class counts + evidence census (RED, NONE:8), agent_read_surfaces alive-docs, and the P0-PGR phase2 scorecard/queue into one HTML/JSON machine-readable state surface for onboarding.",
+            "builds_on": "data/github_automation_registry_v1.json + receipts/p0pgr/phase2_scorecard_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Load the registry + newest evidence bundle, then render motors/lanes and census value-class counts into one static page."
+          },
+          {
+            "title": "DLM founder sheet as HTML",
+            "description": "Add render_founder_sheet_html() beside render_founder_sheet_md() in dlm_founder_sheet_v1.py and have the pipeline also write output/{run_id}.founder_sheet.html: one self-contained page showing advisor clusters, options, founder facts, and machine/deferred counts. Directly satisfies the 'presentation = simple HTML page' rule.",
+            "builds_on": "decision_language_machine_v1/dlm_founder_sheet_v1.py render_founder_sheet_md + dlm_pipeline_v1.py sheet-writing block",
+            "effort": "S",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read render_founder_sheet_md() and the sheet dict shape, then add a sibling render_founder_sheet_html() reading the same dict."
+          }
+        ]
+      },
+      {
+        "name": "Wiring & Data-Externalization (connect built-but-orphaned assets)",
+        "why_this_category": "A recurring waste pattern: assets are fully built to a stable schema but nothing loads them (overlay indexes), or vocabulary lives hardcoded in Python where it should be reviewable data. Low-risk connections and refactors that unlock existing investment.",
+        "ideas": [
+          {
+            "title": "Wire the orphaned language_gate overlay indexes into the gate",
+            "description": "Extend effective_structural_allowlist()/effective_entity_allowlist() to fold overlay entries[] by class (COMMAND_FRAGMENT, FORM_OPTION, STATUS_LABEL, *_LOCAL_TERM -> skip as undefined; keep CONFLICT_PHRASE/REGULATORY_COPY_RISK separate). Connects 165 produced-but-unused entries and kills the UNDEFINED_TERM noise the overlays were built to suppress.",
+            "builds_on": "language_gate/sourcea_dictionary_overlay_index_v1.json + trustfield_dictionary_overlay_index_v1.json + effective_structural_allowlist() in language_gate_core_v1.py (both overlays confirmed on disk)",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read effective_structural_allowlist() merge logic, then load the SourceA overlay entries and fold COMMAND_FRAGMENT/STATUS_LABEL classes into the allowlist behind a test."
+          },
+          {
+            "title": "In-gate read-only library scan runner",
+            "description": "language_gate/library_scan_v1.py globs a path, calls scan() with write=False, and emits the existing library_scan details.json schema plus a decision rollup. Re-owns the capability that produced the 160-file receipt (3 FAIL/87 WARN) whose runner is not in the gate.",
+            "builds_on": "receipts/SG-Canonical-Library.library_scan.*.details.json schema + scan()/decide() in language_gate_core_v1.py",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the library_scan details.json schema and scan()'s signature, then write a globbing runner that emits the same schema over test_files/."
+          },
+          {
+            "title": "Static reconciler + autonomy scoreboard over the two P0 registries",
+            "description": "Check referential integrity (every loops[].retires_trigger_ids resolves to a trigger_id; every trigger.receipt_sources maps to a loop.receipt_path) and render each founder trigger's retire-readiness (consecutive_green vs green_receipts_required, honoring never_auto_retire). Reads only the two JSON registries, never the live receipts/ tree, so it never touches locked P0-PGR execution.",
+            "builds_on": "SG-Canonical-Library/.../P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json + founder-trigger-retirement-registry-v1.json",
+            "effort": "M",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Load both registries and assert every retires_trigger_ids value resolves to a trigger_id, printing dangling references."
+          },
+          {
+            "title": "Externalize the Phase-2 rank factor table",
+            "description": "Load WEIGHTS/FACTORS from a new data/p0pgr_phase2_factors_v1.json registry, assert weights sum to 100 and every campaign move has a factor row (else DEGRADED), so new moves get ranked without editing Python. Still recommendation-only, no dispatch flags flipped.",
+            "builds_on": "scripts/p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS tables",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the FACTORS/WEIGHTS constants in p0pgr_phase2_rank_v1.py and serialize them verbatim into a new data JSON, then load it back and assert identical ranking."
+          },
+          {
+            "title": "Externalize the six hardcoded language_gate allowlists to JSON",
+            "description": "Move STATUS_LABEL/CENSUS_VERB/FRAGMENT/TECH_REFERENCE/STRUCTURAL/ENTITY out of language_gate_core_v1.py into a JSON allowlist file loaded like dictionary_rc2_supplement.json, so vocabulary edits stop requiring Python changes and stay reviewable as data.",
+            "builds_on": "effective_structural_allowlist() merge pattern + dictionary_rc2_supplement.json.structural_allowlist",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the six allowlist constants in language_gate_core_v1.py and dump them to a JSON file loaded via the existing supplement merge path."
+          },
+          {
+            "title": "Skill-manifest self-linter",
+            "description": "Parse every skills/*/SKILL.md compatibility: block and assert each referenced script/data path actually exists on disk, catching a skill that points at a moved/renamed script. Same 'authority pointing at something that no longer resolves' failure mode staleness-gate-auditor catches, applied to the skills layer itself.",
+            "builds_on": "the compatibility: frontmatter in all 7 SKILL.md files",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Glob skills/*/SKILL.md, parse the compatibility block, and os.path.exists each referenced path."
+          }
+        ]
+      },
+      {
+        "name": "CI & Hooks (claim the empty PR/push gating surface)",
+        "why_this_category": "The entire pull_request/push CI gating surface is empty: templates and rules exist but nothing enforces them, and the pre-commit hook is inert (core.hooksPath unset). Adding non-blocking/report-only CI is phase-safe; the locked P0-PGR shadow cycle is deliberately excluded from PR triggers.",
+        "ideas": [
+          {
+            "title": "pr-governance-lint workflow (enforce the PR template)",
+            "description": "A pull_request-triggered workflow parsing .github/pull_request_template.md fields on the PR body: fail if lane is unset/not in the allowed enum, if receipt_id is blank while autorun/done is claimed, or if the two non-duplication checkboxes are unchecked. Closes the gap where the template exists but zero CI enforces it.",
+            "builds_on": ".github/pull_request_template.md + .github/copilot-instructions.md",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the template's structured fields, then write a small parser (tested locally on a sample PR body string) that asserts lane+receipt_id+checkboxes."
+          },
+          {
+            "title": "language-gate-ci job (enforce the gate in the cloud)",
+            "description": "A pull_request job reusing the exact pre-commit logic: run language_gate_pipeline_v1.py --surface auto over changed .md/.mdc/.txt/.json, so the gate is enforced even for contributors who never installed the hook (currently inert since core.hooksPath is unset).",
+            "builds_on": ".githooks/pre-commit + language_gate/language_gate_pipeline_v1.py",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read .githooks/pre-commit's invocation, then draft a workflow YAML that runs the same pipeline over a git diff file list (test the command locally first)."
+          },
+          {
+            "title": "Reusable validate-receipt composite action",
+            "description": "Generalize p0pgr-shadow-cycle's 'independent receipt validation' step (jsonschema Draft202012 vs a schema) into .github/actions/validate-receipt, then add a non-blocking validation step before upload-artifact in the census, staleness, and auth-probe workflows, which currently upload receipts with no schema check.",
+            "builds_on": ".github/workflows/p0pgr-shadow-cycle-v1.yml independent-validation step + upload-artifact globs across 4 workflows",
+            "effort": "M",
+            "value": "high",
+            "phase_safe": true,
+            "sandbox_first_step": "Read the independent-validation step in p0pgr-shadow-cycle-v1.yml and extract its jsonschema call into a standalone action.yml."
+          },
+          {
+            "title": "git-hooks installer + hooks-present PR check",
+            "description": "scripts/install_git_hooks.sh (sets core.hooksPath=.githooks) plus a PR 'hooks-present' check asserting .githooks/pre-commit exists and is executable. Fixes the inert-hook state where core.hooksPath is unset and nothing wires the gate.",
+            "builds_on": ".githooks/pre-commit + unset core.hooksPath",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Write install_git_hooks.sh that runs git config core.hooksPath .githooks and verify .githooks/pre-commit is executable."
+          },
+          {
+            "title": "forbidden-marker PR grep gate",
+            "description": "A tiny PR grep gate failing if 'kazemnezhadsina144-dot' appears in staged/changed active config or executable paths, enforcing the copilot-instructions rule that is today documentation-only.",
+            "builds_on": ".github/copilot-instructions.md forbidden active-config marker",
+            "effort": "S",
+            "value": "med",
+            "phase_safe": true,
+            "sandbox_first_step": "Write a grep over changed files for the marker string and exit 1 on hit; test on a sample file."
+          }
+        ]
+      }
+    ],
+    "guardrails": "LOCKED / do-not-touch in the sandbox: (1) P0-PGR real execution beyond cloud-only read-only ranking \u2014 deploy, merge, cron, auto-dispatch, and rungs R3/R4/R5 are all gated behind founder-unlock receipts that do not exist; never uncomment the shadow-cycle cron line, never flip dispatch_now, never set status AUTO_DISPATCH_APPROVED on a registry template. (2) Live Cloudflare deploys \u2014 promote_brain_worker --autonomous-deploy, gates/promotion_gate.py execute_deploy_flow against the secondary CF account, and the workers/github-app-advisory live worker (edit/redeploy) are founder-gated; build offline harnesses over the same code/schema instead. (3) brain-loop-autorun-v1.yml (every 30m, can deploy when CF_* secrets present) is a live-deploy boundary \u2014 do not modify. (4) No auto-merge / no self-merge of any PR. (5) Never delete artifacts \u2014 rejection is not permission to rm; receipts are append-only/immutable. (6) No writes to live Supabase (noetfield tkgpapowwplupyekpivy / workflow_census tables) \u2014 run census/probe scripts in --json report-only mode without --write-supabase/--write-receipt; use a sandbox DB for any census-row work. (7) No outbound sends \u2014 commercial_pulse send stays founder_blocked; dispatch-checks are dry-run/scoring only. (8) Do NOT wire new .cursor/hooks or pre-commit during dictionary/gate experiments \u2014 ship standalone CLIs. (9) Deploy fence blocks dirty-tree pushes; Cloudflare is retired for www (Cloudflare www + Railway backend is the real stack, never Vercel). (10) Deliverables are simple self-contained HTML pages, never .pptx decks; build the file, never push it live.",
+    "kit_summary": [
+      {
+        "layer": "Dispatch brain (P0-PGR/PDR)",
+        "capability": "Governed prompt-authoring + delivery loop: evidence reader (bundle_hash L13), packet linter (7 semantic + P0-leak checks), shadow cycle (route-decision-only), campaign planner (10 packets/6 axes + CHESS), deterministic ROI ranker (M10). Contract v1.1, RUNTIME_CONTINUITY_LAW.",
+        "state": "Phase-0 shadow live + 10/10 tests; Phase-2 cloud-only ROI track founder-unlocked, executed twice (M10 ranker, M03 audit, PARTIAL, 0 sends/deploys). Registry data file, receipt verifier (stage 11), repair re-linter all UNBUILT. R2 cloud/R3 cron/R4/R5 LOCKED."
+      },
+      {
+        "layer": "Decision Language Machine (DLM)",
+        "capability": "LLM-free 8-stage pipeline: messy backlog -> normalize -> plain-English -> dictionary check -> cluster -> classify (MACHINE/ADVISOR/FOUNDER_FACT/DEFER) -> reduced founder sheet -> validation-fenced apply-map. Per-stage JSON receipts.",
+        "state": "Live end-to-end (8 sample runs committed); rule-based regex tuned to one corpus, no regression harness, md-only render, apply-map fence never auto-submits FORM_OFFICIAL."
+      },
+      {
+        "layer": "language_gate (wording authority)",
+        "capability": "Fail-closed terminology gate: 225-term dictionary, regex lint for retired aliases/banned register/overclaims/undefined terms, deterministic plain-English rewrite, per-scan receipts + review sidecars, exit 1 on FAIL.",
+        "state": "Core engine live (160-file scan: 3 FAIL/87 WARN); wired to .cursor/hooks + .githooks. Two overlay indexes (165 entries) ORPHANED, no test harness, six big allowlists hardcoded in Python, library-scan runner not in-gate."
+      },
+      {
+        "layer": "D4 verifier + promotion gate",
+        "capability": "Trust boundary between sandbox candidate and live Worker deploy: independent second-account CF verifier emits signed edge/account-independence receipts; gates/promotion_gate.py (763 lines) refuses deploy unless every invariant passes, with sandbox-registry-driven promotion lanes.",
+        "state": "Gate LIVE + exercised (real deploy receipts, caught a content-identity mismatch). Autonomous path LOCKED behind flags. verifier/ side is v0.1 SPEC/scaffold \u2014 the enforcing validator lives only in the remote Worker; birth receipt is advisory (pass_claimed:false)."
+      },
+      {
+        "layer": "scripts/ motor layer (50 files)",
+        "capability": "Receipt-emitting deterministic motors: brain autorun loop, P0-PGR shadow pipeline, weekly census + staleness cycles, auth probes, receipt-ledger audit, chess-risk pre-check. Registry-driven, mostly no-LLM ($0 shadow).",
+        "state": "Mixed: autorun/census/staleness/auth-probe LIVE+scheduled; p0pgr_* shadow-only; promote --autonomous LOCKED. write_roi_heartbeat emits all-'unknown' stub; audit_* always exit 0 (surface, never gate)."
+      },
+      {
+        "layer": "Edge worker + Supabase census",
+        "capability": "CF Worker independent verifier (GitHub App token, SHA256 recompute, edge/secondary-account PASS proof) + WORKFLOW_CENSUS_v1 schema (per-loop rows + weekly GREEN/YELLOW/RED rollups) populated weekly into Supabase.",
+        "state": "Both LIVE on locked/live surfaces (secondary CF account + noetfield Supabase). Editing index.js or writing live census tables is NOT sandbox-safe; offline harnesses over the same code/schema are."
+      },
+      {
+        "layer": "Canonical Library P0-P8",
+        "capability": "Ratified SSOT of laws/schemas/templates/registries across authority tiers: invariants, machine-loop registry (14 loops), founder-trigger-retirement registry, CHESS reasoning schemas, working Prompt-Forge compiler, language-layer doctrine.",
+        "state": "Live/ratified authority (v0.9-SG-RATIFIED, 143-file manifest, 92 gate sidecars). Spec-complete but tool-incomplete: CHESS validator CLI, dictionary index builder, and 14 entry_scripts referenced by manifests live OUTSIDE the library."
+      },
+      {
+        "layer": "P9 Pattern Factory + P10 Product",
+        "capability": "Library of 7 sellable receipt-backed governance patterns + commercial product/service docs with tiered pricing (Brain Audit, Operational Language Audit, Agentic Cost Governance) and 2 live-product blueprints (Sina Gateway, TrustField).",
+        "state": "Definition layer rich + current; some products live outside scope. Tiers STAGED by proof-gate (Tier-1 sells now, Tier-3 locked). No Brain Coherence Report template, no cost-audit scanner, signal-factory verifier pending; open UNDEFINED_TERM sidecar backlog."
+      },
+      {
+        "layer": "State registries + receipt ledger (data/ receipts/ ledger/ ssot/)",
+        "capability": "Machine-readable truth surface: 16-motor automation registry, alive-doc registry, brain deploy state, value-class rules, stale-law guard patterns, the full P0-PGR receipt state machine (92 receipts), and human decision ledger.",
+        "state": "Registries LIVE + actively written. P0-PGR scaffolded/shadow. Stale spots: brain bundle_sha256=null, empty governance_stale_pointer_queue (a ready sink), hand-authored Level-2 ledger stopgap."
+      },
+      {
+        "layer": "Agent skills + macOS audit apps",
+        "capability": "7 Claude Code skills wrapping governance scripts (correct interpretation, not bare PASS/FAIL); 4 packaged as read-only .app dashboards; pr-conflict-resolver ships an eval harness proving +0.24 pass-rate lift.",
+        "state": "Skills live + all wrapped files verified on disk. Only 1 of 4 audit skills has evals/; 3 desktop apps hardcode the founder's Desktop clone path (confirmed); PR-resolver app ships a frozen static report; no bundle-build script (copy-pasted CSS/launcher)."
+      },
+      {
+        "layer": "CI + git hooks (.github/ + .githooks/)",
+        "capability": "5 cron/dispatch GitHub Actions workflows (autorun, p0pgr shadow, auth probe, census, staleness) uploading receipts as artifacts; local pre-commit language gate; governance PR template + Copilot rules.",
+        "state": "Zero workflows run on push/PR \u2014 the PR-time gating surface is entirely empty and unclaimed. Pre-commit hook is INERT (core.hooksPath unset, no installer). PR template + forbidden-marker rules unenforced by any CI."
+      }
+    ],
+    "top_picks": [
+      {
+        "title": "Build the P0-PGR Receipt Verifier (pipeline stage 11)",
+        "why": "Highest structural leverage: the 12-stage pipeline explicitly names a Receipt Verifier and P0_EXECUTION_RECEIPT_SCHEMA_v1.json exists, but no script implements it (confirmed absent). It is the adversarial spine that makes any future real execution trustworthy, and it is 100% read-only/advisory so it is fully Phase-0 safe today.",
+        "first_move": "Read P0_EXECUTION_RECEIPT_SCHEMA_v1.json + one real exec receipt, scaffold scripts/p0pgr_receipt_verify_v1.py doing jsonschema + provenance checks (executed_at vs created_at, founder_authorization_ref, evidence_artifacts, non-bare-$0), emit a verdict receipt to a scratch path."
+      },
+      {
+        "title": "Build the M07 prompt-registry data file + template compiler",
+        "why": "The single widest-open plug point in the whole system (schema built, data/p0pgr_prompt_registry_v1.json confirmed absent). It converts the founder's one-off prompt-writing into a reusable asset and is the unit of future autonomy \u2014 while staying safe because every template ships status DRAFT, never the founder-gated AUTO_DISPATCH_APPROVED.",
+        "first_move": "Read P0_PROMPT_REGISTRY_SCHEMA_v1.json + 2-3 of the 10 outbox packets, cluster by problem_class, and author one DRAFT TPL-* template with packet_defaults + {{parameter_slots}} + 2 evidence_basis refs, then lint it."
+      },
+      {
+        "title": "Wire the orphaned language_gate overlay indexes into the gate",
+        "why": "165 entries across two overlay JSONs are fully built to a stable schema but nothing loads them (confirmed both files on disk, unconsumed). One merge-point change (effective_structural_allowlist) recovers that entire investment and kills the UNDEFINED_TERM noise the overlays exist to suppress \u2014 the highest value-per-line change available.",
+        "first_move": "Read effective_structural_allowlist()/effective_entity_allowlist() in language_gate_core_v1.py, then fold sourcea overlay COMMAND_FRAGMENT/STATUS_LABEL/*_LOCAL_TERM classes into the allowlist behind a fixture test (keep CONFLICT_PHRASE/REGULATORY_COPY_RISK separate)."
+      },
+      {
+        "title": "Promotion-gate 'refusal teeth' pytest harness (step7's named Step 8)",
+        "why": "This is a next-step the repo explicitly wrote down for itself and stated 'does not require the live SourceA repo' \u2014 the gate is the load-bearing deploy trust boundary yet nothing regression-tests that it actually refuses bad receipts. Pure offline test authoring against a live 763-line gate; unblocks confidence in the whole promotion chain.",
+        "first_move": "Read refusal_reasons()/independence_refusal_reasons() in gates/promotion_gate.py to enumerate invariants, craft one non-PASS receipt fixture (status!=PASS), and assert main() REFUSES with exit code 2 against a local mock --receipt-url."
+      },
+      {
+        "title": "Author the 'Brain Coherence Report' Tier-1 deliverable template",
+        "why": "The only top-pick that produces near-term revenue leverage: brain-audit-v1 is the 'sellable NOW, fastest cash path' offer but has no repeatable deliverable \u2014 it is prose. A single self-contained HTML template with the 7 named diagnostic sections turns the offer into something a client actually receives, honoring both the proof-gate (no Tier-3 claims) and the 'simple web page not a deck' founder-law.",
+        "first_move": "Read brain-audit-v1.md's 7 diagnosis targets (stack fragmentation, definition drift, agent theater, missing receipts, dead workflows, founder overload, missing decision-spine) and draft one HTML report template with a scored section per target."
+      }
+    ]
+  },
+  "critique": {
+    "verdict": "The catalog is strong on per-subsystem enforcement/harness gaps but systematically under-weights cross-subsystem wiring (it treats all 10 subsystems as silos), governance-fence hardening inside DLM, protection of live commercial surfaces, and the deterministic differential tests that would prove its own offline reimplementations faithful \u2014 the highest-leverage plays sit precisely in those seams.",
+    "strongest_pick": "DLM \u2192 P0-PGR packet bridge: pipe DLM's MACHINE_VALIDATABLE / ADVISOR_REVIEW cluster output straight into p0pgr_campaign_planner_v1.py's compile_packet() as DRAFT, lint-only packets. It is the single biggest surface the whole catalog missed \u2014 DLM's classified, plain-English, de-duplicated decision items ARE the \"problem statement\" the P0-PGR packet compiler already consumes, so a thin adapter fuses the system's two flagship brains into one messy-backlog\u2192dispatchable-work pipeline. Fully phase-safe (DRAFT status, linter-only, dispatch_now stays false), grounded in two live scripts, and turns two isolated demos into an actual assembly line.",
+    "missed": [
+      {
+        "what": "DLM \u2192 P0-PGR packet bridge: adapter that feeds DLM classifier output (MACHINE_VALIDATABLE items + advisor clusters) into the P0-PGR packet compiler as DRAFT, lint-clean packets",
+        "builds_on": "decision_language_machine_v1/dlm_classify_v1.py + dlm_apply_map_v1.py output shape wired into scripts/p0pgr_campaign_planner_v1.py compile_packet()/p0pgr_packet_lint_v1.py",
+        "why_it_matters": "The catalog proposes zero cross-subsystem fusion, yet DLM's whole output IS the problem-statement input P0-PGR was built to compile. This connects the two largest brains into one backlog\u2192dispatch pipeline; phase-safe because packets ship DRAFT/lint-only and never AUTO_DISPATCH."
+      },
+      {
+        "what": "DLM apply-map round-trip validator (dlm_verify_apply_map_v1.py): asserts every ADVISOR/FOUNDER_FACT id is in picks or missing_ids, machine_closed_without_founder never overlaps picks, and status is never a FORM_OFFICIAL auto-submit",
+        "builds_on": "decision_language_machine_v1/dlm_apply_map_v1.py build_apply_map/load_validated_picks (confirmed dlm_verify_apply_map_v1.py absent on disk)",
+        "why_it_matters": "The catalog pulled only 2 of 6 DLM raw ideas and skipped all three that harden the ONE governance fence in the subsystem. This locks the fence that keeps the machine from silently founder-bypassing \u2014 the exact author!=subject / Sina-owns-DECIDE invariant, small and phase-safe."
+      },
+      {
+        "what": "DLM DICTIONARY_FIX_NEEDED batch emitter \u2192 dictionary proposal file (cross-subsystem DLM\u2192language_gate)",
+        "builds_on": "decision_language_machine_v1/dlm_terms_v1.py DICTIONARY_FIX_NEEDED/ALIAS_RETIRED statuses (confirmed) feeding a proposal, not a write, to language_gate/dictionary_index.json",
+        "why_it_matters": "The 80-item fixture already surfaces ~62 fix-needed terms \u2014 the single biggest open bucket \u2014 but nothing aggregates them. It feeds the same dictionary the catalog's overlay-wiring pick targets, closing a real backlog instead of just suppressing noise."
+      },
+      {
+        "what": "TrustField overlay \u2192 surface-scoped regulatory overclaim enforcement: drive REGULATORY_COPY_RISK / CONFLICT_PHRASE (RPAA MSP/PSP self-claim guards) as block patterns on website/public surfaces",
+        "builds_on": "language_gate/trustfield_dictionary_overlay_index_v1.json (both classes confirmed present) + OVERCLAIM_PATTERNS/block_private path in language_gate_core_v1.py",
+        "why_it_matters": "The commercial category only builds NEW deliverables and skips PROTECTING a live regulated web property (trustfield.ca). Turning the DRAFT TrustField overlay into real enforcement is the only idea with direct regulatory-liability teeth for an existing venture."
+      },
+      {
+        "what": "Deploy-receipt auditor: read-only rollup over receipts/*deploy-receipt*.json that reproduces the gate's own success logic (content_identity_ok, deploy_exit_code, smoke, post_promote) and classifies PASS/FAIL/BLOCKED with the exact rollback_hint",
+        "builds_on": "gates/promotion_gate.py write_deploy_receipt() schema + receipts/phase0.3-step10a-watched-deploy-receipt.json (content_identity_confirmed:false confirmed)",
+        "why_it_matters": "The catalog has six read-only dashboards but none over the deploy receipts \u2014 the load-bearing trust boundary \u2014 and this one immediately surfaces an ALREADY-RECORDED FAILED_INVARIANT deploy, so it pays off on day one against real data."
+      },
+      {
+        "what": "Chess-pass \u2192 packet-lint bridge (cross-subsystem CHESS + P0-PGR): run chess_pass_cli over a packet's task/context text and inject likely_misread / IRREVERSIBLE_HINTS findings as extra REPAIR_CANDIDATE reasons before routing",
+        "builds_on": "scripts/chess_pass_cli_v1.py (confirmed) + scripts/p0pgr_packet_lint_v1.py reasons list",
+        "why_it_matters": "Catches ambiguous 'clean/simplify/delete' wording before a packet is dispatched \u2014 exactly the second-move-risk CHESS exists to forecast \u2014 yet the catalog never combines the two. Files-only, Phase-0 shadow."
+      },
+      {
+        "what": "Commercial-pulse dispatch-check dry-run (designed move M05): score the 8 dispatchability_predicates over a labeled test draft, emit per-predicate readiness verdict",
+        "builds_on": "scripts/commercial_pulse_dispatch_check_v1.py + data/commercial_pulse_queue_v1.json (both confirmed)",
+        "why_it_matters": "The Automation category took designed campaign move M06 (value-class cost attribution) but silently dropped its sibling M05, whose checker script already exists. Inconsistent under-weighting; phase-safe since queue stays empty and send stays founder_blocked."
+      },
+      {
+        "what": "Node\u2194Python verifier parity / differential test asserting the two bundle-validator reimplementations agree on identical receipt fixtures",
+        "builds_on": "the catalog's own two picks \u2014 the Python offline knowledge-bundle validator (from specs) AND the lifted workers/github-app-advisory/index.js functions \u2014 cross-checked on receipts/step6/step8 fixtures",
+        "why_it_matters": "The catalog proposes building BOTH a from-scratch Python validator and a Node replay of the live worker, but nobody proposed proving they agree. Without the differential test you have two unverified reimplementations of the live edge logic; the parity check is the thing that makes the offline validator trustworthy."
+      },
+      {
+        "what": "Weekly founder ROI digest generator (R5 rung deliverable): deterministic markdown/HTML summarizing ranked moves, executed candidates, findings needing founder eyes, held items, and running cost/send/deploy counters",
+        "builds_on": "receipts/p0pgr/phase2_queue_v1.json + phase2_scorecard_v1.json + P0PGR-EXEC-M03 receipt (R5 rung explicitly calls for it)",
+        "why_it_matters": "The catalog has an always-on status dashboard but not the periodic founder-facing digest the activation ladder names as the R5 exit artifact \u2014 a distinct deliverable (push cadence, not a page you visit) that is the concrete precursor to ROI-autonomy."
+      },
+      {
+        "what": "NOETFIELD_PRODUCT_DICTIONARY_OVERLAY (+ machine index) authoring the commercial-term overlay that clears the open UNDEFINED_TERM sidecar backlog (Brain Coherence Report, Managed Deterministic Brain, BaaS HOLD, Sellable NOW...)",
+        "builds_on": "the P9/P10 *.language_gate_review.json sidecars (5 in P9-PATTERN-FACTORY confirmed) + SOURCEA_DICTIONARY_OVERLAY_v1.md pattern",
+        "why_it_matters": "The catalog's overlay pick only CONSUMES the two existing overlays; nobody proposed AUTHORING the product overlay that retires the commercial-doc warning queue via point-to-canon. It is the P9/P10 \u2194 language_gate wiring that makes the sellable docs gate-clean, dry-scan only."
+      }
+    ]
+  }
+}

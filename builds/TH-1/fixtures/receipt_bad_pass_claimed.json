@@ -1,0 +1,15 @@
+{
+  "receipt_id": "rcpt-bad-passclaimed",
+  "artifact_type": "knowledge_bundle",
+  "status": "PASS",
+  "result": "PASS",
+  "pass_claimed": false,
+  "edge_execution_proven": true,
+  "secondary_account_proven": true,
+  "cf_account_id": "b7282b4a5c17b84d62e3ef8866b878f8",
+  "candidate_ref": "abc123",
+  "candidate_path": "cloud/workers/sourcea-brain-chat-v1/src/knowledge-bundle.json",
+  "candidate_sha256": "deadbeefcafe",
+  "candidate_validation_failures": [],
+  "failures": []
+}

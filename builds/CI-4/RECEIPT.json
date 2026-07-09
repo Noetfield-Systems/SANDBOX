@@ -1,0 +1,55 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory, report-only. Authors a FOUNDER-RUN git-hooks installer CLI and a NON-BLOCKING pull_request 'hooks-present' check that only WARNS. The sandbox agent never ran the installer, never set core.hooksPath, never touched .github/ or any live git config.",
+  "catalog_item": "CI-4", "phase": "B4 — CI",
+  "title": "git-hooks installer + non-blocking hooks-present check",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [".githooks/pre-commit"],
+    "modified": false,
+    "note": "Grounds in the repo's existing versioned .githooks/pre-commit. The installer would point core.hooksPath at .githooks and verify that hook is executable WHEN THE FOUNDER RUNS IT. Not executed here; no tracked file modified."
+  },
+  "deliverables": {
+    "installer_cli": "catalog/builds/CI-4/install_git_hooks.sh",
+    "report_only_script": "catalog/builds/CI-4/hooks_present_report.py",
+    "workflow_proposal": "catalog/builds/CI-4/hooks-present-check-v1.yml",
+    "test": "catalog/builds/CI-4/test_ci4_hooks.py",
+    "red_run_canary": "catalog/builds/CI-4/redrun-canary.txt",
+    "receipt": "catalog/builds/CI-4/RECEIPT.json"
+  },
+  "what_it_proves": [
+    "install_git_hooks.sh is bash -n syntactically valid and contains `git config core.hooksPath .githooks`, chmod +x of .githooks/pre-commit, and an -x executability verification (asserted by the test); it is a standalone founder-run CLI and was NOT executed in the sandbox",
+    "hooks_present_report.py on a VALID sample (executable .githooks/pre-commit + hooksPath=.githooks) -> installed=true, no warnings",
+    "a MINIMAL MUTATION (drop the pre-commit exec bit) -> installed=false, flagged 'hook not executable'",
+    "a MINIMAL MUTATION (unset core.hooksPath) -> installed=false, flagged 'core.hooksPath is not set'",
+    "the report script is report-only: default mode exits 0 even when not installed (non-blocking); --strict exit-1 exists only for the red-run harness and is never used by the CI YAML",
+    "hooks-present-check-v1.yml has permissions contents:read only, on: pull_request ONLY (no pull_request_target/push/schedule/workflow_dispatch), no secrets:/credential env, and is non-blocking (continue-on-error + `exit 0`, findings to $GITHUB_STEP_SUMMARY, no auto-merge/required-status)",
+    "the CI YAML invokes the checker report-only (--json, no --strict/--write/--install) and never runs the installer or writes git config (reading core.hooksPath is allowed)"
+  ],
+  "ci_guards_asserted": {
+    "permissions_contents_read_only": true,
+    "trigger_pull_request_only": true,
+    "no_secrets_or_credential_env": true,
+    "report_only_invocation": true,
+    "non_blocking": true
+  },
+  "locks_respected": [
+    "append-only: no tracked file edited; all writes confined to catalog/builds/CI-4/",
+    "workflow authored as a PROPOSAL in the build dir; .github/ untouched; existing workflows (incl. brain-loop-autorun-v1.yml) untouched",
+    "no-live: installer not run, core.hooksPath not set, git config core.hooksPath not changed, no network, HOME=temp, no git write commands",
+    "did not touch other lanes' builds or untracked drops (graph-out/, receipts/l0-*, scripts/*repo_graph*)"
+  ],
+  "evidence": {
+    "results": {
+      "installer_bash_n": "OK",
+      "self_runner": "10/10 passed",
+      "pytest": "10 passed",
+      "red_run_canary": "fired (process exit 1)",
+      "tracked_changes_outside_build_dir": "none"
+    }
+  },
+  "exit_gate_B4": "CI-4 done: founder-run hooks installer + non-blocking hooks-present warn check, RED-capably tested with report-only script mutations and CI-guard assertions.",
+  "next_action": "founder reconciles hooks-present-check-v1.yml into .github/workflows/ on approval; founder runs install_git_hooks.sh once locally to set core.hooksPath."
+}

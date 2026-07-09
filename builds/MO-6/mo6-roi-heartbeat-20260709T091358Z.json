@@ -1,0 +1,26 @@
+{
+  "schema": "roi-heartbeat-receipt-v1",
+  "receipt_id": "mo6-roi-heartbeat-20260709T091358Z",
+  "recorded_at": "20260709T091358Z",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "pass_claimed": false,
+  "metrics": {
+    "cost_per_signal_cad": "unknown",
+    "free_tier_ceiling_max_pct": "unknown",
+    "trap_battery_pass_pct": "unknown",
+    "fixture_agreement_pct": "unknown",
+    "pattern_exports_per_week": "unknown",
+    "receipt_chain_verifier": "unknown"
+  },
+  "blocker_count": 0,
+  "derivation": {
+    "blocker_count": {
+      "method": "count blockers[] with severity=='BLOCKER' in latest agent-read-staleness receipt",
+      "source": "receipts/agent-read-staleness-20260707T234651Z.json",
+      "locally_derivable": true
+    }
+  },
+  "no_fabrication_contract": "metrics requiring live cost_event / Signal Factory data remain 'unknown'; only blocker_count is derived from local receipts",
+  "source": "LOCAL receipts/agent-read-staleness-*.json (offline; no Supabase)"
+}

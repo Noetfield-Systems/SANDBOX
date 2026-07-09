@@ -1,0 +1,2 @@
+step8 (claims PASS, secondary_account_proven=False) -> CHECK_REJECTED: ['claims PASS but recomputed pass_eligible is False (edge & secondary not both proven)']
+EXPECTED -> RED-CANARY FIRED: step8 claims PASS but is not eligible (secondary account not proven) -> replay CHECK_REJECTED. Asserting CHECK_OK correctly fails. The replay has teeth.

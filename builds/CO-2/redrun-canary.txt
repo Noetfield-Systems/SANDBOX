@@ -1,0 +1,3 @@
+overclaim-injected storefront -> gate_decision: FAIL / verdict: CHECK_REJECTED
+blockers: [('OVERCLAIM', '100% guaranteed'), ('OVERCLAIM', 'certified')]
+EXPECTED -> RED-CANARY FIRED: injected "100% guaranteed certified" made language_gate FAIL (CHECK_REJECTED); asserting CHECK_OK correctly raised AssertionError. The dogfood has teeth (not green-by-construction).

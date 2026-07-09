@@ -1,0 +1,28 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox compiler. Emits DRAFT template PROPOSALS, never PASS, never the live registry.",
+  "catalog_item": "MO-1", "phase": "B3 — FUSE THE BRAINS",
+  "title": "M07 prompt-registry data file + template compiler", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": { "files": ["p0-pgr/P0_PROMPT_REGISTRY_SCHEMA_v1.json", "receipts/p0pgr/outbox/*.json"], "modified": false,
+    "method": "reads outbox packets read-only; emits a registry PROPOSAL to build dir; refuses --out at data/p0pgr_prompt_registry_v1.json" },
+  "what_it_proves": [
+    "clusters outbox by problem_class; only classes with >=2 packets get a template (verification x4, architecture x3, revenue x2); hygiene x1 excluded (recurrence unproven)",
+    "3 DRAFT TPL-* templates compiled, all schema-valid against P0_PROMPT_REGISTRY_SCHEMA_v1.json",
+    "every template status HARDCODED DRAFT; lint_template rejects any non-DRAFT (AUTO_DISPATCH_APPROVED) status slot",
+    "template_ids match ^TPL-[a-z0-9-]+-v[0-9]+$; evidence_basis carries >=2 packet ids (M07 recurrence rule)",
+    "compiler refuses to write the live data/ registry path (proposal only)"
+  ],
+  "chess_patches_applied": [
+    "literal DRAFT default + lint rejecting non-DRAFT status slot; AUTO_DISPATCH_APPROVED never emitted (founder-gated)",
+    ">=2 recurrence evidence required per template",
+    "proposal to build dir; never writes the live registry"
+  ],
+  "locks_respected": ["Lock 1 no AUTO_DISPATCH", "Lock 5 append-only (outbox unmodified, no live registry write)", "no live call", "worktree not pushed"],
+  "evidence": { "compiler": "catalog/builds/MO-1/mo1_prompt_registry_compiler.py", "test": "catalog/builds/MO-1/test_mo1_prompt_registry.py",
+    "proposal": "catalog/builds/MO-1/p0pgr_prompt_registry_proposal_v1.json", "red_run_canary": "catalog/builds/MO-1/redrun-canary.txt",
+    "results": { "self_runner": "6/6", "templates": 3, "excluded_hygiene": 1 } },
+  "exit_gate_B3": "COMPLETE — BR-1,BR-2,BR-3,MO-1..MO-8 all done. Brains fused (BR-1 DRAFT-only, GV-6-gated); loops closed; findings surfaced.",
+  "next_action": "B4 (dashboards + commercial + report-only CI) — founder go"
+}

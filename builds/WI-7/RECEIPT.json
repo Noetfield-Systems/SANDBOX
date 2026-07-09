@@ -1,0 +1,21 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox linter. CHECK_OK/MISSING vocab, never PASS.",
+  "catalog_item": "WI-7", "phase": "B0 — LOCK THE BOARD",
+  "title": "Skill-manifest self-linter", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": { "files": ["skills/*/SKILL.md frontmatter"], "modified": false },
+  "what_it_proves": [
+    "extracts repo-relative path refs from each SKILL.md frontmatter and verifies existence",
+    "real skills: all referenced files exist -> CHECK_OK exit 0",
+    "seeded SKILL.md referencing a non-existent script -> caught",
+    "only the frontmatter block is scanned (body refs ignored)",
+    "red-run canary: extraction+existence discriminates (real refs all resolve)"
+  ],
+  "chess_patches_applied": ["exits nonzero on any missing ref; RED-before-GREEN via canary", "read-only; append-only respected"],
+  "locks_respected": ["Lock 5 append-only", "no live call", "worktree not pushed"],
+  "evidence": { "linter": "catalog/builds/WI-7/wi7_skill_manifest_lint.py", "test": "catalog/builds/WI-7/test_wi7_skill_manifest_lint.py",
+    "red_run_canary": "catalog/builds/WI-7/redrun-canary.txt", "results": { "real": "CHECK_OK exit 0", "self_runner": "3/3", "pytest": "3 passed" } },
+  "next_action": "TH-6"
+}

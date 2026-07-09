@@ -1,0 +1,55 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. DX-6 is a read-only onboarding index; its proof is a data-driven discriminator (rendered motor-row count pinned to the registry motor count) plus an empty-sink test (empty census renders UNPOPULATED, never 0/all-clear). Never a bare governance PASS.",
+  "catalog_item": "DX-6", "phase": "B4",
+  "title": "State-surface index dashboard for onboarding (motors/lanes + census value-class counts)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "data/github_automation_registry_v1.json",
+      "receipts/p0pgr/phase2_scorecard_v1.json",
+      "receipts/p0pgr/evidence/evidence-dd61a460b6927e46.json"
+    ],
+    "modified": false,
+    "note": "renders one static HTML onboarding index from the automation registry (motors + agent lanes), the Phase-2 dispatch scorecard, and the newest evidence bundle (loop census value-class counts). Sources read-only; newest evidence-*.json selected by mtime."
+  },
+  "what_it_proves": [
+    "the dashboard renders one row per registered motor (15) and per agent lane (8) read live from data/github_automation_registry_v1.json, plus the motor-lane chips",
+    "the loop census value-class counts (GUARD 5, META 22, NONE 8, REVENUE 3; loop_count 38) render as labelled cards, with the RED audit_status badged and value-class sum reconciled against declared loop_count",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH — not for public hosting' banner",
+    "freshness: each source (registry saved_at, scorecard updated_at, evidence generated_at, census file stamp) is badged FRESH/STALE by age vs the render date; a missing stamp renders UNPOPULATED",
+    "EMPTY-SINK vs CLEAN: an empty/missing census renders an explicit UNPOPULATED card and a missing single value-class renders 'not in source', never a 0 that reads all-clear; the clean census renders numeric class cards and NOT the sink card (same renderer, opposite outcomes)",
+    "autonomy: motor autonomy fields (e.g. autonomous_promote) render LOCKED / proof-gated, never offered as ready-to-run; no autonomy or guaranteed-outcome claim; computed rollups carry a SYNTHETIC/ADVISORY watermark",
+    "RED-CAPABLE (data-driven): the rendered motor-row count is pinned to the registry count; a minimal mutation (drop one motor) renders one fewer row and fails the original-count assertion — not green-by-construction"
+  ],
+  "chess_patches_applied": [
+    "discriminator is a live property of the real input (rows == len(registry.motors)), verified to flip under a minimal registry mutation, not an authored strawman",
+    "empty-sink branch is exercised against a blanked census and asserted to differ from the clean render (UNPOPULATED card present iff counts absent)",
+    "renderer degrades missing files to {} so an empty sink renders UNPOPULATED instead of crashing or reading all-clear",
+    "no receipt written into any tracked receipts dir; all writes confined to catalog/builds/DX-6/ (renderer output to local out/)",
+    "verdict vocab CHECK_OK, origin=sandbox-advisory / authority=none / pass_claimed=false; never a bare governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (three source JSONs + templates read-only; all writes confined to catalog/builds/DX-6)",
+    "Lock 10 deliverable (generated HTML to local out/ only, visible DO-NOT-PUSH banner, autonomy LOCKED/proof-gated, no autonomy/outcome claim, SYNTHETIC/ADVISORY watermark)",
+    "no live call (no network/CF/Supabase/sends/deploy; no Cloudflare/Railway/Vercel path)",
+    "multi-agent isolation (no read/stage of other lanes' untracked drops; no git write commands)"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/DX-6/dx6_state_surface_index.py",
+    "template": "catalog/builds/DX-6/index_template.html",
+    "generated_html": "catalog/builds/DX-6/out/state_surface_index.html",
+    "test": "catalog/builds/DX-6/test_dx6_state_surface_index.py",
+    "red_run_canary": "catalog/builds/DX-6/redrun-canary.txt",
+    "results": {
+      "self_runner": "10/10 green exit 0",
+      "pytest": "10 passed",
+      "renderer_run": "motors=15 agent_lanes=8 census={GUARD:5,META:22,NONE:8,REVENUE:3} evidence_file=evidence-dd61a460b6927e46.json",
+      "red_run_canary": "FIRED (off-by-one motor-count assertion + empty-sink-reads-clean assertion both raised AssertionError as expected)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside DX-6 == 0)"
+    }
+  },
+  "exit_gate_B4": "DX-6 done — onboarding state-surface index renders motors/lanes + census value-class counts with freshness and EMPTY-vs-CLEAN (UNPOPULATED) badges, autonomy LOCKED, and a data-driven red-capable test that discriminates the real registry from a mutation.",
+  "next_action": "wire the renderer to a scheduled census/evidence refresh so freshness badges track the live registry; consider a per-lane drill-down view (DX-7)."
+}

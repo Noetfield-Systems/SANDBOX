@@ -1,0 +1,20 @@
+BR-3 RED-RUN CANARY — deliberately-wrong assertion that MUST fail.
+
+Target: real on-disk packet receipts/p0pgr/outbox/P0PGR-20260708-010.json (its
+task/context text naturally contains the word 'clean').
+
+Bridge output on that packet:
+  verdict:  CHECK_REJECTED
+  chess_action: PROCEED_WITH_PATCH
+  injected_chess_reasons:
+    - REPAIR_CANDIDATE chess.likely_misread: Agent may treat clarity/polish wording as permission to delete capability.
+    - REPAIR_CANDIDATE chess.second_move_risk: Working CTAs/routes/features may be removed or hidden.
+
+Deliberately-wrong assertion under test:  assert bridge(P010).verdict == "CHECK_OK"
+
+EXPECTED -> RED-CANARY FIRED: the packet says 'clean', so the REAL chess_pass_cli
+returns likely_misread findings, the bridge injects them as extra
+REPAIR_CANDIDATE reasons, and the advisory verdict is CHECK_REJECTED. Asserting
+CHECK_OK therefore fails. If this assertion ever PASSED, the CHESS->packet-lint
+bridge would be dead (injecting nothing on a 'clean/simplify/delete' packet).
+The bridge has teeth.

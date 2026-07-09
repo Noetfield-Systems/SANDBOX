@@ -1,0 +1,122 @@
+<meta charset="utf-8">
+<title>Weekly Founder ROI Digest — DX-8</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5b6570; --card:#f5f7f9; --line:#dfe4ea;
+    --ok:#1c7c3f; --okbg:#e3f4e8; --warn:#8a5a00; --warnbg:#fbf0d8;
+    --bad:#a11f2c; --badbg:#fbe1e3; --info:#1f5aa1; --infobg:#e3ecf7;
+    --banner:#7a1520; --bannerfg:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --fg:#e6eaee; --muted:#9aa4ae; --card:#171b21; --line:#2a3038;
+      --ok:#57d98a; --okbg:#123021; --warn:#e5b45a; --warnbg:#33280f;
+      --bad:#f0868f; --badbg:#3a161b; --info:#7fb0e6; --infobg:#132539;
+      --banner:#5a0f18; --bannerfg:#ffe;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1216; --fg:#e6eaee; --muted:#9aa4ae; --card:#171b21; --line:#2a3038;
+    --ok:#57d98a; --okbg:#123021; --warn:#e5b45a; --warnbg:#33280f;
+    --bad:#f0868f; --badbg:#3a161b; --info:#7fb0e6; --infobg:#132539;
+    --banner:#5a0f18; --bannerfg:#ffe;
+  }
+  :root[data-theme="light"]{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5b6570; --card:#f5f7f9; --line:#dfe4ea;
+    --ok:#1c7c3f; --okbg:#e3f4e8; --warn:#8a5a00; --warnbg:#fbf0d8;
+    --bad:#a11f2c; --badbg:#fbe1e3; --info:#1f5aa1; --infobg:#e3ecf7;
+    --banner:#7a1520; --bannerfg:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px;color:var(--fg);background:var(--bg);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .banner{background:var(--banner);color:var(--bannerfg);font-weight:700;letter-spacing:.02em;
+    padding:10px 14px;border-radius:8px;text-align:center;margin-bottom:16px;}
+  h1{font-size:1.5rem;margin:.2em 0}
+  h2{font-size:1.05rem;margin:1.6em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--line)}
+  .meta{color:var(--muted);font-size:.9rem;margin:.3em 0}
+  .watermark{color:var(--muted);font-style:italic;font-size:.85rem;margin:.4em 0 0}
+  table{width:100%;border-collapse:collapse;margin:.4em 0;font-size:.9rem}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em}
+  .invbar{padding:12px 14px;border-radius:8px;font-weight:700;margin:.4em 0}
+  .b-ok.invbar,.invbar.b-ok{background:var(--okbg);color:var(--ok)}
+  .b-bad.invbar,.invbar.b-bad{background:var(--badbg);color:var(--bad)}
+  .badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:.75rem;font-weight:700;
+    letter-spacing:.02em}
+  .b-ok{background:var(--okbg);color:var(--ok)}
+  .b-warn{background:var(--warnbg);color:var(--warn)}
+  .b-bad{background:var(--badbg);color:var(--bad)}
+  .b-info{background:var(--infobg);color:var(--info)}
+  tr.invariant td:first-child::before{content:"◆ ";color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:.5em 0}
+  .card-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.3em}
+  .pill{background:var(--infobg);color:var(--info);border-radius:20px;padding:1px 8px;font-size:.75rem;font-weight:600}
+  .muted{color:var(--muted);font-size:.85rem}
+  .scroll{overflow-x:auto}
+  ul{margin:.3em 0 .3em 1.1em;padding:0}
+</style>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH — not for public hosting (advisory founder digest, sandbox receipts)</div>
+  <h1>Weekly Founder ROI Digest</h1>
+  <div class="meta">As of <b>2026-07-08T13:38:48Z</b> · origin=sandbox-advisory · authority=none · pass_claimed=false</div>
+  <div class="meta">Operating mode: <b>PHASE_2_CLOUD_ONLY_ROI_TRACK</b></div>
+  <div class="watermark">DERIVED — advisory, not a guaranteed claim — figures are read from repo receipts; this digest asserts, it does not promise.</div>
+
+  <h2>Running counters — NO-SEND / NO-DEPLOY invariant</h2>
+  <div class="invbar b-ok">Invariant: HELD — all send/deploy/cost counters zero</div>
+  
+  <div class="scroll"><table>
+    <tr><th>Counter</th><th>Value</th><th>Status</th></tr>
+    <tr class=""><td>cloud_executions</td><td>2</td><td><span class="badge b-info">INFO</span></td></tr>
+<tr class="invariant"><td>external_sends</td><td>0</td><td><span class="badge b-ok">OK</span></td></tr>
+<tr class="invariant"><td>forms_submitted</td><td>0</td><td><span class="badge b-ok">OK</span></td></tr>
+<tr class="invariant"><td>deploys</td><td>0</td><td><span class="badge b-ok">OK</span></td></tr>
+<tr class="invariant"><td>merges</td><td>0</td><td><span class="badge b-ok">OK</span></td></tr>
+<tr class="invariant"><td>authority_changes</td><td>0</td><td><span class="badge b-ok">OK</span></td></tr>
+<tr class=""><td>p0_leakage_count</td><td>0</td><td><span class="badge b-info">INFO</span></td></tr>
+<tr class=""><td>hard_block_count</td><td>0</td><td><span class="badge b-info">INFO</span></td></tr>
+<tr class=""><td>runtime_freeze_count</td><td>0</td><td><span class="badge b-info">INFO</span></td></tr>
+<tr class="invariant"><td>estimated_cost_usd</td><td>0.0</td><td><span class="badge b-ok">OK</span></td></tr>
+  </table></div>
+
+  <h2>Source freshness</h2>
+  <div class="scroll"><table>
+    <tr><th>Source</th><th>Timestamp</th><th>Age (days)</th><th>Badge</th></tr>
+    <tr><td><code>receipts/p0pgr/phase2_queue_v1.json</code></td><td>2026-07-08T13:38:48Z</td><td>0.0</td><td><span class="badge b-ok">FRESH</span></td></tr>
+<tr><td><code>receipts/p0pgr/phase2_scorecard_v1.json</code></td><td>2026-07-08T13:32:00Z</td><td>0.0</td><td><span class="badge b-ok">FRESH</span></td></tr>
+<tr><td><code>receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json</code></td><td>2026-07-08T13:30:00Z</td><td>0.01</td><td><span class="badge b-ok">FRESH</span></td></tr>
+  </table></div>
+
+  <h2>Ranked moves (ROI queue)</h2>
+  <div class="muted">Weights: <code>{&quot;direct_revenue&quot;: 35, &quot;trust_proof&quot;: 25, &quot;workload_reduction&quot;: 15, &quot;cloud_now&quot;: 15, &quot;reversibility&quot;: 10}</code></div>
+  <div class="scroll"><table>
+    <tr><th>#</th><th>Move</th><th>Packet</th><th>Score</th><th></th><th>Route</th><th>Rationale</th></tr>
+    <tr><td>1</td><td><b>M03</b></td><td>P0PGR-20260708-004</td><td>86.0</td><td><span class="badge b-info">commercial</span></td><td>DISPATCH_CLOUD</td><td>Protects live CAD 4k offer + /register funnel; pure external read</td></tr>
+<tr><td>2</td><td><b>M05</b></td><td>P0PGR-20260708-006</td><td>74.0</td><td><span class="badge b-info">commercial</span></td><td>DISPATCH_CLOUD</td><td>Unblocks first compliant outbound pipeline; predicate audit only, zero send</td></tr>
+<tr><td>3</td><td><b>M04</b></td><td>P0PGR-20260708-005</td><td>73.75</td><td><span class="badge b-info">commercial</span></td><td>DISPATCH_CLOUD</td><td>Conversion audit; needs labeled test identity + gating care -&gt; slightly less immediately executable</td></tr>
+<tr><td>4</td><td><b>M02</b></td><td>P0PGR-20260708-003</td><td>58.5</td><td></td><td>DISPATCH_CLOUD</td><td>Registry trust underpins all dispatch; repo-evidence sweep</td></tr>
+<tr><td>5</td><td><b>M06</b></td><td>P0PGR-20260708-007</td><td>58.5</td><td></td><td>DISPATCH_CLOUD</td><td>~$20/mo dead-spend recovery + governor enforceability</td></tr>
+<tr><td>6</td><td><b>M07</b></td><td>P0PGR-20260708-008</td><td>58.0</td><td></td><td>DISPATCH_CLOUD</td><td>Packet factory; ranked only for its revenue/trust template share per founder rule</td></tr>
+<tr><td>7</td><td><b>M01</b></td><td>P0PGR-20260708-002</td><td>54.5</td><td></td><td>DISPATCH_CLOUD</td><td>Census triage; trust recovery, low direct revenue</td></tr>
+<tr><td>8</td><td><b>M09</b></td><td>P0PGR-20260708-010</td><td>50.5</td><td></td><td>DISPATCH_CLOUD</td><td>P0 leak sweep; governance trust, no direct revenue</td></tr>
+  </table></div>
+
+  <h2>Executed candidates</h2>
+  <div class="card"><div class="card-h"><b>M10</b><span class="pill">PASS</span><span class="pill">cost $0.0</span></div><div>deterministic ROI re-rank (this ranker run)</div><div class="muted">receipt: <code>receipts/p0pgr/phase2_queue_v1.json</code></div></div>
+<div class="card"><div class="card-h"><b>M03</b><span class="pill">PARTIAL</span><span class="pill">cost $0.0</span></div><div>trustfield.ca live-truth audit — 6 GTM routes, claims diff</div><ul><li>F1 CLAIM_AMBIGUITY: CAD 4,000 vs CAD 3,500-prepay wording on /pilot</li><li>F2 DOC_STALE: repo P10 doc cites build v71, live is v108</li></ul><div class="muted">receipt: <code>receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json</code></div></div>
+
+  <h2>Findings needing founder eyes</h2>
+  <div class="card"><div class="card-h"><b>F1</b><span class="badge b-warn">CLAIM_AMBIGUITY</span></div><div>/pilot shows both &#x27;CAD 4,000 fixed (2,000 + 2,000)&#x27; and &#x27;CAD 3,500 paid in full on signature&#x27;. If intentional prepay discount, wording should say so explicitly; a diligence-minded MSB may read it as inconsistent pricing.</div><div class="muted">next: candidate copy-fix packet (deploy-gated, founder-only)</div></div>
+<div class="card"><div class="card-h"><b>F2</b><span class="badge b-warn">DOC_STALE</span></div><div>Repo P10 doc cites build v71 (2026-07-07); live is v108 (2026-07-08). Live is ahead of committed doc — L12 doc-drift, not production drift. No public false claim found.</div><div class="muted">next: candidate hygiene packet: refresh P10 launch-credibility block</div></div>
+<div class="card"><b>Candidate follow-up packets</b><ul><li>F1: /pilot pricing copy-clarity fix (deploy-gated -&gt; FOUNDER_ONLY)</li><li>F2: P10 launch-credibility block refresh (hygiene, cloud-safe)</li></ul></div>
+
+  <h2>Held items</h2>
+  <div class="card"><div class="card-h"><b>M08</b><span class="badge b-warn">HOLD_CLOUD_UNSAFE</span><span class="muted">P0PGR-20260708-009</span></div><div>HOLD_CLOUD_UNSAFE: value is Mac-execution planning; founder directive defers all Mac-bound design in Phase 2</div></div>
+<div class="card"><div class="card-h"><b>M10</b><span class="badge b-warn">SELF</span><span class="muted">P0PGR-20260708-011</span></div><div>SELF: executed by this script run</div></div>
+
+  <h2>Next in queue</h2>
+  <div class="card"><div class="card-h"><b>M05</b><span class="muted">P0PGR-20260708-006</span></div><div>CASL-safe commercial dispatch readiness (predicate audit, zero send)</div><div class="muted">gates: CLOUD_ONLY + read-only + ROI 74 + no send — eligible under Phase 2 rules</div></div>
+</div>

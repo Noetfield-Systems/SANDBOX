@@ -1,0 +1,80 @@
+{
+  "console_title": "Unified Governance Console",
+  "subtitle": "Read-only composition of the four desktop auditors + PR-Conflict-Resolver report",
+  "snapshot_note": "These are READ-ONLY, embedded snapshots of each auditor's output. The console never runs the underlying generators live: audit_automation_surface_v1.py (behind the Registry / Motor Validator) writes a receipt into the repo's tracked receipts/ dir every time it runs, so live execution would mutate a tracked directory. Snapshotting keeps the console deterministic and side-effect-free.",
+  "captured": "2026-07-08",
+  "auditors": [
+    {
+      "id": "receipt_ledger",
+      "title": "Receipt Ledger Auditor",
+      "source_generator": "desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py",
+      "source_script": "scripts/audit_receipt_ledger_v1.py",
+      "grounds_repo_root_via": "DX-3 _resolve_repo()",
+      "status": "clean",
+      "freshness": "synthetic",
+      "stats": [
+        {"label": "Receipts scanned", "value": 214},
+        {"label": "Cross-motor clusters", "value": 0},
+        {"label": "Malformed", "value": 0},
+        {"label": "No timestamp", "value": 0},
+        {"label": "Receipt families", "value": null}
+      ],
+      "detail": "No cross-motor clusters found in the collision window; every scanned receipt has a resolvable date. Receipt-family rollup was not captured in this snapshot.",
+      "writes_receipt_when_run": false
+    },
+    {
+      "id": "registry_motor",
+      "title": "Registry / Motor Validator",
+      "source_generator": "desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py",
+      "source_script": "scripts/validate_parallel_automation_governance_v1.py + scripts/audit_automation_surface_v1.py",
+      "grounds_repo_root_via": "DX-3 _resolve_repo()",
+      "status": "clean",
+      "freshness": "synthetic",
+      "stats": [
+        {"label": "L1 (one writer/cell)", "value": "PASS"},
+        {"label": "L4 (registry routing)", "value": "PASS"},
+        {"label": "Automation surface", "value": "PASS"}
+      ],
+      "detail": "Snapshot only. The underlying audit_automation_surface_v1.py writes a receipt into the tracked receipts/ dir on every run, so the console does NOT execute it live — doing so would mutate a tracked directory (append-only / NO-LIVE lock).",
+      "writes_receipt_when_run": true
+    },
+    {
+      "id": "staleness_gate",
+      "title": "Staleness Gate Auditor",
+      "source_generator": "desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py",
+      "source_script": "scripts/agent_read_staleness_engine_v1.py",
+      "grounds_repo_root_via": "DX-3 _resolve_repo()",
+      "status": "findings",
+      "freshness": "synthetic",
+      "stats": [
+        {"label": "Alive surfaces", "value": 37},
+        {"label": "Blockers", "value": 2},
+        {"label": "Warnings", "value": 5}
+      ],
+      "detail": "Two blockers are missing_read_surface for docs in sibling venture repos (SourceA, TrustField-Technologies). If those repos are not checked out on this machine they may be false blockers — verify the paths before treating them as real staleness.",
+      "writes_receipt_when_run": false
+    },
+    {
+      "id": "pr_conflict",
+      "title": "PR-Conflict-Resolver Report",
+      "source_generator": "desktop-app/PR-Conflict-Resolver-Report.app/Contents/Resources/report.html",
+      "source_script": "static report.html (not a generator)",
+      "grounds_repo_root_via": "n/a (static bundled report)",
+      "status": "unpopulated",
+      "freshness": "stale",
+      "stats": [
+        {"label": "PRs reviewed", "value": null},
+        {"label": "Conflicts flagged", "value": null},
+        {"label": "Auto-resolved", "value": null}
+      ],
+      "detail": "The bundled report.html is a static, externally-styled (CDN font + sheetjs) 'Eval Review' page. Its computed counts were not extracted into this snapshot, so its tiles render UNPOPULATED rather than 0/CLEAN. Open the source report.html for the full interactive view.",
+      "writes_receipt_when_run": false
+    }
+  ],
+  "autonomy_tiers": [
+    {"tier": "Tier-1", "name": "Read-only auditor view", "state": "shown", "note": "This console — look, don't touch. No repo mutation."},
+    {"tier": "Tier-2", "name": "Operator-triggered gate run", "state": "shown", "note": "A human runs the underlying gate (writes its own receipt) outside this console."},
+    {"tier": "Tier-3", "name": "Scheduled unattended gate loop", "state": "locked", "note": "Proof-gated — requires receipt-backed cycle evidence before enablement."},
+    {"tier": "Tier-4", "name": "Autonomous remediation", "state": "locked", "note": "Proof-gated — no autonomy or guaranteed-outcome claim is made here."}
+  ]
+}

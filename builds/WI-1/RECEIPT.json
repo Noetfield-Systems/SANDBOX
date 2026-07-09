@@ -1,0 +1,35 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox wiring + proof. Recovers orphaned investment. Never PASS.",
+  "catalog_item": "WI-1", "phase": "B2 — RECOVER ORPHANED INVESTMENT",
+  "title": "Wire the orphaned language_gate overlay indexes into the gate", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "change": {
+    "kind": "edit (additive)",
+    "file_modified": "language_gate/language_gate_core_v1.py",
+    "what": "effective_structural_allowlist() now folds the two overlay indexes' allow-classes (COMMAND_FRAGMENT/STATUS_LABEL/SOURCEA_LOCAL_TERM) into the allowlist; CONFLICT_PHRASE/REGULATORY_COPY_RISK explicitly excluded; additive only (never removes a term)",
+    "recovered_terms": 50
+  },
+  "what_it_proves": [
+    "50 previously-orphaned overlay allow-terms are now in effective_structural_allowlist() (recovered)",
+    "those terms were NOT already in the base/supplement allowlists (the wiring is what recovered them)",
+    "CONFLICT_PHRASE / REGULATORY_COPY_RISK overlay terms are NEVER allowlisted (stay block-eligible)",
+    "anti-downgrade: a 100%-guaranteed/certified overclaim still FAILs on public; a legit undefined Title-Case term still WARNs",
+    "a recovered Title-Case overlay term is no longer flagged UNDEFINED_TERM",
+    "FREEZE-ORDER HELD: TH-3 frozen golden did NOT drift (5/5) — recovery is additive, no behavior regression"
+  ],
+  "chess_patches_applied": [
+    "fold only allow-classes; CONFLICT_PHRASE/REGULATORY_COPY_RISK excluded (never touch OVERCLAIM escape hatch)",
+    "additive only; no removals",
+    "anti-downgrade regression asserted (overclaim FAIL + undefined WARN)",
+    "freeze-order: TH-3 golden frozen before wiring; re-ran TH-3 -> no drift (not re-baselined)",
+    "append-only: overlay JSONs consumed in place, unmodified"
+  ],
+  "locks_respected": ["Lock 5 append-only (overlays unmodified)", "no live call", "worktree not pushed", "anti-downgrade preserved"],
+  "evidence": { "test": "catalog/builds/WI-1/test_wi1_overlay_wiring.py", "red_run_canary": "catalog/builds/WI-1/redrun-canary.txt",
+    "gate_change": "language_gate/language_gate_core_v1.py (effective_structural_allowlist + _load_overlay_allow_terms)",
+    "results": { "self_runner": "6/6", "pytest": "6 passed", "TH3_golden_drift": "none (5/5)", "recovered_terms": 50 } },
+  "exit_gate_B2": "STARTED — WI-1 done (50 orphaned terms recovered, no golden drift). Remaining B2: WI-2, WI-3, WI-4, WI-5, WI-6.",
+  "next_action": "WI-3 (product overlay) / WI-4 (registry reconciler) / WI-6 (externalize allowlists)"
+}

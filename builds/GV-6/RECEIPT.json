@@ -1,0 +1,56 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox validator. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. DETECTS & FLAGS DLM apply-map fence leaks; it never edits the founder-gated fence.",
+  "catalog_item": "GV-6", "phase": "B1 — TRUST SPINE",
+  "title": "DLM apply-map / fence leak validator (round-trip on a persisted apply_map.json)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "decision_language_machine_v1/dlm_apply_map_v1.py",
+      "decision_language_machine_v1/test_fixtures/form_official_80_open_v1.json"
+    ],
+    "modified": false,
+    "note": "Validates a PERSISTED apply_map.json produced by running the DLM pipeline ONCE in-process with dlm_core_v1.OUTPUT_DIR/RECEIPTS_DIR + pipe.OUTPUT_DIR monkeypatched to a TEMP dir (TH-2 pattern). ZERO writes to tracked decision_language_machine_v1/output|receipts. The fence source (dlm_apply_map_v1.py) is read-only reference and is never re-called at verify time."
+  },
+  "what_it_proves": [
+    "REAL default partial_batch=True apply_map (no picks) -> CHECK_REJECTED: its 51 unvalidated ADVISOR/FOUNDER items are dropped silently (not in picks, no deferred_unvalidated list, not in deferred_ids) — invariant (c) FENCE LEAK, flagged as a founder-gated finding",
+    "a MINIMAL MUTATION of that real map (add one accountability field deferred_unvalidated = the dropped ids) -> CHECK_OK; no schema relaxation",
+    "from the conformant map, moving ONE machine_closed id into picks -> CHECK_REJECTED (a) machine_closed_without_founder must never intersect picks",
+    "from the conformant map, adding ONE auto_submit field -> CHECK_REJECTED (b) a FORM_OFFICIAL apply_map must have status in {READY,EMPTY,BLOCKED_UNVALIDATED} and NO submit/auto_submit/dispatch_now field",
+    "removing the accountability field re-flips to CHECK_REJECTED -> invariant (c) is never relaxed to pass current leaky behavior",
+    "GV-6 validates the persisted artifact by DATA only: it never imports or calls build_apply_map at verify time; ignores any self-emitted stage decision field",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never PASS; running the tool writes the verdict to scratch verdicts/ and leaves the subject apply_map byte-identical (sha unchanged)"
+  ],
+  "chess_patches_applied": [
+    "the negative fixture is a REAL on-disk apply_map from a real DLM run (default partial_batch=True) — the current fence leak is FLAGGED, not papered over; noted as founder-gated (GV-6 does not patch dlm_apply_map_v1.py)",
+    "the positive proof is a minimally-mutated conformant artifact (one accountability field added); the (a) and (b) negatives are one-field mutations of it — no strawman authored from scratch",
+    "DATA-only: no re-call of build_apply_map, no import of the fence module; a persisted apply_map.json is the sole input, matching 'validate persisted, never rebuild'",
+    "emits a NEW verdict beside the subject in scratch verdicts/, never edits the fence or the subject (Lock 5); origin=sandbox-advisory / authority=none; never emits a bare governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (no tracked file rm/edit/overwrite; DLM pipeline writes redirected to a temp dir via monkeypatched OUTPUT_DIR/RECEIPTS_DIR; verdicts to scratch)",
+    "founder-gated fence untouched — GV-6 detects & flags, never edits dlm_apply_map_v1.py",
+    "no live call (no network / no CF / no Supabase / no sends)",
+    "no git write; worktree not pushed"
+  ],
+  "evidence": {
+    "validator": "catalog/builds/GV-6/gv6_apply_map_fence_verify.py",
+    "test": "catalog/builds/GV-6/test_gv6_apply_map_fence_verify.py",
+    "verdict_on_real_apply_map": "catalog/builds/GV-6/verdicts/verdict-sample_real.apply_map.json",
+    "sample_real_subject": "catalog/builds/GV-6/verdicts/sample_real.apply_map.json",
+    "red_run_canary": "catalog/builds/GV-6/redrun-canary.txt",
+    "results": {
+      "real_default_apply_map": "CHECK_REJECTED exit 1 (51 unvalidated items flagged as fence leak)",
+      "self_runner": "7/7",
+      "pytest": "7 passed",
+      "canary": "FIRED (asserting the leaky map is CHECK_OK fails; GV-6 says CHECK_REJECTED)",
+      "tracked_pollution_outside_build_dir": "none"
+    }
+  },
+  "founder_gated_findings": [
+    "dlm_apply_map_v1.py::build_apply_map with partial_batch=True (the default) admits an apply_map where ADVISOR_REVIEW/FOUNDER_FACT items lacking a validated pick are neither applied nor recorded in any deferred_unvalidated list — they are silently dropped from the fence. GV-6 flags this; the fix (emit an explicit deferred_unvalidated accountability list, or block) is founder-gated and out of scope for this advisory build."
+  ],
+  "exit_gate_B1": "GV-6 done (flags the real default-partial_batch fence leak by data-only validation of a persisted apply_map; rejects one-field mutations for invariants a/b/c).",
+  "next_action": "Remaining B1: GV-2, BR-4, DX-4, TH-5."
+}

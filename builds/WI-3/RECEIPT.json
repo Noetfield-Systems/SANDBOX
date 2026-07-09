@@ -1,0 +1,32 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox overlay + wiring. Never PASS.",
+  "catalog_item": "WI-3", "phase": "B2 — RECOVER ORPHANED INVESTMENT",
+  "title": "NOETFIELD product-dictionary overlay (clears the P9/P10 UNDEFINED_TERM backlog)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "change": {
+    "kind": "add + additive edit",
+    "files": ["language_gate/noetfield_product_dictionary_overlay_index_v1.json (new)", "language_gate/language_gate_core_v1.py (OVERLAY_INDEX_PATHS + OVERLAY_ALLOW_CLASSES, +2/-1)"],
+    "note": "rides WI-1's overlay mechanism; NOETFIELD_PRODUCT_TERM added as an allow-class"
+  },
+  "what_it_proves": [
+    "all 15 P9/P10 backlog UNDEFINED_TERM entries classified (5 STATUS_LABEL + 10 NOETFIELD_PRODUCT_TERM) and cleared into the allowlist",
+    "overlay carries ZERO CONFLICT_PHRASE/REGULATORY_COPY_RISK class (block-eligible terms never point-to-canon'd away)",
+    "dry-scan: Brain Coherence Report / Managed Deterministic Brain / Native Pattern Thinker no longer flag UNDEFINED_TERM",
+    "anti-downgrade: overclaim still FAILs on public",
+    "FREEZE-ORDER: TH-3 frozen golden did NOT drift (5/5) — additive, no regression"
+  ],
+  "note_for_founder": "The 2 entity terms (Noetfield, TrustField Inc) are point-to-entity-registry — allowlisted here as defined entities; a canonical entity-registry entry is the cleaner long-term home (founder canon). TrustField Inc is a SEPARATE venture, not a Noetfield subsidiary.",
+  "chess_patches_applied": [
+    "point-to-canon: only status labels + product/entity terms already defined in canon; none minted as new vocabulary",
+    "CONFLICT_PHRASE/REGULATORY_COPY_RISK excluded",
+    "additive; anti-downgrade asserted; freeze-order re-checked (TH-3 no drift)",
+    "overlay authored as data; consumed via WI-1 mechanism"
+  ],
+  "locks_respected": ["Lock 5 append-only (P9/P10 sidecars unmodified)", "no live call", "worktree not pushed"],
+  "evidence": { "overlay": "language_gate/noetfield_product_dictionary_overlay_index_v1.json", "test": "catalog/builds/WI-3/test_wi3_product_overlay.py",
+    "red_run_canary": "catalog/builds/WI-3/redrun-canary.txt", "results": { "self_runner": "6/6", "TH3_drift": "none (5/5)", "backlog_cleared": "15/15" } },
+  "exit_gate_B2": "COMPLETE — WI-1 through WI-6 all done. Orphaned investment recovered: 50 overlay terms + 15 product-backlog terms + 6 allowlists externalized + registry reconciler + library-scan runner + rank-factor externalization.",
+  "next_action": "B3 (fuse the brains: BR-1 DLM->P0-PGR bridge, etc.) — founder go"
+}

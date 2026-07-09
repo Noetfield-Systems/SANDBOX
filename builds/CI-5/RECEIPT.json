@@ -1,0 +1,61 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a report-only forbidden-marker PR grep gate (script + non-blocking pull_request workflow proposal). Its proof is the scanner's own dogfood: a clean sample passes (exit 0), a minimal mutation embedding the forbidden marker is flagged (exit 1), and the workflow YAML is asserted to carry every CI guard. Never a bare governance PASS.",
+  "catalog_item": "CI-5", "phase": "B4 - CI",
+  "title": "forbidden-marker PR grep gate: report-only scanner + non-blocking pull_request workflow proposal",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "ground_truth": {
+    "file": ".github/copilot-instructions.md",
+    "forbidden_marker": "kazemnezhadsina144-dot",
+    "note": "marker is named in copilot-instructions.md as forbidden in active config / executable code paths; the scanner assembles it from fragments so the scanner source does not itself embed the literal string."
+  },
+  "subject": {
+    "files": [".github/copilot-instructions.md"],
+    "modified": false,
+    "note": "reads the ground-truth marker only; all writes confined to catalog/builds/CI-5."
+  },
+  "what_it_proves": [
+    "the report-only scanner scans a given file list for the forbidden active-config marker and prints a JSON report (default) or Markdown summary",
+    "POSITIVE - a clean sample file is NOT flagged: clean=true, hit_count=0, exit 0",
+    "NEGATIVE - a sample file carrying the forbidden marker IS flagged: clean=false, correct file+line reported, exit nonzero (1)",
+    "red-before-green minimality - the SAME clean file plus exactly one injected marker line flips clean->flagged; reversing the single line reproduces the file byte-for-byte and the clean verdict returns (same scanner, opposite verdicts, no strawman)",
+    "the scanner is report-only: reads files only, performs no writes / no network / no git mutation / no receipt / no supabase / no block-merge",
+    "GUARD contents:read - the workflow declares permissions: contents: read only, with no write scope",
+    "GUARD pull_request-only - on: pull_request only; pull_request_target / push / schedule are absent",
+    "GUARD no-secrets/env - no secrets.* references and no env: blocks / credential tokens anywhere in the YAML",
+    "GUARD non-blocking - the scan step is continue-on-error: true, findings post to the job summary, and the workflow performs no merge / enforces no required status",
+    "GUARD report-only-invocation - the script is invoked with --json / --md only, never --write-supabase / --write-receipt / --fail-on-block-merge"
+  ],
+  "chess_patches_applied": [
+    "positive fixture is a real clean config sample; negative fixture is a single-line mutation embedding the real forbidden marker - the scanner is never relaxed to pass",
+    "marker assembled from fragments in scanner + test sources so neither self-flags (the literal appears only in the intentionally-dirty data fixture)",
+    "YAML guard checks strip full-line comments first, so words appearing only in explanatory comments (e.g. 'pull_request_target') cannot spoof the guard assertions",
+    "verdict vocab CHECK_OK / CHECK_REJECTED, origin=sandbox-advisory / authority=none; never a bare governance PASS"
+  ],
+  "locks_respected": [
+    "append-only (copilot-instructions.md read-only; all writes confined to catalog/builds/CI-5)",
+    "no-live (no network / no secrets / HOME redirected to temp for the self-runner; scanner does file reads only)",
+    "CI isolation - YAML authored as a PROPOSAL in the build dir, NOT written into .github/; no existing workflow touched (brain-loop-autorun and others untouched)",
+    "worktree not pushed; no git write commands; other lanes' files and untracked drops (graph-out/, receipts/l0-*, scripts/*repo_graph*) neither read nor staged"
+  ],
+  "evidence": {
+    "scanner": "catalog/builds/CI-5/scan_forbidden_marker_v1.py",
+    "workflow_proposal": "catalog/builds/CI-5/ci5-forbidden-marker-pr-gate-v1.yml",
+    "clean_fixture": "catalog/builds/CI-5/fixtures/clean_config.sample",
+    "dirty_fixture": "catalog/builds/CI-5/fixtures/dirty_config.sample",
+    "test": "catalog/builds/CI-5/test_ci5_forbidden_marker.py",
+    "red_run_canary": "catalog/builds/CI-5/redrun-canary.txt",
+    "results": {
+      "scanner_clean_file": "clean=true, hit_count=0, exit 0",
+      "scanner_dirty_file": "clean=false, hit_count=1, line 3 reported, exit 1",
+      "self_runner": "10/10 green, exit 0 (HOME=temp)",
+      "pytest": "10 passed",
+      "red_run_canary": "FIRED (asserting a marker-bearing fixture is CLEAN raised AssertionError, exit 1)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside CI-5 == 0)"
+    }
+  },
+  "exit_gate_B4": "CI-5 done - report-only forbidden-marker scanner flags a marker-bearing file and clears a clean one by minimal mutation, and its non-blocking pull_request workflow proposal is asserted to carry contents:read-only, pull_request-only, no-secrets/env, and non-blocking guards.",
+  "next_action": "on founder approval, reconcile the YAML proposal to .github/workflows/ and the scanner to scripts/; optionally widen the scanned set to the full tree on a scheduled advisory run (still report-only)."
+}

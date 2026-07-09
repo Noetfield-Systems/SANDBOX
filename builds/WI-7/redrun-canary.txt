@@ -1,0 +1,2 @@
+real refs extracted: ['data/agent_read_surfaces_v1.json', 'scripts/verify_agent_read_staleness_v1.sh', 'scripts/agent_read_staleness_engine_v1.py', 'data/stale_law_guard_patterns_v1.json']
+EXPECTED -> RED-CANARY FIRED: all real refs exist (no false 'missing') -> existence check is real, not vacuous.

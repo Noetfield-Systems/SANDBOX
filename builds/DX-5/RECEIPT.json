@@ -1,0 +1,54 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. DX-5 is a read-only wording-debt rollup over the language_gate_review sidecars; its proof is a data-driven tally checked against an independent hand-count on two known sidecars, red-capable by a minimal one-item mutation that shifts the tally by exactly one. Never a bare governance PASS.",
+  "catalog_item": "DX-5", "phase": "B4",
+  "title": "Wording-debt rollup over the 92 language_gate_review sidecars (ranked HTML table)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "glob": "SG-Canonical-Library/**/*.language_gate_review.json",
+    "sidecars_tallied": 92,
+    "total_wording_debt_items": 229,
+    "modified": false,
+    "note": "tallies each sidecar's language_gate review reasons into 7 canonical buckets (AGENT_REVIEW, UNDEFINED_TERM, ALIAS_RETIRED, SYNONYM_DRIFT, PLAIN_ENGLISH, REGEX_REWRITE, LATENT_UNDEFINED_TERM) + a per-file decision, then renders a ranked HTML table. Sources read-only."
+  },
+  "what_it_proves": [
+    "the glob finds the full sidecar corpus (92) and tallies 229 wording-debt items into 7 canonical reason buckets with a per-file decision",
+    "the ranked table is non-increasing in wording-debt (most debt first); rank monotonic; corpus total == sum of row totals",
+    "POSITIVE — the tally matches an INDEPENDENT hand-count on two known real sidecars (brain-as-a-service.md -> 8x UNDEFINED_TERM, decision REVIEW; BIG_PICTURE_RELATION_MAP.md -> 1x AGENT_REVIEW), and every other bucket is exactly zero on those files",
+    "NEGATIVE / red-capable — a MINIMAL MUTATION of a parsed sidecar (append one dictionary_warning, drop one, or retype one) shifts the tally by exactly one; the same equality that holds on the real dict FAILs on the mutant — the tally discriminates real vs mutated input, not green-by-construction",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH — not for public hosting' banner",
+    "empty-sink discipline: zero-debt sidecars render as an explicit CLEAN badge and sidecars missing all debt keys render as UNPOPULATED — never a bare 0 that reads all-clear; counts are REAL (read from disk), not synthetic",
+    "no autonomy / guaranteed-outcome claim; theme-aware, brand-neutral, self-contained (inline CSS/JS)"
+  ],
+  "chess_patches_applied": [
+    "positive fixture is a hand-count done independently of the tally code, on the REAL on-disk sidecars (not an authored strawman)",
+    "negative fixture is a single-item mutation of that same real dict; the tally assertion is never relaxed to pass",
+    "tally_sidecar is a pure function of the parsed JSON (no I/O), so the test drives it with real and mutated dicts directly",
+    "verdict vocab CHECK_OK / CHECK_REJECTED, origin=sandbox-advisory / authority=none; never a bare governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (sidecars + library read-only; all writes confined to catalog/builds/DX-5, generator writes no receipt into any tracked dir)",
+    "Lock 10 deliverable (generated HTML to local out/ only, visible DO-NOT-PUSH banner, no autonomy/outcome claim, CLEAN/UNPOPULATED badges not bare 0)",
+    "no live call (no network/CF/Supabase/sends; HOME redirected to temp)",
+    "worktree not pushed; no git write commands; other lanes' untracked files not read/staged/depended on"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/DX-5/dx5_wording_debt_rollup.py",
+    "template": "catalog/builds/DX-5/report_template.html",
+    "generated_report": "catalog/builds/DX-5/out/wording_debt_rollup.html",
+    "test": "catalog/builds/DX-5/test_dx5_wording_debt_rollup.py",
+    "red_run_canary": "catalog/builds/DX-5/redrun-canary.txt",
+    "results": {
+      "self_runner": "7/7 green exit 0",
+      "pytest": "7 passed",
+      "handcount_match": "brain-as-a-service.md=8 UNDEFINED_TERM, BIG_PICTURE_RELATION_MAP.md=1 AGENT_REVIEW (matched)",
+      "mutated_tally": "append/drop/retype one warning -> tally shifts by exactly one (discriminates)",
+      "top_debt_file": "TERMINOLOGY_DICTIONARY_FULL_AUDIT_2026-07-06.md (22, SIDECAR_PREVIEW_ONLY)",
+      "red_run_canary": "FIRED (asserting mutated==real raised AssertionError, exit 1)",
+      "pollution_outside_build_dir": "none (all writes confined to catalog/builds/DX-5)"
+    }
+  },
+  "exit_gate_B4": "DX-5 done — wording-debt rollup globs the 92 language_gate_review sidecars, tallies review reasons/decision per file, ranks a self-contained HTML table to out/, matches an independent hand-count, and is red-capable via a minimal mutated tally.",
+  "next_action": "wire the same rollup to a freshness check (sidecar mtime vs reviewed doc mtime) to flag STALE sidecars, and consider a DX sibling that diffs two rollups over time to show wording-debt burndown."
+}

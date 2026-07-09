@@ -1,0 +1,58 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox reconciler. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. Read-only over the two P0 registries; the tool itself is the trust spine.",
+  "catalog_item": "WI-4", "phase": "B2",
+  "title": "Founder-Trigger Retirement Reconciler (static, read-only, two P0 registries)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json",
+      "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/founder-trigger-retirement-registry-v1.json"
+    ],
+    "modified": false,
+    "note": "reconciles retires_trigger_ids (loops file, 11 refs) against defined trigger_ids (registry triggers[], 4 defined); both files read-only, sha unchanged"
+  },
+  "finding": {
+    "verdict": "CHECK_REJECTED",
+    "dangling_count": 7,
+    "dangling_references": [
+      {"loop_id": "LP-WORKER-EXEC", "retires_trigger_id": "FT-FOUNDER-TIER-ROUTING"},
+      {"loop_id": "LP-WORKER-EXEC", "retires_trigger_id": "FT-FOUNDER-MISSION-PICK"},
+      {"loop_id": "LP-MACHINE-VALID", "retires_trigger_id": "FT-FOUNDER-VALIDATOR-CHECK"},
+      {"loop_id": "LP-ADVERSARIAL", "retires_trigger_id": "FT-DUP-IMPL-FOUNDER"},
+      {"loop_id": "LP-CRITIC", "retires_trigger_id": "FT-FOUNDER-RECEIPT-READ"},
+      {"loop_id": "LP-SELF-REPAIR", "retires_trigger_id": "FT-FOUNDER-CI-TRIAGE"},
+      {"loop_id": "LP-RESEARCH", "retires_trigger_id": "FT-FOUNDER-UNCERTAINTY"}
+    ],
+    "interpretation": "7 machine loops declare they retire founder triggers that the retirement registry never defines. Earned-autonomy accounting is wired to phantom trigger_ids; the registry only defines FT-TIER1-PARALLEL-ORCH, FT-KZ002-COPILOT-P4, FT-FOUNDER-OBSERVATION, FT-MERGE-T0-T1. REPORTED as a finding, not relaxed away."
+  },
+  "what_it_proves": [
+    "REAL registries -> CHECK_REJECTED citing 7 dangling retires_trigger_ids (loops declare retirements the registry never defines)",
+    "a MINIMAL MUTATION of the real registry (define every referenced trigger_id) reconciles clean -> CHECK_OK — the checker is not always-fail",
+    "seeding one dangling ref (FT-SEEDED-PHANTOM) into the clean copy flips it back -> CHECK_REJECTED (RED-before-GREEN, seed id cited)",
+    "removing a needed definition (FT-MERGE-T0-T1) from the clean copy re-rejects — invariant is never relaxed to admit dangling refs",
+    "running the reconciler leaves BOTH ground-truth files byte-identical (sha unchanged); tool is strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any dangling ref (not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL registries and records CHECK_REJECTED with the 7 real dangling refs (no strawman)",
+    "positive proof is a minimally-mutated registry that legitimately reconciles clean; no invariant relaxation",
+    "reads both files, never writes to either (Lock 5 / read-only)",
+    "origin=sandbox-advisory / authority=none; reports the dangling refs as a finding, never its own PASS"
+  ],
+  "locks_respected": ["Lock 5 append-only (both registries unmodified, sha unchanged)", "no live call", "read-only reconciler", "worktree not pushed"],
+  "evidence": {
+    "reconciler": "catalog/builds/WI-4/wi4_trigger_reconcile.py",
+    "test": "catalog/builds/WI-4/test_wi4_trigger_reconcile.py",
+    "red_run_canary": "catalog/builds/WI-4/redrun-canary.txt",
+    "results": {
+      "real_registries": "CHECK_REJECTED exit 1 (7 dangling)",
+      "self_runner": "6/6 green",
+      "pytest": "env-blocked: pluggy absent on disk repo-wide (same failure on GV-1's test); test file is pytest-shaped, self-runner is the operative proof",
+      "ground_truth_sha": "unchanged (both files)"
+    }
+  },
+  "exit_gate_B2": "WI-4 done (static reconciler surfaces 7 real dangling retires_trigger_ids by finding; RED-before-GREEN via seeded phantom + minimal-mutation clean positive).",
+  "next_action": "Escalate the 7 dangling retires_trigger_ids finding: either the retirement registry must define these founder triggers, or the loops must drop the phantom retires_trigger_ids."
+}

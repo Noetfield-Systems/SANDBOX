@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Spend Leak Audit</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --hi:#b23b3b; --mid:#c79024; --lo:#2f7d54; --unpop:#6b6f75;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --wm-bg:#fbf3e2; --wm-ink:#7a5a1e; --synth-bg:#eef1f4; --synth-ink:#45525f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+      --hi:#e06767; --mid:#d9b45a; --lo:#5fc191; --unpop:#9aa0a8;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+      --wm-bg:#2a2413; --wm-ink:#d8c384; --synth-bg:#1f272f; --synth-ink:#9fb4c7;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+    --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+    --hi:#e06767; --mid:#d9b45a; --lo:#5fc191; --unpop:#9aa0a8;
+    --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+    --wm-bg:#2a2413; --wm-ink:#d8c384; --synth-bg:#1f272f; --synth-ink:#9fb4c7;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --hi:#b23b3b; --mid:#c79024; --lo:#2f7d54; --unpop:#6b6f75;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --wm-bg:#fbf3e2; --wm-ink:#7a5a1e; --synth-bg:#eef1f4; --synth-ink:#45525f;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:880px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700; text-align:center;
+    padding:10px 14px; border-radius:8px; letter-spacing:.02em; font-size:13px; margin-bottom:16px; }
+  .synth-badge { display:inline-block; background:var(--synth-bg); color:var(--synth-ink); border:1px solid var(--line);
+    font-size:12px; font-weight:700; padding:4px 11px; border-radius:999px; margin-bottom:18px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  h1 { font-size:26px; margin:6px 0 4px; }
+  h3.section-title { font-size:16px; margin:34px 0 10px; border-top:1px solid var(--line); padding-top:22px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 16px; }
+  .meta { display:flex; flex-wrap:wrap; gap:14px; color:var(--muted); font-size:13px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:10px 0; margin:0 0 22px; }
+  .meta b { color:var(--ink); font-weight:600; }
+  .headline { display:flex; align-items:center; gap:20px; background:var(--panel);
+    border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 6px; flex-wrap:wrap; }
+  .leak-chip { font-size:34px; font-weight:800; min-width:130px; padding:14px 18px; border-radius:12px;
+    color:#fff; text-align:center; }
+  .leak-chip.hi { background:var(--hi); } .leak-chip.mid { background:var(--mid); }
+  .leak-chip.lo { background:var(--lo); } .leak-chip.unpop { background:var(--unpop); }
+  .headline .lbl { font-weight:700; font-size:16px; }
+  .headline .desc { color:var(--muted); font-size:13px; margin-top:2px; max-width:440px; }
+  .wm { display:inline-block; background:var(--wm-bg); color:var(--wm-ink); font-size:11px; font-weight:700;
+    padding:2px 8px; border-radius:6px; margin-top:6px; line-height:1.35; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:14px 0 0; }
+  .card { border:1px solid var(--line); border-radius:10px; padding:13px 15px; background:var(--bg); }
+  .card .k { font-size:12px; color:var(--muted); }
+  .card .v { font-size:22px; font-weight:800; margin:3px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:6px 0 0; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; }
+  .leak { display:inline-block; font-size:12px; font-weight:800; color:#fff; padding:2px 9px; border-radius:999px; }
+  .leak.hi { background:var(--hi); } .leak.mid { background:var(--mid); }
+  .leak.lo { background:var(--lo); } .leak.unpop { background:var(--unpop); }
+  .muted { color:var(--muted); font-size:13px; }
+  .unpop-list { margin:6px 0 0; padding-left:18px; font-size:13px; }
+  ul.ladder { list-style:none; padding:0; margin:8px 0 0; }
+  ul.ladder li { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin:8px 0;
+    display:flex; align-items:center; gap:12px; }
+  .ladder .tname { font-weight:600; flex:1; }
+  .gate-note { font-size:12px; color:var(--muted); margin-top:2px; font-weight:400; }
+  .tag-avail { background:var(--panel); color:var(--accent); border:1px solid var(--line); font-size:12px;
+    font-weight:700; padding:2px 10px; border-radius:999px; white-space:nowrap; }
+  .tag-locked { background:var(--lock-bg); color:var(--lock-ink); font-size:12px; font-weight:700;
+    padding:2px 10px; border-radius:999px; white-space:nowrap; }
+  footer { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">__BANNER_TEXT__</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>AI Spend Leak Audit</h1>
+  <p class="sub">__TIER_LINE__</p>
+  <div class="synth-badge">__SOURCE_BADGE__</div>
+  <div class="meta">
+    <span><b>Prepared from</b> __CLIENT_LABEL__</span>
+    <span><b>Generated</b> __GENERATED_AT__</span>
+    <span><b>Rows read</b> __POPULATED_COUNT__ of __ENTRY_COUNT__</span>
+    <span><b>Scope</b> Diagnosis only</span>
+  </div>
+
+  <h3 class="section-title">Headline: leak rate</h3>
+  <div class="headline">
+    <div class="leak-chip __LEAK_CLASS__">__LEAK_RATE__</div>
+    <div>
+      <div class="lbl">Spend above policy without a measured ROI signal</div>
+      <div class="desc">Per the cost-governance SSOT, a cost leak is spend above the policy baseline
+        with no documented ROI signal. Leak rate = leaked spend / total spend.</div>
+      <div class="wm">__LEAK_WATERMARK__</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="k">Total spend (synthetic)</div><div class="v">__TOTAL_SPEND__</div><div class="wm">__METRIC_WATERMARK__</div></div>
+    <div class="card"><div class="k">Leaked spend</div><div class="v">__LEAKED_SPEND__</div><div class="wm">__METRIC_WATERMARK__</div></div>
+    <div class="card"><div class="k">Cost per successful task</div><div class="v">__COST_PER_TASK__</div><div class="wm">__METRIC_WATERMARK__</div></div>
+    <div class="card"><div class="k">Policy compliance</div><div class="v">__POLICY_COMPLIANCE__</div><div class="wm">__METRIC_WATERMARK__</div></div>
+    <div class="card"><div class="k">Premium justification rate</div><div class="v">__PREMIUM_JUSTIFICATION__</div><div class="wm">__METRIC_WATERMARK__</div></div>
+  </div>
+
+  <h3 class="section-title">Leak rate by model tier</h3>
+  <table>
+    <thead><tr><th>Model tier</th><th>Routes</th><th>Total spend</th><th>Leaked spend</th><th>Leak rate</th></tr></thead>
+    <tbody>
+      __TIER_ROWS__
+    </tbody>
+  </table>
+
+  <h3 class="section-title">Top leak targets (up to 5)</h3>
+  <p class="sub">Routes above policy baseline with no ROI signal, largest synthetic spend first.</p>
+  <table>
+    <thead><tr><th>Task</th><th>Tier</th><th>Task class</th><th>Spend</th><th>Why flagged</th></tr></thead>
+    <tbody>
+      __LEAK_TARGET_ROWS__
+    </tbody>
+  </table>
+
+  <h3 class="section-title">Data quality</h3>
+  __UNPOPULATED_BLOCK__
+  <p class="muted">Policy pack reference: __POLICY_REF__</p>
+
+  <h3 class="section-title">Engagement ladder</h3>
+  <p class="sub">This audit is the first step. The later steps are shown for context. The two most
+    advanced steps stay locked until their proof conditions are met.</p>
+  <ul class="ladder">
+    <li><span class="tname">Tier 1 &mdash; AI Spend Leak Audit (this deliverable)</span><span class="tag-avail">diagnosis, delivered</span></li>
+    <li><span class="tname">Tier 2 &mdash; Policy Pack (bounded scope)<div class="gate-note">A separate, scoped engagement. Guardrails the customer deploys in their own infra.</div></span><span class="tag-avail">scoped build</span></li>
+    <li><span class="tname">Tier 3 &mdash; Firewall Pilot<div class="gate-note">Locked. Sandbox policy enforcement; unlocks only against a customer receipt, never live production by default.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+    <li><span class="tname">Tier 4 &mdash; ROI Router Advisory<div class="gate-note">Locked. Reserved for later, after a pilot has produced receipts over time.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+  </ul>
+
+  <footer>__FOOTER_NOTE__</footer>
+</div>
+</body>
+</html>

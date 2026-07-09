@@ -1,0 +1,11 @@
+# CI-2 RED-RUN CANARY
+# Deliberately-wrong assertion: claim the CLEAN file is FLAGGED (it is not).
+# A correctly-wired report-only wrapper must make this assertion FIRE.
+# ts=2026-07-09T09:54:01.755070+00:00
+
+observed: file=clean_example.md decision=PASS flagged=False blocking=0
+
+CANARY FIRED (AssertionError raised as designed):
+Traceback (most recent call last):
+  File "<stdin>", line 19, in <module>
+AssertionError: EXPECTED-WRONG: asserted clean_example.md is flagged; got flagged=False, decision=PASS

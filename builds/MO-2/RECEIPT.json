@@ -1,0 +1,67 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox detector. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. Read-only over the workflow-census extensions registry; the tool itself is the trust spine.",
+  "catalog_item": "MO-2", "phase": "B3",
+  "title": "Dead-Motor Detector (static, read-only, receipt_glob vs on-disk receipts)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "data/workflow_census_extensions_v1.json",
+      "receipts/ (+ decision_language_machine_v1/receipts/ — wherever a receipt_glob points; resolved relative to repo root)"
+    ],
+    "modified": false,
+    "note": "for each census motor's receipt_glob, globs the repo root and counts matching receipts; a glob with ZERO matches is a dead motor. Census + receipt dirs read-only, sha unchanged."
+  },
+  "finding": {
+    "verdict": "CHECK_REJECTED",
+    "dead_count": 4,
+    "dead_motors": [
+      {"loop_id": "cf_gateway_ops_v1", "receipt_glob": "gateway-ops receipt via Telegram", "match_count": 0},
+      {"loop_id": "cf_gateway_heartbeat_v1", "receipt_glob": "daily heartbeat with offers_sent/replies/L2", "match_count": 0},
+      {"loop_id": "railway_sina_gateway_v1", "receipt_glob": "gateway_leads insert receipt", "match_count": 0},
+      {"loop_id": "gh_gateway_railway_deadman_v1", "receipt_glob": "deadman /ready probe receipt", "match_count": 0}
+    ],
+    "alive_motors": [
+      {"loop_id": "sg_agent_read_staleness_v1", "receipt_glob": "receipts/agent-read-staleness-*.json", "match_count": 6},
+      {"loop_id": "sg_auth_surface_probe_v1", "receipt_glob": "receipts/auth-surface-probe-*.json", "match_count": 1}
+    ],
+    "interpretation": "4 of 6 census motors declare a receipt_glob that matches ZERO on-disk receipts. Their globs are prose descriptors ('receipt via Telegram', 'gateway_leads insert receipt', ...) rather than resolvable paths, so no on-disk receipt evidence exists for those motors — they are dead by the on-disk-receipt invariant. The 2 motors whose receipt_glob is a genuine path pattern DO match receipts and are not flagged. REPORTED as a finding, not relaxed away."
+  },
+  "what_it_proves": [
+    "REAL census -> CHECK_REJECTED citing 4 dead motors whose receipt_glob matches zero on-disk receipts (loops declare a receipt location but deposited nothing there)",
+    "POSITIVE CONTROL: the 2 real motors with genuine path globs (agent-read-staleness x6, auth-surface-probe x1) DO match receipts and are never flagged — a zero-hit cannot be a broken-glob false-clean",
+    "a MINIMAL MUTATION of the real census (repoint each dead motor's receipt_glob at a genuinely-matching pattern) is all-alive -> CHECK_OK — the detector is not always-fail",
+    "seeding one fake motor with a nothing-matching glob (SEEDED-PHANTOM-MOTOR) into the clean copy flips it back -> CHECK_REJECTED, seed loop_id cited (RED-before-GREEN)",
+    "removing the fix from one real motor (glob back to prose) re-rejects — invariant is never relaxed to admit a receipt-less motor",
+    "running the detector leaves the census and receipts/ tree byte-identical (sha unchanged); tool is strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any dead motor (not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL census and records CHECK_REJECTED with the 4 real dead motors (no strawman; real receipt_glob values globbed as-is)",
+    "positive control proves the glob engine actually matches (2 alive motors), so a clean verdict can't be a broken-regex false-clean",
+    "positive proof is a minimally-mutated census that legitimately revives; no invariant relaxation",
+    "reads the census + receipt dirs, never writes to either (Lock 5 / read-only)",
+    "origin=sandbox-advisory / authority=none; reports the dead motors as a finding, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 1/2/5/6/7 append-only (census + receipts/ unmodified, sha unchanged; no tracked file edited/overwritten)",
+    "no live call (no network, Supabase, sends, deploy; HOME untouched)",
+    "read-only detector",
+    "wrote only inside catalog/builds/MO-2/",
+    "worktree not pushed (no git write commands)"
+  ],
+  "evidence": {
+    "detector": "catalog/builds/MO-2/mo2_dead_motor_detect.py",
+    "test": "catalog/builds/MO-2/test_mo2_dead_motor_detect.py",
+    "red_run_canary": "catalog/builds/MO-2/redrun-canary.txt",
+    "results": {
+      "real_census": "CHECK_REJECTED exit 1 (4 dead / 6 motors)",
+      "self_runner": "8/8 green",
+      "pytest": "8 passed",
+      "ground_truth_sha": "unchanged (census + receipts/ tree)"
+    }
+  },
+  "exit_gate_B3": "MO-2 done (static detector surfaces 4 real dead motors by finding; RED-before-GREEN via seeded phantom motor + minimal-mutation revive positive; positive-control live globs prove the glob engine isn't false-clean).",
+  "next_action": "Escalate the 4 dead-motor finding: either those motors must land a real on-disk receipt matching a resolvable receipt_glob, or the census must record their receipt channel (Telegram/Supabase) as non-file so the detector can exempt them explicitly."
+}

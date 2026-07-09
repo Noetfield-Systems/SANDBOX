@@ -1,0 +1,145 @@
+{
+  "subsystem": "state-registry-receipt-ledger (machine-readable governance state surface: data/ receipts/ ledger/ ssot/)",
+  "what_it_is": "The SSOT's machine-readable state surface: JSON registries in data/ declare the \"truth\" (every automation motor, agent lane, alive-doc pointer, live Brain deploy state, value-class rules, guard patterns), receipts/ is the append-only evidence corpus (92 receipts incl. the entire P0-PGR dispatch-brain state machine under receipts/p0pgr/), and ledger/ + ssot/ hold the human-readable decision log and parent governance law. Agents query these files instead of scattered prose; \"which receipt does this loop serve?\" is the judging question and receipt identity (not a mode flag) computes PASS/FAIL.",
+  "current_state": {
+    "status": "partial",
+    "note": "Registries are LIVE and actively written (github_automation_registry_v1.json v1.1.0 saved 2026-07-08T13:11:47Z; agent_read_surfaces v1.3.0). P0-PGR is SCAFFOLDED/shadow: motor status DECLARED phase0_shadow, yet phase1/phase2 scorecards exist with 2 real cloud-only executions (M10 ranker, M03 audit) under a founder unlock receipt. Execution beyond cloud-only read-only ranking is LOCKED (deploy/merge/authority = FOUNDER_ONLY). STALE spots: brain_deployment_state.bundle_sha256=null, automation_baseline_freeze from 20260703, ledger is a Level-2 hand-authored stopgap 'subordinate to git', governance_stale_pointer_queue is empty (0 open)."
+  },
+  "key_assets": [
+    {
+      "path": "data/github_automation_registry_v1.json",
+      "kind": "data",
+      "purpose": "Motor truth (v1.1.0): 16 motors across 6 repos + agent_lanes + task_cell_owners + duplication_forbidden CAS rules. Law: 'one motor per task cell; unregistered workflow = defect'. p0pgr_shadow_cycle_v1 registered, status DECLARED, must_not_own execution/deploy/merge."
+    },
+    {
+      "path": "data/agent_read_surfaces_v1.json",
+      "kind": "data",
+      "purpose": "Alive-doc registry (v1.3.0): per-lane must_read[] with ACTIVE/READ_SURFACE/SUPERSEDED/RETIRED status. Law: agents act only on ACTIVE surfaces; retired pointers must not drive deploy/spend."
+    },
+    {
+      "path": "data/brain_deployment_state.json",
+      "kind": "data",
+      "purpose": "Single source for live Brain Cloudflare deploy state: live_target worker, live_version, gate_flags (autonomous deploy/hold flag paths), knowledge_chunks_live=514. bundle_sha256 still null."
+    },
+    {
+      "path": "data/brain_domain_sandboxes_v1.json",
+      "kind": "data",
+      "purpose": "5 brain deploy sandbox lanes (brain_worker, knowledge_bundle, locked_definitions, contract_pages, pattern_export[HOLD]) each with gate_profile deploy/post-promote commands and health_url."
+    },
+    {
+      "path": "data/commercial_pulse_queue_v1.json",
+      "kind": "data",
+      "purpose": "CASL outbound draft state machine (lane: metabolism): 11 states, 8 dispatchability_predicates, draft_template with founder-blocked send gate. queue[] and history[] currently empty; checker = scripts/commercial_pulse_dispatch_check_v1.py."
+    },
+    {
+      "path": "data/workflow_census_value_class_rules_v1.json",
+      "kind": "data",
+      "purpose": "Maps each task_cell to REVENUE/GUARD/META/NONE value-class + receipt_target; the classification the weekly census audit uses to flag dead loops."
+    },
+    {
+      "path": "data/stale_law_guard_patterns_v1.json",
+      "kind": "data",
+      "purpose": "Regex guard patterns (Vercel=BLOCKER, mac-only-24/7=WARN) with replacement + severity, scanned over ACTIVE surfaces to catch stale law."
+    },
+    {
+      "path": "data/governance_stale_pointer_queue_v1.json",
+      "kind": "data",
+      "purpose": "Work queue for stale/dangling governance pointers; schema present but empty (open_count 0) \u2014 a ready sink for a sweep to populate."
+    },
+    {
+      "path": "receipts/p0pgr/phase2_queue_v1.json",
+      "kind": "data",
+      "purpose": "Deterministic ROI-ranked dispatch queue (weights: direct_revenue35/trust25/workload15/cloud15/reversibility10) over 8 cloud-only moves + held_items; dispatch flags NOT flipped by ranker."
+    },
+    {
+      "path": "receipts/p0pgr/campaigns/P0PGR-CAMPAIGN-20260708-001.json",
+      "kind": "data",
+      "purpose": "Chess-method campaign receipt: 10 moves (M01-M10) each with board_signal, patch_before_execution, roi_score, packet_id, lint verdict \u2014 the strategic board that seeded the 10 outbox packets."
+    },
+    {
+      "path": "receipts/p0pgr/outbox/P0PGR-20260708-004.json",
+      "kind": "data",
+      "purpose": "Representative compiled prompt packet (P0_PROMPT_PACKET_SCHEMA): task/allowed_actions/forbidden_actions/constraints/success_receipt fields, execution_mode CLOUD_ONLY, dispatch_mode shadow. 10 such packets in outbox/."
+    },
+    {
+      "path": "receipts/p0pgr/repair_candidates/P0PGR-CYCLE-20260708T143639Z-P0PGR-20260708-001.json",
+      "kind": "data",
+      "purpose": "Lint-fail repair candidate keyed by cycle_id+packet_id listing missing required schema props (execution_mode, canonical_path, mac_required_reason) \u2014 the retry loop's work item."
+    },
+    {
+      "path": "receipts/p0pgr/evidence/evidence-dd61a460b6927e46.json",
+      "kind": "data",
+      "purpose": "Evidence bundle (hashed): census counts (REVENUE3/GUARD5/META22/NONE8, audit RED, 38 loops), registry motor_ids/lanes snapshot, alive_docs sha256, staleness gate, latest_receipts index \u2014 the pre-dispatch fact bundle."
+    },
+    {
+      "path": "receipts/p0pgr/founder/FOUNDER-UNLOCK-PHASE2-CLOUD-ONLY-20260708.json",
+      "kind": "gate",
+      "purpose": "Founder authorization receipt unlocking PHASE_2_CLOUD_ONLY_ROI_TRACK with explicit scope_limits (no Mac, no deploy/merge, one candidate at a time); execution receipts must cite founder_authorization_ref."
+    },
+    {
+      "path": "ledger/session-decision-ledger.md",
+      "kind": "doc",
+      "purpose": "Hand-authored Level-2 stopgap decision log (D4 receipt-law, no-self-verify, open blockers); explicitly SUBMITTED/UNVERIFIED and to be superseded by a future git-derived GOVERNANCE_DOCUMENT_REGISTRY."
+    },
+    {
+      "path": "ssot/PARALLEL_AUTOMATION_GOVERNANCE_v1.md",
+      "kind": "doc",
+      "purpose": "Parent governance law that github_automation_registry_v1.json enforces (one motor per task cell, lane boundaries); MULTI_REPO_WORKER_REGISTRY_v1.md carries worker routing."
+    }
+  ],
+  "extension_points": [
+    "data/github_automation_registry_v1.json \u2192 append to motors[] / task_cell_owners{} / duplication_forbidden[] to register a new automation under the 'one motor per task cell' law (must declare owns/must_not_own/receipt_path)",
+    "receipts/p0pgr/outbox/ \u2192 drop new P0PGR-YYYYMMDD-NNN.json packets conforming to P0_PROMPT_PACKET_SCHEMA; the cycle linter validates them and files repair_candidates/ on failure",
+    "receipts/p0pgr/phase2_queue_v1.json \u2192 ranked_queue[] is regenerated by a deterministic ROI ranker (move M10 pattern); a new ranker run replays same-input\u2192same-order",
+    "data/agent_read_surfaces_v1.json \u2192 lanes[].must_read[] is where new alive-doc pointers register with ACTIVE/SUPERSEDED status so agents pick them up",
+    "data/commercial_pulse_queue_v1.json \u2192 queue[] + draft_template feed scripts/commercial_pulse_dispatch_check_v1.py, which evaluates the 8 dispatchability_predicates before any founder-gated send",
+    "data/workflow_census_value_class_rules_v1.json \u2192 by_task_cell{} is the plug point for classifying a new loop into REVENUE/GUARD/META/NONE for the weekly census",
+    "data/governance_stale_pointer_queue_v1.json \u2192 items[] (empty) is a ready sink for a stale_law_guard_patterns sweep to populate",
+    "living_system_subsystems_v1.json \u2192 pulse_receipt_globs are the receipt patterns a homeostasis pulse consumes; new receipt families become health signals by adding a glob",
+    "receipts/ globs referenced in registry receipt_path fields \u2192 any new motor writes receipts matching its declared glob, which the census/audit machinery then reads back"
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "State-surface index generator: a read-only script that joins github_automation_registry_v1.json (motors/lanes), workflow_census value-class counts + evidence census (RED, NONE:8), agent_read_surfaces alive-docs, and the P0-PGR phase2 scorecard/queue into one HTML/JSON 'machine-readable state surface' dashboard for onboarding (per memory: simple web format, no decks).",
+      "builds_on": "data/github_automation_registry_v1.json + receipts/p0pgr/phase2_scorecard_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Registry cross-consistency linter: verify every motor_id in github_automation_registry appears in automation_surface_inventory + evidence bundle motor_ids, every task_cell_owner resolves to a real motor/agent, duplication_forbidden.allowed_motors all exist, and no owns/must_not_own collision across lanes. Emits a receipt; fails CI-style on drift.",
+      "builds_on": "data/github_automation_registry_v1.json + data/automation_surface_inventory_v1.json + receipts/p0pgr/evidence/evidence-*.json",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Offline P0-PGR packet lint + repair-candidate harness: validate every receipts/p0pgr/outbox/*.json against the packet schema (required props like execution_mode/canonical_path/mac_required_reason) and regenerate repair_candidates/ entries \u2014 pure validation, dispatch_now stays false, zero packet execution.",
+      "builds_on": "receipts/p0pgr/outbox/*.json + receipts/p0pgr/repair_candidates/*.json (repair-candidate schema)",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Value-class cost attribution table (executes designed-but-unrun move M06/P0PGR-20260708-007 as a sandbox report): attribute monthly cost per loop/value_class from census + value-class rules, flag every NONE-class dollar (~$20/mo dead spend), output attribution table only \u2014 kill/throttle stays a ranked recommendation, never an action.",
+      "builds_on": "data/workflow_census_value_class_rules_v1.json + receipts/p0pgr/evidence/evidence-*.json census + campaign move M06",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Stale-law sweep that populates the empty governance_stale_pointer_queue: run stale_law_guard_patterns_v1 regexes across all ACTIVE paths in agent_read_surfaces + the registries, writing BLOCKER/WARN hits into governance_stale_pointer_queue_v1.items[] with severity and replacement suggestion (report-only, no edits).",
+      "builds_on": "data/stale_law_guard_patterns_v1.json + data/agent_read_surfaces_v1.json + data/governance_stale_pointer_queue_v1.json",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Commercial-pulse dispatch-check dry-run: exercise scripts/commercial_pulse_dispatch_check_v1.py against a clearly-labeled test draft to score the 8 dispatchability_predicates and emit a per-predicate readiness verdict (move M05 audit) \u2014 queue stays empty, send stays founder_blocked, zero external send.",
+      "builds_on": "data/commercial_pulse_queue_v1.json (dispatchability_predicates + draft_template) + campaign move M05",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

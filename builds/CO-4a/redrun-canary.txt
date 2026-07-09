@@ -1,0 +1,10 @@
+CO-4a RED-RUN CANARY — a deliberately-WRONG assertion that MUST fire
+==================================================================
+Claim under test (intentionally false): the overclaim-injected report
+is still CHECK_OK. Real gate verdict on the mutant: CHECK_REJECTED (decision=FAIL).
+Wrong assertion:  assert run_language_gate(mutant).verdict == CHECK_OK
+
+AssertionError: CANARY FIRED: overclaim mutant is CHECK_REJECTED / gate FAIL, NOT CHECK_OK — the engine really rejects the injected 100% guaranteed overclaim
+
+RESULT: canary FIRED as expected (exit 1). The proof is red-capable.
+run_at=2026-07-09T09:42:41Z

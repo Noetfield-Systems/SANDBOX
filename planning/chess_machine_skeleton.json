@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-07-09T06:30:39Z",
+  "move": "Simplify, clean, and wire governance subsystems; add validators, bridges, dashboards; enforce regulatory copy claims; populate motors; build commercial deliverables in sandbox.",
+  "immediate_goal": "Lock a phased build plan via CHESS, then start TH-1 (promotion-gate refusal-teeth pytest harness).",
+  "protected_assets": [
+    "P0-PGR execution lock",
+    "live Cloudflare deploys",
+    "live Supabase workflow_census tables",
+    "receipt immutability (append-only)",
+    "primary checkout cursor/language-layer-v1",
+    "founder DECIDE authority (0.2)",
+    "author!=subject (0.1)",
+    "no outbound sends"
+  ],
+  "likely_misread": [
+    "Agent may treat clarity/polish wording as permission to delete capability."
+  ],
+  "second_move_risk": [
+    "Working CTAs/routes/features may be removed or hidden."
+  ],
+  "third_move_consequence": [
+    "User flow or commercial funnel may regress after deploy."
+  ],
+  "patch_before_execution": "Preserve existing working capabilities. Use REMOVE ONLY for exact removals. Patch ambiguous wording before execution. Preserve: P0-PGR execution lock, live Cloudflare deploys, live Supabase workflow_census tables, receipt immutability (append-only), primary checkout cursor/language-layer-v1, founder DECIDE authority (0.2), author!=subject (0.1), no outbound sends. No removals authorized unless explicitly named.",
+  "verification_after_execution": [
+    "each verifier proven by a negative-proof fixture it rejects",
+    "git worktree isolation intact",
+    "no live writes/deploys/sends",
+    "receipts advisory only, never PASS",
+    "primary checkout untouched"
+  ],
+  "action": "PROCEED_WITH_PATCH"
+}

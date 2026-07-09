@@ -1,0 +1,41 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox externalization + parity proof. ADDITIVE-PARITY only. Emits CHECK_OK/CHECK_REJECTED, never a governance PASS.",
+  "catalog_item": "WI-6", "phase": "B2 — RECOVER ORPHANED INVESTMENT",
+  "title": "Externalize the six language_gate allowlists to JSON (additive-parity)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "change": {
+    "kind": "edit (additive) + new reviewable data file",
+    "file_modified": "language_gate/language_gate_core_v1.py",
+    "what": "ADDED ALLOWLISTS_JSON_PATH, EXTERNALIZED_ALLOWLISTS registry, and load_allowlist(name, json_path=None) which PREFERS the externalized JSON and FALLS BACK to the hardcoded Python constant when the JSON is absent/omits the key. The six Python constants (STRUCTURAL 66 / STATUS_LABEL 105 / FRAGMENT 65 / TECH_REFERENCE 53 / CENSUS_VERB 98 / ENTITY 19) REMAIN untouched as source-of-truth fallback. effective_*/scan/decide runtime paths are unchanged — purely additive.",
+    "data_file": "catalog/builds/WI-6/allowlists_v1.json",
+    "data_file_note": "reviewable externalized COPY, dumped directly from the live constants (sorted). Kept inside the build dir for multi-agent isolation; core.load_allowlist defaults to language_gate/allowlists_v1.json and falls back to constants when that path is absent."
+  },
+  "what_it_proves": [
+    "each of the six externalized sets, loaded via core.load_allowlist(name, json_path=REAL_JSON), is BYTE-IDENTICAL (== as a set) to its hardcoded Python constant -> CHECK_OK",
+    "the loader FALLS BACK to the Python constants when the JSON path is absent (source-of-truth fallback preserved, never deleted)",
+    "runtime caches _RUNTIME_STRUCTURAL/_RUNTIME_ENTITY reset before each parity check",
+    "MINIMAL MUTATION of the real JSON (drop one member of STRUCTURAL_ALLOWLIST) -> CHECK_REJECTED; parity is NOT relaxed to admit a drifted copy",
+    "MINIMAL MUTATION (add one bogus ENTITY term) -> CHECK_REJECTED (extra_in_json flagged); missing-key -> CHECK_REJECTED",
+    "FREEZE-ORDER HELD: re-ran TH-3 frozen golden -> 5/5, NO drift (additive edit changes no gate behavior)"
+  ],
+  "chess_patches_applied": [
+    "externalize = reviewable copy, NEVER delete the source of truth (constants remain; loader only prefers-then-falls-back)",
+    "byte-identical == parity asserted against the untouched constants; no strawman, no relaxation",
+    "negative fixture is a one-element minimal mutation of the REAL on-disk JSON, rejected",
+    "freeze-order: TH-3 golden re-run -> 5/5 no drift (never re-baselined)",
+    "isolation: JSON copy written inside build dir; only the ONE named gate file edited, additively"
+  ],
+  "locks_respected": ["Lock 5 append-only (only the named gate file edited, additively; no tracked file overwritten/deleted)", "no live call", "worktree not pushed", "no behavior drift"],
+  "evidence": {
+    "tool": "catalog/builds/WI-6/wi6_allowlist_externalize.py",
+    "test": "catalog/builds/WI-6/test_wi6_allowlist_externalize.py",
+    "data": "catalog/builds/WI-6/allowlists_v1.json",
+    "gate_change": "language_gate/language_gate_core_v1.py (load_allowlist + EXTERNALIZED_ALLOWLISTS + ALLOWLISTS_JSON_PATH)",
+    "red_run_canary": "catalog/builds/WI-6/redrun-canary.txt",
+    "results": { "tool_on_real_json": "CHECK_OK", "self_runner": "8/8", "pytest": "8 passed", "TH3_golden_drift": "none (5/5)", "canary": "fired (exit 1)" }
+  },
+  "exit_gate_B2": "WI-6 done (six allowlists externalized to a byte-identical reviewable JSON, constants preserved as fallback, no golden drift).",
+  "next_action": "remaining B2 items (WI-2/WI-3/WI-4/WI-5) per build plan"
+}

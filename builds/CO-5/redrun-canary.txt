@@ -1,0 +1,3 @@
+verdict on author==subject fixture: CHECK_REJECTED
+cited: ["author == subject ('acme-partner-bot') — the triage agent must differ from the signal's subject (author≠subject independence rule)"]
+EXPECTED -> RED-CANARY FIRED: RED-CANARY: asserted a self-triage (author==subject) receipt is CHECK_OK — but the verifier correctly REJECTED it, so this false assertion fires.

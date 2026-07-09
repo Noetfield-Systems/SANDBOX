@@ -1,0 +1,20 @@
+{
+  "data_class": "SYNTHETIC",
+  "synthetic": true,
+  "provenance": "hand-authored synthetic fixture for CO-3; NOT a real customer token log",
+  "watermark": "SYNTHETIC — not a guaranteed-savings claim; customer receipt required",
+  "source_label": "SYNTHETIC FIXTURE (co3)",
+  "generated_at": "2026-07-08T00:00:00Z",
+  "policy_pack_ref": "agentic-cost-governance-SSOT.md v0.1.0_draft — Tier-1 leak-rate definition",
+  "policy_note": "Per SSOT: cost leak = spend above policy baseline WITHOUT a measured ROI signal. leak_rate = leaked_spend / total_spend.",
+  "currency": "USD",
+  "entries": [
+    {"task_id": "t-001", "model_tier": "commodity", "tokens": 12000, "cost_usd": 120.00, "above_policy": false, "roi_signal": true,  "success": true,  "task_class": "summarize"},
+    {"task_id": "t-002", "model_tier": "premium",   "tokens": 40000, "cost_usd": 200.00, "above_policy": true,  "roi_signal": true,  "success": true,  "task_class": "contract-review"},
+    {"task_id": "t-003", "model_tier": "premium",   "tokens": 30000, "cost_usd": 150.00, "above_policy": true,  "roi_signal": false, "success": true,  "task_class": "chit-chat-routed-to-premium"},
+    {"task_id": "t-004", "model_tier": "commodity", "tokens": 8000,  "cost_usd": 80.00,  "above_policy": false, "roi_signal": false, "success": false, "task_class": "classify"},
+    {"task_id": "t-005", "model_tier": "premium",   "tokens": 50000, "cost_usd": 250.00, "above_policy": true,  "roi_signal": false, "success": true,  "task_class": "batch-rewrite-no-metric"},
+    {"task_id": "t-006", "model_tier": "commodity", "tokens": 10000, "cost_usd": 100.00, "above_policy": false, "roi_signal": true,  "success": true,  "task_class": "extract"},
+    {"task_id": "t-007", "model_tier": "commodity", "tokens": 10000, "cost_usd": 100.00, "above_policy": true,  "roi_signal": false, "success": false, "task_class": "retry-storm"}
+  ]
+}

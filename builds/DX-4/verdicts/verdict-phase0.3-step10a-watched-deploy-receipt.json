@@ -1,0 +1,18 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "classification": "FAIL",
+  "reasons": [
+    "content identity not confirmed (post-deploy artifact sha256 != verifier-signed candidate)"
+  ],
+  "rollback_hint": "wrangler versions deploy 628ebc37-5c66-44e5-9cad-4e05fc2f3e92 --name sourcea-brain-chat-v1",
+  "predicate": {
+    "deploy_exit_code": 0,
+    "identity_ok": false,
+    "smoke_ok": true,
+    "post_promote_ok": true,
+    "deploy_success": false
+  },
+  "subject_receipt": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/receipts/phase0.3-step10a-watched-deploy-receipt.json",
+  "subject_receipt_type": "STEP10A_CONFIRM_EACH_TIME_DEPLOY"
+}

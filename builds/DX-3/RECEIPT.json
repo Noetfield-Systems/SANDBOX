@@ -1,0 +1,43 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox fix + proof. Never emits PASS.",
+  "catalog_item": "DX-3",
+  "phase": "B0 — LOCK THE BOARD (pulled early per sequencing lens; unblocks B4 dashboards)",
+  "title": "De-pin the desktop audit apps",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "change": {
+    "kind": "edit (surgical)",
+    "files_modified": [
+      "desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py",
+      "desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py",
+      "desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py"
+    ],
+    "what": "replaced hardcoded REPO=Path('/Users/.../sina-governance-SSOT') with _resolve_repo(): SG_REPO_ROOT env -> git toplevel from __file__ -> walk up for data/+scripts/ marker -> legacy path as last-resort fallback",
+    "capability_preserved": "legacy path kept as fallback (anti-downgrade); nothing else in the files touched; no .app bundle deleted"
+  },
+  "what_it_proves": [
+    "all 3 apps now resolve REPO to THIS worktree (sg-sandbox), not the pinned path",
+    "REPO is a real repo root (data/ + scripts/ present)",
+    "SG_REPO_ROOT env override wins (portable across machines/checkouts)",
+    "legacy fallback preserved (anti-downgrade) and the 4 .app bundles are intact",
+    "red-run canary: a still-pinned REPO fails the reads-this-worktree assertion"
+  ],
+  "chess_patches_applied": [
+    "de-pin = swap the REPO constant for a resolver; do NOT delete the .app bundles",
+    "capability preserved (legacy fallback), no other behavior changed",
+    "importing generate.py evaluates REPO but does NOT run main() -> no wrapped-validator/subprocess side effects fired during the proof"
+  ],
+  "locks_respected": ["no live call", "no receipt-writing validators run", "worktree not pushed", "bundles preserved"],
+  "evidence": {
+    "test": "catalog/builds/DX-3/test_dx3_depin_desktop_apps.py",
+    "red_run_canary": "catalog/builds/DX-3/redrun-canary.txt",
+    "results": { "resolve": "3/3 -> sg-sandbox", "self_runner": "5/5 green", "pytest": "5 passed" }
+  },
+  "exit_gate_B0": "PARTIAL — TH-1, TH-3, GV-4, GV-3, DX-3 done. Remaining B0: TH-2, TH-4, TH-5, TH-6, GV-5, WI-7.",
+  "next_action": "continue B0 (TH-2 DLM classifier golden / GV-5 / WI-7) or start B1 trust spine"
+}

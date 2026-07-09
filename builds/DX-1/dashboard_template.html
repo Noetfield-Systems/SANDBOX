@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P0-PGR Status Dashboard</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --ok:#2f7d54; --ok-bg:#e5f2ea; --warn:#a9781f; --warn-bg:#f6ecd6;
+    --unpop:#8a5a1f; --unpop-bg:#f4e6cf; --stale:#8a3b3b; --stale-bg:#f3dede;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --done-bg:#e5f2ea; --done-ink:#2f7d54;
+    --built-bg:#e4ecf5; --built-ink:#37567c; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+      --ok:#5fc191; --ok-bg:#193026; --warn:#d9b45a; --warn-bg:#2e2716;
+      --unpop:#d9a95a; --unpop-bg:#2e2412; --stale:#e08a8a; --stale-bg:#2e1717;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --done-bg:#193026; --done-ink:#5fc191;
+      --built-bg:#16233a; --built-ink:#9cc0f0; --banner-bg:#8f2626; --banner-ink:#ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --track:#2a323b;
+      --ok:#5fc191; --ok-bg:#193026; --warn:#d9b45a; --warn-bg:#2e2716;
+      --unpop:#d9a95a; --unpop-bg:#2e2412; --stale:#e08a8a; --stale-bg:#2e1717;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --done-bg:#193026; --done-ink:#5fc191;
+      --built-bg:#16233a; --built-ink:#9cc0f0; --banner-bg:#8f2626; --banner-ink:#ffffff;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --track:#e6e9ec;
+    --ok:#2f7d54; --ok-bg:#e5f2ea; --warn:#a9781f; --warn-bg:#f6ecd6;
+    --unpop:#8a5a1f; --unpop-bg:#f4e6cf; --stale:#8a3b3b; --stale-bg:#f3dede;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --done-bg:#e5f2ea; --done-ink:#2f7d54;
+    --built-bg:#e4ecf5; --built-ink:#37567c; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700;
+    text-align:center; padding:10px 14px; border-radius:8px; letter-spacing:.02em;
+    font-size:13px; margin-bottom:22px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  h1 { font-size:25px; margin:6px 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 16px; }
+  h3.section-title { font-size:16px; margin:32px 0 8px; border-top:1px solid var(--line); padding-top:20px; }
+  .srcbar { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 6px; }
+  .src { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-size:12px; }
+  .src .path { color:var(--muted); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:11px; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    white-space:nowrap; letter-spacing:.02em; }
+  .b-ok { background:var(--ok-bg); color:var(--ok); }
+  .b-warn { background:var(--warn-bg); color:var(--warn); }
+  .b-unpop { background:var(--unpop-bg); color:var(--unpop); }
+  .b-stale { background:var(--stale-bg); color:var(--stale); }
+  .b-locked { background:var(--lock-bg); color:var(--lock-ink); }
+  .b-done { background:var(--done-bg); color:var(--done-ink); }
+  .b-built { background:var(--built-bg); color:var(--built-ink); }
+  .tbl-scroll { overflow-x:auto; }
+  table.q { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+  table.q th, table.q td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.q th { color:var(--muted); font-weight:600; }
+  table.q td.rank { font-weight:800; color:var(--accent); width:34px; }
+  table.q td.mv { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-weight:700; }
+  table.q td.score { font-weight:700; }
+  .commercial { font-size:11px; color:var(--warn); font-weight:700; }
+  .held li, .gates li { margin:6px 0; }
+  ul.plain { list-style:none; padding:0; margin:8px 0 0; }
+  ul.plain li { border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin:8px 0;
+    display:flex; align-items:center; gap:12px; }
+  .grow { flex:1; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:10px; margin-top:8px; }
+  .card { border:1px solid var(--line); border-radius:9px; padding:11px 13px; background:var(--panel); }
+  .card .k { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .card .v { font-size:22px; font-weight:800; margin-top:3px; }
+  .card .note { font-size:11px; color:var(--muted); margin-top:3px; }
+  .ladder .rung-body { flex:1; }
+  .ladder .rname { font-weight:600; }
+  .ladder .gate-note { font-size:12px; color:var(--muted); margin-top:2px; }
+  .ladder .current { font-size:11px; font-weight:700; color:var(--accent); }
+  .synthwm { font-size:11px; color:var(--muted); font-style:italic; margin-top:4px; }
+  footer { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">__BANNER_TEXT__</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>P0-PGR Status Dashboard</h1>
+  <p class="sub">__SUBTITLE__</p>
+
+  <h3 class="section-title">Source freshness</h3>
+  <p class="sub">Read-only snapshot of the on-disk P0-PGR receipts. A source older than __STALE_HOURS__h of the render time is flagged STALE; the dashboard never silently presents stale data as live.</p>
+  <div class="srcbar">__SOURCE_BADGES__</div>
+
+  <h3 class="section-title">Phase-2 ranked queue (ROI order)</h3>
+  <p class="sub">__QUEUE_CAPTION__</p>
+  <div class="tbl-scroll">
+  <table class="q">
+    <thead><tr><th>#</th><th>Move</th><th>Packet</th><th>Score</th><th>Route</th><th>Rationale</th></tr></thead>
+    <tbody>
+      __QUEUE_ROWS__
+    </tbody>
+  </table>
+  </div>
+  <div class="held">
+    <p class="sub" style="margin-top:14px;"><b>Held / non-ranked:</b></p>
+    <ul class="plain">__HELD_ROWS__</ul>
+  </div>
+
+  <h3 class="section-title">Gate &amp; invariant states</h3>
+  <p class="sub">Phase-2 execution gates for the next candidate, and the runtime safety invariants. Invariant counters read CLEAN only when a real 0 was measured; attestation fields that were never populated read UNPOPULATED, never a clean 0.</p>
+  <div class="cards">__GATE_CARDS__</div>
+  <p class="sub" style="margin-top:12px;"><b>Next-candidate gate checklist</b> (__NEXT_CANDIDATE__):</p>
+  <ul class="plain gates">__GATE_CHECKLIST__</ul>
+
+  <h3 class="section-title">R1&ndash;R5 cloud-activation ladder</h3>
+  <p class="sub">__LADDER_CAPTION__</p>
+  <ul class="plain ladder">__LADDER_ROWS__</ul>
+
+  <footer>
+    __FOOTER_NOTE__
+  </footer>
+</div>
+</body>
+</html>

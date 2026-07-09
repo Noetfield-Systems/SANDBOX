@@ -1,0 +1,30 @@
+{
+  "pipeline": "prompt_forge",
+  "version": "1.0.0",
+  "mode": "direction",
+  "prompt": "GOAL: sourcea.app/ is already live. the old kernel page is already deployed on source-a.vercel.app/sourcea/ \u2014 wire it as a subpage under sourcea.app. dont redeploy everything from scratch! just fix it e2e.\n\nCONTEXT (true now \u2014 do not re-derive):\n  - ALREADY DONE / DEPLOYED (do NOT redo): sourcea.app/ is already live. the old kernel page is already deployed on source-a.vercel.app/sourcea/ \u2014 wire it as a subpage under sourcea.app.\n  - Systems involved: Vercel\n  - Accounts/access if relevant: (add account/access if the agent needs it)\n\nWHAT I WANT: (the outcome you want \u2014 not the steps)\n\nDONE = the outcome above is true and verified end-to-end on the real surface.\n\nVERIFY: show me how you confirmed it actually works \u2014 curl output / test log / the live\nURL loading the correct content with valid TLS. Receipts, not \"it's done\".\n\nCONSTRAINTS:\n- NO rebuild, NO redeploy, NO starting over if it already exists \u2014 wire/fix, don't recreate.\n- One job only \u2014 do not bundle unrelated work into this mission.\n- Don't break anything already working (or its TLS / live state).\n- Verdicts from receipts only \u2014 no build theater, no 'it's green' without proof.\n\nIF BLOCKED or ambiguous: STOP and tell me what's missing or which decision is mine (naming, paths, which project/provider). Do not guess my intent. Do not deploy a placeholder.\n",
+  "findings": [
+    {
+      "level": "warn",
+      "code": "rebuild_risk",
+      "message": "You mention something already exists AND a build/deploy. The prompt will pin ALREADY DONE and forbid rebuilding it."
+    },
+    {
+      "level": "note",
+      "code": "adds_verification",
+      "message": "No verification asked \u2014 the machine will add a receipt-based VERIFY step."
+    }
+  ],
+  "facts": {
+    "systems": [
+      "Vercel"
+    ],
+    "urls": [],
+    "already_done": [
+      "sourcea.app/ is already live.",
+      "the old kernel page is already deployed on source-a.vercel.app/sourcea/ \u2014 wire it as a subpage under sourcea.app."
+    ],
+    "accounts": []
+  },
+  "used_llm": false
+}

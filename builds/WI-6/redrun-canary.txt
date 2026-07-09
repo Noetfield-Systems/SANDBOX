@@ -1,0 +1,14 @@
+WI-6 RED-RUN CANARY — proof the parity check is red-capable, not theater.
+
+Deliberately-wrong assertion (run against the REAL allowlists_v1.json, minimally mutated):
+  drop exactly ONE member from STRUCTURAL_ALLOWLIST, then assert verify_parity(...) == "CHECK_OK".
+
+Actual result (exit 1, AssertionError raised as expected):
+
+  AssertionError: RED-CANARY FIRED (expected): dropping one member -> CHECK_REJECTED,
+  reasons=["STRUCTURAL_ALLOWLIST: NOT byte-identical (missing_from_json=['zero execution authority'] extra_in_json=[])"]
+
+EXPECTED -> RED-CANARY FIRED: a one-element minimal mutation of the real externalized
+JSON is correctly REJECTED (not silently relaxed to match). Byte-identical ADDITIVE-PARITY
+is enforced against the untouched Python constants; the source of truth is never trimmed
+to admit a drifted copy.

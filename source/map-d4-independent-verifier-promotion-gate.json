@@ -1,0 +1,113 @@
+{
+  "subsystem": "D4 Independent Verifier + Promotion Gate",
+  "what_it_is": "The trust boundary between a sandbox-authored candidate artifact (knowledge_bundle / brain_worker_bundle) and a live production Worker deploy. An independent verifier \u2014 a Cloudflare Worker running on a SECONDARY CF account (b7282b4a...), authing via a GitHub App installation token, whose source lives remotely in SourceA (not in this repo) \u2014 emits signed receipts proving edge execution, account independence, and candidate-hash match. The promotion gate (gates/promotion_gate.py) is a local Python CLI that fetches that receipt and REFUSES to deploy unless it passes a battery of invariants (status/result==PASS, pass_claimed, edge_execution_proven, secondary_account_proven, cf_account_id, candidate_ref/path/sha256, no failures), then optionally executes a founder-confirmed / semi-auto-window / autonomous deploy and writes a deploy receipt. verifier/ holds the specs, JSON Schema, and independence birth-receipt; gates/ holds the enforcement engine.",
+  "current_state": {
+    "status": "partial",
+    "note": "The gate (gates/promotion_gate.py, 763 lines) is LIVE and exercised: it has real callers (scripts/promote_brain_worker_v1.sh) and has produced real deploy receipts (receipts/phase0.3-step10a-watched-deploy-receipt.json shows deploy_executed:true, and even caught a FAILED_INVARIANT content-identity mismatch). Confirm-each-time and semi-auto-window modes work. But the AUTONOMOUS deploy path is LOCKED behind flags (~/.sina/brain-autonomous-deploy-v1.flag) and step7 note states autonomous gate-triggered deploy is Step 10, 'founder-gated and not yet authorized'. The verifier side (verifier/) is SPEC/SCAFFOLD: knowledge-bundle-spec-v0.1.md and brain-worker-code-spec-v0.1.md are v0.1 SPEC docs ('Status: SUBMITTED / SPEC / NO LIVE DEPLOY'); the code that actually ENFORCES those specs is not in verifier/ (it lives in the remote Worker). The birth receipt is REMOTE_CHECK_ADVISORY with pass_claimed:false. Live Cloudflare deploys and the P0-PGR runtime are locked/out-of-scope."
+  },
+  "key_assets": [
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/gates/promotion_gate.py",
+      "kind": "gate",
+      "purpose": "The entire promotion gate: refusal_reasons() (receipt PASS/FAIL invariants), independence/rollback/autonomous refusals, source_refusal_reasons() (clean-main + dirty-tree guard + committed-vs-worktree-vs-expected sha256), bundle-artifacts-only allowlist, execute_deploy_flow() (pre/post live version diff, IDENTITY_MISMATCH, health, brain-live smoke, post-promote hook, mac SIGKILL recovery, autonomous-hold-on-fail), write_deploy_receipt(). Emits PROMOTION_GATE: REFUSED / BLOCKED / APPROVED_* lines with exit codes 2-6."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/gates/cf_tokens.py",
+      "kind": "config",
+      "purpose": "Loads CF_MAIN_TOKEN / CF_VERIFIER_TOKEN / CLOUDFLARE_API_TOKEN from ~/.sina/secrets/cloudflare-tokens.env into env without printing values; the main-vs-verifier token split enforces the two-account independence boundary."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/knowledge-bundle-spec-v0.1.md",
+      "kind": "doc",
+      "purpose": "SPEC for a knowledge_bundle candidate: two accepted shapes (original proposal + current SourceA Brain), size bounds (2 bytes-1MB, <=2000 chunks, <=20000 char/chunk), must-parse rules, required chunk metadata + content_sha256, hash rule (submitted bytes SHA256 must equal descriptor proposed_sha256), and the 11 required verifier-receipt fields. Prose only; no executable validator in-repo."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/brain-worker-code-spec-v0.1.md",
+      "kind": "doc",
+      "purpose": "SPEC for brain_worker_bundle (4-file deploy set: index.js, guardrails.js, brain-core-gate-v1.js, knowledge-bundle.json). Defines the three-hash rule: worker_code_sha256 and proposed_sha256 = SHA256 of a compact, sorted-keys JSON object mapping each path->its SHA256. PASS when remote bytes at candidate_ref match all three hashes + bundle validation. Points to receipts/verifier-independence-proof-latest.json."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+      "kind": "schema",
+      "purpose": "JSON Schema 2020-12 for the sandbox->verifier submission descriptor. additionalProperties:false; author_id const 'sandbox', subject const 'live Worker', artifact_type const 'knowledge_bundle', candidate_repo enum (SSOT or SourceA), proposed/base sha256 patterns. This is the machine-checkable candidate contract."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/independent-verifier-birth-receipt-61d95d74.json",
+      "kind": "data",
+      "purpose": "The independence birth proof: REMOTE_CHECK_ADVISORY, verifier_runtime cloudflare_worker, credential github_app_installation_token, secondary cf_account b7282b4a..., edge proof via cf_ray/cf_colo=YVR/TLSv1.3, edge_execution_proven+secondary_account_proven=true, pass_eligible:true but pass_claimed:false (advisory-only)."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/verifier/step7-manual-live-deploy-note-v0.1.md",
+      "kind": "doc",
+      "purpose": "Records the live Brain baseline (514 chunks live, version 628ebc37..., MAIN CF account 0d0b967b vs verifier secondary b7282b4a \u2014 'must not be merged'), that Step 7 was a founder-approved MANUAL deploy (not gate-triggered), and names the next step: 'Step 8: gate refusal teeth \u2014 feed a non-PASS receipt and prove the gate blocks deploy; does not require the live SourceA repo.'"
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/receipts/verifier-independence-proof-latest.json",
+      "kind": "data",
+      "purpose": "SEAM (out of gates/ but consumed by it): the gate's default --independence-receipt-path. Must be result/status==PASS, secondary_account_proven=true, recorded_at fresh (<=30d default) or the gate refuses any deploy. Regenerated by scripts/prove_verifier_independence_v1.sh."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/data/brain_domain_sandboxes_v1.json",
+      "kind": "data",
+      "purpose": "SEAM: the sandbox registry. Each row (brain_worker, knowledge_bundle, locked_definitions, contract_pages, pattern_export) carries a gate_profile (deploy_command, source_bundle_path, bundle_artifacts_only, post_promote_command, brain_live_smoke_default) that apply_sandbox_profile() loads by --sandbox-id. Adding a row creates a new promotion lane with zero gate code change."
+    },
+    {
+      "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/scripts/brain_autonomous_controls_v1.py",
+      "kind": "script",
+      "purpose": "SEAM: the flag API the gate imports \u2014 autonomous_deploy_enabled(), autonomous_hold_active(), set_autonomous_hold(), clear_autonomous_hold(), mutation_trials_enabled(). Backed by ~/.sina/brain-autonomous-deploy-v1.flag and ~/.sina/enforcement/brain-autonomous-hold-v1.flag; this is the lock keeping autonomous deploy disabled."
+    }
+  ],
+  "extension_points": [
+    "Sandbox registry rows in data/brain_domain_sandboxes_v1.json -> gate_profile, loaded by apply_sandbox_profile(): a new row adds a full promotion lane (deploy_command, source_bundle_path, post_promote_command, bundle_artifacts_only, smoke default) without touching gate code.",
+    "artifact_type dispatch inside refusal_reasons(): currently handles 'knowledge_bundle' and adds extra hash checks (worker_code_sha256, knowledge_bundle_sha256) for 'brain_worker_bundle'. New artifact types plug in here paired with a new spec doc in verifier/.",
+    "The verifier->gate receipt field contract (status, result, pass_claimed, edge_execution_proven, secondary_account_proven, cf_account_id, candidate_ref/path/sha256, candidate_validation_failures, failures): any new deploy invariant = one new emitted field + one new check line.",
+    "The descriptor JSON Schema (verifier/brain-config-artifact-descriptor-schema-v0.1.json): the machine-checkable sandbox-submission contract; new fields/artifact_type consts extend it.",
+    "post_promote_command hook in execute_deploy_flow()/run_post_promote_command(): runs arbitrary post-deploy validation (e.g. promote_locked_definitions_v1.py, validate-sourcea-contract-pages-e2e-v1.sh) \u2014 a generic post-promotion validator seam per sandbox.",
+    "Independence proof gate independence_refusal_reasons(): consumes receipts/verifier-independence-proof-latest.json with a configurable --independence-max-age-days freshness window.",
+    "Deploy-receipt output schema in write_deploy_receipt(): structured JSON receipts (receipt_type, deploy_executed, content_identity_ok, versions, smoke, post_promote) written to disk for downstream auditors."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Build the missing executable knowledge-bundle validator: a pure-offline Python module that turns knowledge-bundle-spec-v0.1.md + brain-worker-code-spec-v0.1.md into enforced checks (UTF-8 decode, JSON-object root, size bounds <=1MB / <=2000 chunks / <=20000 char per chunk, BOTH accepted chunk shapes, content_sha256/content_hash format, submitted-bytes SHA256 == descriptor proposed_sha256). Today the spec is prose and the enforcing validator only exists in the remote Worker. Emits the 11 spec-required receipt fields as a local advisory receipt.",
+      "builds_on": "verifier/knowledge-bundle-spec-v0.1.md and verifier/brain-worker-code-spec-v0.1.md",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Implement the step7 note's explicit next task \u2014 'Step 8: gate refusal teeth' \u2014 as a pytest harness that feeds crafted non-PASS receipts (status!=PASS, missing edge_execution_proven, wrong cf_account_id, mismatched candidate_sha256, non-empty failures, stale/absent independence proof, autonomous-hold flag active) into refusal_reasons()/main() with --receipt-url pointed at a local mock, asserting REFUSED and exit code 2 for each. step7 note states this 'does not require the live SourceA repo'.",
+      "builds_on": "gates/promotion_gate.py refusal_reasons()/independence_refusal_reasons()/autonomous_refusal_reasons()",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Ship a three-hash descriptor computer CLI implementing the brain-worker-code-spec exactly: build the sorted-keys, compact-separator JSON path->SHA256 map and hash it to produce worker_code_sha256 and proposed_sha256, so a sandbox author can generate a spec-correct descriptor and self-verify hashes offline BEFORE submitting to the verifier. The spec fully defines the algorithm but no committed tool computes it.",
+      "builds_on": "verifier/brain-worker-code-spec-v0.1.md hash rules + brain-config-artifact-descriptor-schema-v0.1.json",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Sandbox-registry gate-profile linter: statically validate every row of brain_domain_sandboxes_v1.json against what apply_sandbox_profile() consumes \u2014 deploy_root expands, deploy_command is never the banned 'bash scripts/brain_cli_v1.sh deploy' (which execute_deploy_flow refuses), source_bundle_path present when bundle_artifacts_only, post_promote_command script path exists, health_url well-formed. Catches a misconfigured lane before any real gate run.",
+      "builds_on": "data/brain_domain_sandboxes_v1.json + apply_sandbox_profile() in gates/promotion_gate.py",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Wire brain-config-artifact-descriptor-schema-v0.1.json into a jsonschema-based descriptor validator plus a valid/invalid fixture generator, so submissions are checked against additionalProperties:false, author_id const 'sandbox', subject const 'live Worker', candidate_repo enum, and sha256 patterns before the gate ever fetches a receipt. Makes adding a new artifact_type a one-const change.",
+      "builds_on": "verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Deploy-receipt auditor: a read-only rollup over receipts/*deploy-receipt*.json that reproduces the gate's own success logic (content_identity_ok, deploy_exit_code, smoke ok, post_promote ok) and classifies each as PASS/FAIL/BLOCKED with the exact rollback_hint. Grounded in a real produced failure \u2014 phase0.3-step10a-watched-deploy-receipt.json has content_identity_confirmed:false + gate_failure_after_deploy \u2014 so it immediately surfaces already-recorded FAILED_INVARIANT deploys.",
+      "builds_on": "write_deploy_receipt() output schema + receipts/phase0.3-step10a-watched-deploy-receipt.json",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

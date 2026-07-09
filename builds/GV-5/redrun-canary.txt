@@ -1,0 +1,3 @@
+GV-5 GATE_PROFILE: ISSUES:
+  - [brain_worker] deploy_root missing or not a string (gate does sandbox['deploy_root'])
+RED-CANARY FIRED: GV-5 exits 1 on a row missing deploy_root.

@@ -1,0 +1,13 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_REJECTED",
+  "subject_signal_id": "sig_bad_score_260708",
+  "schema_errors": [
+    "$.scores.commercial_value: 7 > maximum 5"
+  ],
+  "contract_reasons": [
+    "scores.commercial_value = 7 is out of bounds (must be 0..5)"
+  ],
+  "subject_receipt": "fixtures/receipt_score_out_of_bounds.json"
+}

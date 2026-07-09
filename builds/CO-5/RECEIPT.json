@@ -1,0 +1,44 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox verifier. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. The tool itself is the trust spine; it never edits the subject receipt.",
+  "catalog_item": "CO-5", "phase": "B4",
+  "title": "Signal Factory structural receipt verifier", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "ground": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/signal-factory-v1.md (output contract) + signal-factory SKILL.md (receipt shape)",
+  "subject": {
+    "files": ["catalog/builds/CO-5/signal_factory_receipt_schema_v1.json", "catalog/builds/CO-5/fixtures/*.json"],
+    "modified": false,
+    "note": "Encodes the Signal Factory v1 output contract as a JSON schema; verdicts written to scratch verdicts/, fixtures verified unchanged (sha stable)."
+  },
+  "what_it_proves": [
+    "conformant SYNTHETIC receipt -> CHECK_OK (schema-valid + author!=subject + all scores 0..5 + risk_score mirrors scores.risk)",
+    "author == subject -> CHECK_REJECTED citing the author!=subject independence rule (the triage agent must differ from the signal's subject)",
+    "any score pushed out of 0..5 (trust/risk/automation_value/commercial_value) -> CHECK_REJECTED (schema maximum + explicit contract bound-check)",
+    "bad enum / missing required field re-rejects -> schema is NEVER relaxed to admit a receipt",
+    "risk_score that stops matching scores.risk -> CHECK_REJECTED",
+    "running the verifier leaves the subject receipt byte-identical (sha unchanged); verdict emitted to scratch verdicts/",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never PASS"
+  ],
+  "red_capability": {
+    "kind": "data-driven discrimination (real vs mutated input)",
+    "positive": "conformant fixture -> CHECK_OK",
+    "negatives": ["author==subject -> CHECK_REJECTED", "out-of-bounds score -> CHECK_REJECTED"],
+    "canary": "redrun-canary.txt asserts the self-triage (author==subject) receipt is CHECK_OK; verifier REJECTS it, so the deliberately-wrong assertion fires -> proves the spine has teeth"
+  },
+  "b4_guards": {
+    "language_gate_dogfood": "N/A — CO-5 emits no commercial/marketing HTML; deliverable is a structural verifier + JSON schema. Red-capable proof is the data-driven mutation discriminator, which the spec allows as the alternative to the overclaim-dogfood path.",
+    "synthetic_watermark": "all fixtures carry a SYNTHETIC — not a guaranteed claim watermark; no real inbound signal data used",
+    "no_autonomy_claims": "verifier is advisory-only (authority=none); makes no autonomy or guaranteed-outcome claim"
+  },
+  "locks_respected": ["Lock 5 append-only (subject fixtures/schema unmodified, verdicts to scratch)", "no live call / no network / no send", "worktree not pushed", "writes only inside catalog/builds/CO-5/"],
+  "evidence": {
+    "verifier": "catalog/builds/CO-5/co5_signal_receipt_verify.py",
+    "schema": "catalog/builds/CO-5/signal_factory_receipt_schema_v1.json",
+    "fixtures": ["catalog/builds/CO-5/fixtures/receipt_conformant.json", "catalog/builds/CO-5/fixtures/receipt_author_equals_subject.json", "catalog/builds/CO-5/fixtures/receipt_score_out_of_bounds.json"],
+    "test": "catalog/builds/CO-5/test_co5_signal_receipt_verify.py",
+    "red_run_canary": "catalog/builds/CO-5/redrun-canary.txt",
+    "results": { "conformant": "CHECK_OK exit 0", "author_eq_subject": "CHECK_REJECTED exit 1", "out_of_bounds": "CHECK_REJECTED exit 1", "self_runner": "9/9", "pytest": "9 passed", "canary": "fired" }
+  },
+  "next_action": "advisory only — CO-5 verifier available for Signal Factory receipt structural checks; no downstream execution authority"
+}

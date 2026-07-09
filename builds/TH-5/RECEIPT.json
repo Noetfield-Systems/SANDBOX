@@ -1,0 +1,30 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory offline replay harness. Never PASS.",
+  "catalog_item": "TH-5", "phase": "B1 — TRUST SPINE",
+  "title": "Offline receipt-replay verifier harness", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": ["workers/github-app-advisory/index.js (pass-eligibility rule L450/L462)", "receipts/step6-deliberate-non-pass-receipt.json", "receipts/step8-tampered-independence-receipt.json"],
+    "modified": false,
+    "method": "mirrors the worker's 2-line inline pass-eligibility rule in Python with a DRIFT-GUARD asserting index.js still contains both exact expressions; replays over LOCAL captured fixtures only — never calls the live worker /run"
+  },
+  "what_it_proves": [
+    "drift-guard: index.js still contains 'pass_eligible: edgeExecutionProven && secondaryAccountProven' and 'env.CF_ACCOUNT_ID === SECONDARY_CF_ACCOUNT_ID'",
+    "real step8 (claims PASS, secondary_account_proven=false) -> CHECK_REJECTED (tampered independence)",
+    "real step6 (status FAIL) -> NON_PASS (correctly not a pass)",
+    "a minimally-mutated conformant PASS (from step8) -> CHECK_OK (positive control accepted)",
+    "not-reject-everything: both CHECK_REJECTED and CHECK_OK outcomes occur"
+  ],
+  "chess_patches_applied": [
+    "PASS positive control that MUST be accepted (a replay that rejects everything passes trivially — guarded)",
+    "LOCAL fixtures only; never fetch the live worker /run (no token mint, no KV overwrite)",
+    "index.js unedited; drift-guarded mirror instead of stale copy"
+  ],
+  "locks_respected": ["Lock 2/3 no live worker call", "Lock 5 index.js + fixtures unedited", "no network", "worktree not pushed"],
+  "evidence": { "harness": "catalog/builds/TH-5/test_th5_receipt_replay.py", "red_run_canary": "catalog/builds/TH-5/redrun-canary.txt",
+    "results": { "self_runner": "5/5", "pytest": "5 passed" } },
+  "exit_gate_B1": "COMPLETE — GV-1, GV-2, GV-6, DX-4, BR-4, TH-5 all done. Each verifier rejects a real known-bad by minimal mutation / drift-guarded replay.",
+  "next_action": "B2 (recover orphaned investment: WI-1 wire overlays, etc.) — founder go"
+}

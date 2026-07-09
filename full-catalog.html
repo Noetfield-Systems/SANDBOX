@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What We Can Build Here — Full Buildable Catalog v1.0</title>
+<style>
+:root{
+  --bg:#0e1116; --panel:#161b22; --panel2:#1c232d; --border:#2a3441;
+  --fg:#e6edf3; --dim:#9aa7b4; --accent:#4f9cff; --accent2:#7ee787;
+  --hi:#f2cc60; --lo:#8b98a5; --chip:#22303f;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f6f8fa; --panel:#ffffff; --panel2:#f0f3f6; --border:#d5dbe2;
+    --fg:#1a2029; --dim:#5a6672; --accent:#0a66d0; --accent2:#1a7f37; --hi:#9a6700; --lo:#6a7580; --chip:#eaeef2; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+header h1{font-size:24px;margin:0 0 6px}
+.sub{color:var(--dim);font-size:13px;margin:2px 0}
+.status{display:inline-block;margin-top:10px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--hi);background:var(--panel)}
+h2{font-size:18px;margin:34px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:15px;margin:22px 0 4px}
+.blurb{color:var(--dim);font-size:13px;margin:0 0 10px}
+.nav{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;margin-top:14px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px}
+.nav a{font-size:12px;color:var(--dim);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--panel)}
+.nav a:hover{color:var(--fg);border-color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
+.controls input,.controls select{background:var(--panel);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-size:13px}
+.controls label{font-size:12px;color:var(--dim)}
+.count{font-size:12px;color:var(--dim);margin-left:auto}
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:var(--panel2);position:sticky;top:52px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--panel2)}
+.id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:var(--accent);white-space:nowrap}
+.builds{color:var(--dim);font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.badge{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--chip)}
+.v-high{color:var(--accent2)} .v-med{color:var(--hi)} .v-low{color:var(--lo)}
+.e-S{color:var(--accent2)} .e-M{color:var(--hi)} .e-L{color:var(--lo)}
+.warn{color:var(--hi);font-weight:700}
+.kit td:nth-child(3){color:var(--dim);font-size:12.5px}
+.pick{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 14px;margin:8px 0}
+.pick b{color:var(--fg)} .pick .id{margin-left:6px}
+.pick p{margin:5px 0 0;color:var(--dim);font-size:13px}
+ol.seq{padding-left:20px} ol.seq li{margin:6px 0}
+.locks{counter-reset:l;list-style:none;padding:0}
+.locks li{position:relative;padding:6px 0 6px 30px;border-bottom:1px solid var(--border);font-size:13.5px}
+.locks li:before{counter-increment:l;content:counter(l);position:absolute;left:0;top:6px;width:20px;height:20px;border-radius:5px;background:var(--chip);border:1px solid var(--border);color:var(--hi);font-size:11px;font-weight:700;text-align:center;line-height:20px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--chip);padding:1px 5px;border-radius:4px;font-size:12.5px}
+footer{margin-top:40px;color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>What We Can Build Here — Full Buildable Catalog <span style="color:var(--dim)">v1.0</span></h1>
+  <p class="sub">Compiled 2026-07-08 · isolated worktree <code>sg-sandbox</code> @ <code>claude/sandbox-build</code></p>
+  <p class="sub">Recovered from workflow <code>wf_87df5806-0c5</code> (13 agents) then critic-merged. ~50 ideas across 8 categories, each grounded in a real on-disk asset.</p>
+  <span class="status">● Advisory proposal — never emits PASS · nothing here is authority until reconciled into its owning repo</span>
+</header>
+
+<nav class="nav">
+  <a href="#kit">Kit</a><a href="#picks">Top picks</a>
+  <a href="#A">A · Bridges</a><a href="#B">B · Gates</a><a href="#C">C · Harnesses</a>
+  <a href="#D">D · Motors</a><a href="#E">E · Wiring</a><a href="#F">F · Dashboards</a>
+  <a href="#G">G · Commercial</a><a href="#H">H · CI</a>
+  <a href="#locks">Guardrails</a><a href="#seq">Sequence</a>
+</nav>
+
+<div class="controls">
+  <label>Filter: <input id="q" type="search" placeholder="search title / asset / id" size="22"></label>
+  <label>Effort <select id="fe"><option value="">any</option><option>S</option><option>M</option><option>L</option></select></label>
+  <label>Value <select id="fv"><option value="">any</option><option>high</option><option>med</option><option>low</option></select></label>
+  <span class="count" id="count"></span>
+</div>
+
+<h2 id="kit">1. The kit (existing machinery)</h2>
+<div class="tblwrap"><table class="kit"><thead><tr><th>Layer</th><th>Capability</th><th>State</th></tr></thead><tbody id="kitBody"></tbody></table></div>
+
+<h2 id="picks">2. Top picks (highest leverage)</h2>
+<div id="picks"></div>
+
+<h2>3. Buildable ideas by category</h2>
+<div id="cats"></div>
+
+<h2 id="locks">4. Guardrails — the locks that bound everything</h2>
+<ul class="locks" id="locks"></ul>
+
+<h2 id="seq">5. Suggested build sequence</h2>
+<ol class="seq" id="seq"></ol>
+
+<footer>
+  Provenance: <code>./RECEIPT.json</code> · raw 13-agent evidence: <code>./source/</code> · full markdown: <code>./FULL_CATALOG.md</code>.<br>
+  Advisory only. Promotion of any idea to a real repo follows the normal proposal → verify → receipt path. Deliverable is a self-contained local HTML file — not published anywhere.
+</footer>
+</div>
+
+<script>
+const KIT=[
+ ["Dispatch brain (P0-PGR/PDR)","Governed prompt-authoring + delivery loop: evidence reader, packet linter, shadow cycle, campaign planner, ROI ranker. Contract v1.1.","Phase-0 shadow live +10/10 tests; Phase-2 cloud ROI unlocked (0 sends/deploys). Registry file, receipt verifier, repair re-linter UNBUILT. R3/R4/R5 LOCKED."],
+ ["Decision Language Machine (DLM)","LLM-free 8-stage pipeline: messy backlog → classify → founder sheet → validation-fenced apply-map. Per-stage receipts.","Live end-to-end; rule-based regex tuned to one corpus, no regression harness, md-only render."],
+ ["language_gate","Fail-closed terminology gate: 225-term dictionary, regex lint, deterministic rewrite, per-scan receipts, exit 1 on FAIL.","Core engine live. Two overlay indexes (165 entries) ORPHANED, no test harness, six allowlists hardcoded in Python."],
+ ["D4 verifier + promotion gate","Trust boundary sandbox↔live Worker: independent second-account CF verifier + 763-line gate that refuses deploy unless every invariant passes.","Gate LIVE + caught a real mismatch. Autonomous path LOCKED. verifier/ is v0.1 SPEC; enforcer lives only in the remote Worker."],
+ ["scripts/ motor layer (50 files)","Receipt-emitting deterministic motors: brain autorun, shadow pipeline, census, staleness, auth probes, ledger audit. Mostly no-LLM ($0).","autorun/census/staleness LIVE; p0pgr_* shadow-only. write_roi_heartbeat = 'unknown' stub; audit_* always exit 0."],
+ ["Edge worker + Supabase census","CF Worker independent verifier + WORKFLOW_CENSUS schema (rows + weekly GREEN/YELLOW/RED) into Supabase.","Both LIVE on locked surfaces. Editing index.js / writing live census NOT sandbox-safe; offline harnesses are."],
+ ["Canonical Library P0-P8","Ratified SSOT: invariants, 14-loop registry, trigger-retirement registry, CHESS schemas, Prompt-Forge compiler.","Live (143-file manifest, 92 sidecars). Tool-incomplete: CHESS CLI, dict-index builder, 14 entry_scripts live OUTSIDE library."],
+ ["P9 Pattern Factory + P10 Product","7 sellable patterns + commercial docs w/ tiered pricing + 2 live blueprints (Sina Gateway, TrustField).","Rich definition layer. Tier-1 sells now, Tier-3 locked. No Brain Coherence Report template, no cost-audit scanner."],
+ ["State registries + receipt ledger","16-motor registry, alive-doc registry, brain deploy state, value-class rules, 92-receipt P0-PGR state machine, decision ledger.","Registries LIVE. Stale: brain bundle_sha256=null, EMPTY governance_stale_pointer_queue (a ready sink)."],
+ ["Agent skills + macOS audit apps","7 skills wrapping governance scripts; 4 packaged as .app dashboards; pr-conflict-resolver ships +0.24 eval harness.","Only 1 of 4 audit skills has evals/; 3 desktop apps hardcode the founder's Desktop clone path."],
+ ["CI + git hooks","5 cron GitHub Actions uploading receipts; local pre-commit gate; PR template + Copilot rules.","ZERO workflows run on push/PR — PR gating surface empty. Pre-commit hook INERT (core.hooksPath unset)."]
+];
+const PICKS=[
+ [1,"DLM → P0-PGR packet bridge","BR-1","Critic's strongest. DLM's classified, de-duplicated items ARE the problem-statement the P0-PGR compiler consumes. A thin adapter fuses the two flagship brains into one backlog → dispatch assembly line. DRAFT/lint-only."],
+ [2,"P0-PGR Receipt Verifier (stage 11)","GV-1","The pipeline names it and the schema exists, but no script implements it. The adversarial spine that makes any future real execution trustworthy. Read-only."],
+ [3,"M07 prompt-registry + template compiler","MO-1","Widest-open plug point: schema built, data file absent. Converts one-off prompt-writing into a reusable asset — the unit of future autonomy. Every template ships DRAFT."],
+ [4,"Wire the orphaned overlay indexes in","WI-1","165 built entries nothing loads. One merge-point change recovers the whole investment and kills UNDEFINED_TERM noise. Highest value-per-line."],
+ [5,"Promotion-gate 'refusal teeth' harness","TH-1","A next-step the repo wrote for itself, stated offline-safe. The load-bearing deploy boundary has no regression test that it refuses bad receipts."],
+ [6,"'Brain Coherence Report' Tier-1 template","CO-1","The only near-term-revenue pick: brain-audit is 'sellable NOW' but prose. An HTML report with 7 diagnostic sections turns the offer into something a client receives."]
+];
+const CATS=[
+ {k:"A",id:"A",name:"Cross-Subsystem Bridges",blurb:"The seam the first pass missed — fuse subsystems: one brain's output is another's input. Files-only, Phase-0 shadow."},
+ {k:"B",id:"B",name:"New Gates & Validators",blurb:"Turn prose specs into executable checks — the spec is treated as authority but the enforcer lives remotely or nowhere."},
+ {k:"C",id:"C",name:"Test & Eval Harnesses",blurb:"Lock current behavior before anyone tunes it — live rule-based subsystems have no regression guard."},
+ {k:"D",id:"D",name:"Automation Motors & Closed Loops",blurb:"Finish half-built loops — motors emit work nothing re-reads, or stub metrics. Deterministic, no LLM, $0."},
+ {k:"E",id:"E",name:"Wiring & Data-Externalization",blurb:"Connect built-but-orphaned assets; move hardcoded vocabulary into reviewable data."},
+ {k:"F",id:"F",name:"Developer Experience, Dashboards & Onboarding",blurb:"Read-only visibility — every subsystem emits JSON a self-contained HTML page can render. Never pushed to Cloudflare."},
+ {k:"G",id:"G",name:"Pattern Factory & Commercial Layer",blurb:"Turn sellable-NOW prose into deliverables, on synthetic/mock data, honoring the proof-gate (no Tier-3 claims)."},
+ {k:"H",id:"H",name:"CI & Hooks",blurb:"Claim the empty PR/push gating surface — report-only CI is phase-safe; the locked shadow cycle stays excluded from PR triggers."}
+];
+const IDEAS=[
+ ["BR-1","A","DLM → P0-PGR packet bridge (classifier output → compiler as DRAFT lint-clean packets)","dlm_classify_v1.py + dlm_apply_map_v1.py → p0pgr_campaign_planner_v1.py compile_packet()","M","high"],
+ ["BR-2","A","DLM → language_gate dictionary-fix emitter (batch DICTIONARY_FIX_NEEDED as a proposal)","dlm_terms_v1.py → language_gate/dictionary_index.json","S","high"],
+ ["BR-3","A","CHESS → packet-lint bridge (inject misread/irreversible hints as REPAIR reasons)","chess_pass_cli_v1.py + p0pgr_packet_lint_v1.py","S","med"],
+ ["BR-4","A","Node↔Python verifier parity / differential test (prove the two reimplementations agree)","GV-2 output + workers/github-app-advisory/index.js on step6/8 fixtures","M","high"],
+ ["GV-1","B","P0-PGR Receipt Verifier (pipeline stage 11) — jsonschema + provenance checks","P0_EXECUTION_RECEIPT_SCHEMA_v1.json + a real exec receipt","M","high"],
+ ["GV-2","B","Executable knowledge-bundle + three-hash validator (offline D4)","verifier/*-spec-v0.1.md + brain-config-artifact-descriptor-schema","M","high"],
+ ["GV-3","B","In-library CHESS pass validator CLI (close dangling TOOLS/ ref)","SCHEMAS/chess_pass.schema.json + CHESS-v2/manifest.json","S","high"],
+ ["GV-4","B","Registry cross-consistency linter (motor_ids across registries)","github_automation_registry + automation_surface_inventory + evidence-*.json","S","high"],
+ ["GV-5","B","Sandbox-registry gate-profile linter","brain_domain_sandboxes_v1.json + apply_sandbox_profile()","S","med"],
+ ["GV-6","B","DLM apply-map round-trip validator (hardens the one governance fence)","dlm_apply_map_v1.py build_apply_map/load_validated_picks","S","high"],
+ ["TH-1","C","Promotion-gate 'refusal teeth' pytest harness (asserts REFUSE exit 2)","promotion_gate.py refusal_reasons()/independence_refusal_reasons()","M","high"],
+ ["TH-2","C","DLM classifier golden-fixture eval (snapshot classification counts)","dlm_classify_v1.py + test_fixtures/*.json","M","high"],
+ ["TH-3","C","language_gate pytest regression harness","language_gate/test_files/* + decide()/run_pipeline()","S","high"],
+ ["TH-4","C","Three missing skill eval suites","skills/pr-conflict-resolver/evals/* as template","M","high"],
+ ["TH-5","C","Offline receipt-replay verifier harness (lift CF-worker fns)","workers/github-app-advisory/index.js + receipts/*.json","S","high"],
+ ["TH-6","C","Prompt-Forge deterministic snapshot harness (--no-llm)","P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py","S","med"],
+ ["MO-1","D","M07 prompt-registry data file + template compiler (DRAFT templates)","P0_PROMPT_REGISTRY_SCHEMA_v1.json + outbox/*.json (10)","M","high"],
+ ["MO-2","D","Dead-motor detector (census globs with zero recent matches)","workflow_census_v1.py + workflow_census_extensions_v1.json","M","high"],
+ ["MO-3","D","Value-class cost attribution table (designed move M06)","workflow_census_value_class_rules_v1.json + evidence census","M","high"],
+ ["MO-4","D","Repair-candidate re-linter (close the rejection loop)","p0pgr_packet_lint_v1.py + receipts/p0pgr/repair_candidates/","S","med"],
+ ["MO-5","D","Batch outbox linter (verdicts → one summary)","p0pgr_packet_lint_v1.py + outbox/*.json","S","med"],
+ ["MO-6","D","ROI heartbeat populator (replace one 'unknown' with a real count)","write_roi_heartbeat_v1.py + census receipts","M","med"],
+ ["MO-7","D","Stale-law sweep to populate the empty governance queue","stale_law_guard_patterns + agent_read_surfaces + governance_stale_pointer_queue","S","med"],
+ ["MO-8","D","Commercial-pulse dispatch-check dry-run (designed move M05)","commercial_pulse_dispatch_check_v1.py + commercial_pulse_queue_v1.json","S","med"],
+ ["WI-1","E","Wire the orphaned language_gate overlay indexes into the gate","sourcea/trustfield overlay indexes + effective_structural_allowlist()","M","high"],
+ ["WI-2","E","In-gate read-only library scan runner","library_scan.*.details.json schema + scan()/decide()","M","high"],
+ ["WI-3","E","NOETFIELD product-dictionary overlay (+ index) clears UNDEFINED_TERM backlog","P9/P10 *.language_gate_review.json + SOURCEA_DICTIONARY_OVERLAY_v1.md","M","high"],
+ ["WI-4","E","Static reconciler + autonomy scoreboard over the two P0 registries","machine-process-loops-v1.json + founder-trigger-retirement-registry-v1.json","M","med"],
+ ["WI-5","E","Externalize the Phase-2 rank factor table to JSON","p0pgr_phase2_rank_v1.py FACTORS/WEIGHTS","S","med"],
+ ["WI-6","E","Externalize the six hardcoded language_gate allowlists to JSON","effective_structural_allowlist() + dictionary_rc2_supplement.json","S","med"],
+ ["WI-7","E","Skill-manifest self-linter (exists() each referenced path)","the compatibility: frontmatter in all 7 SKILL.md","S","med"],
+ ["DX-1","F","P0-PGR read-only status dashboard (queue + gates + R1-R5 ladder)","phase1/phase2_scorecard + phase2_queue + activation-ladder","M","med"],
+ ["DX-2","F","Unified 'Governance Console' (compose the 4 auditors)","the 3 desktop-app generate.py + shared STYLE block","M","high"],
+ ["DX-3","F","De-pin the desktop audit apps (run on any checkout)","REPO constant in the 3 desktop-app generate.py","S","high"],
+ ["DX-4","F","Deploy-receipt auditor (reproduce gate success logic; surfaces a recorded FAIL)","promotion_gate.py write_deploy_receipt() + step10a receipt","M","high"],
+ ["DX-5","F","Wording-debt rollup over the 92 language_gate_review sidecars","the 92 *.language_gate_review.json sidecars","S","med"],
+ ["DX-6","F","State-surface index dashboard for onboarding","github_automation_registry + phase2_scorecard + evidence bundle","M","high"],
+ ["DX-7","F","DLM founder sheet as HTML (render_founder_sheet_html)","dlm_founder_sheet_v1.py render_founder_sheet_md","S","high"],
+ ["DX-8","F","Weekly founder ROI digest generator (R5 rung deliverable)","phase2_queue + phase2_scorecard + P0PGR-EXEC-M03","M","high"],
+ ["CO-1","G","'Brain Coherence Report' deliverable template + scoring rubric","P9/brain-audit-v1.md + brain-as-a-service.md Tier-1","S","high"],
+ ["CO-2","G","Pattern Factory catalog / storefront (simple HTML)","pattern-factory-index.md + pricing docs","S","high"],
+ ["CO-3","G","Tier-1 AI Spend Leak Audit scanner (synthetic data)","agentic-cost-governance-SSOT.md ROI table + service spec","M","high"],
+ ["CO-4","G","⚠ TrustField overclaim enforcement (RPAA MSP/PSP guards) — offline build/prove","trustfield_dictionary_overlay_index + OVERCLAIM_PATTERNS/block_private","M","high"],
+ ["CO-5","G","Signal Factory structural receipt verifier (author≠subject + score bounds)","P9/signal-factory-v1.md output contract","S","med"],
+ ["CO-6","G","Gateway lead-intelligence dashboard (mock data only)","SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md §7 + gateway_leads §5","M","med"],
+ ["CI-1","H","pr-governance-lint workflow (assert lane + receipt_id + checkboxes)","pull_request_template.md + copilot-instructions.md","M","high"],
+ ["CI-2","H","language-gate-ci job (run the gate over a PR's changed files)",".githooks/pre-commit + language_gate_pipeline_v1.py","M","high"],
+ ["CI-3","H","Reusable validate-receipt composite action","p0pgr-shadow-cycle-v1.yml validation step","M","high"],
+ ["CI-4","H","git-hooks installer + hooks-present PR check",".githooks/pre-commit + unset core.hooksPath","S","med"],
+ ["CI-5","H","forbidden-marker PR grep gate","copilot-instructions.md forbidden marker","S","med"]
+];
+const LOCKS=[
+ "P0-PGR real execution beyond cloud-only read-only ranking (deploy/merge/cron/auto-dispatch, R3/R4/R5) is founder-gated. Never uncomment shadow-cycle cron, flip dispatch_now, or set AUTO_DISPATCH_APPROVED.",
+ "Live Cloudflare deploys (promote_brain_worker --autonomous-deploy, gate execute_deploy_flow, the live advisory worker) are founder-gated. Build offline harnesses over the same code/schema.",
+ "brain-loop-autorun-v1.yml (30m, can deploy when CF secrets present) is a live-deploy boundary — do not modify.",
+ "No auto-merge / no self-merge of any PR.",
+ "Never delete artifacts — rejection is not permission to rm; receipts are append-only/immutable.",
+ "No writes to live Supabase — run census/probe scripts in --json report-only mode; use a sandbox DB for census-row work.",
+ "No outbound sends — commercial_pulse send stays founder_blocked; dispatch-checks are dry-run/scoring only.",
+ "No new .cursor/hooks or pre-commit wiring during gate experiments — ship standalone CLIs.",
+ "Deploy fence blocks dirty-tree pushes; real www stack is Cloudflare www + Railway backend, never Vercel.",
+ "Deliverables are simple self-contained HTML pages, never .pptx decks; build the file, never push it live."
+];
+const SEQ=[
+ "TH-1 + TH-3 (harnesses first) — lock the gate and language_gate before touching either. Cheap; every later change rides on them.",
+ "GV-1 (Receipt Verifier) — the adversarial spine; unblocks trusting any future execution receipt.",
+ "WI-1 (wire overlays) — recovers 165 built entries, kills the UNDEFINED_TERM noise polluting every scan.",
+ "BR-1 (DLM → P0-PGR bridge) — the fusion play. After GV-1 so emitted packets can be receipt-checked.",
+ "CO-1 (Brain Coherence Report) — revenue-facing deliverable; parallelizable, no dependency on the above.",
+ "Then breadth: MO-2/MO-3 (close motor loops), DX-4/DX-6 (visibility), CI-1 (claim the PR surface)."
+];
+
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+document.getElementById("kitBody").innerHTML=KIT.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+document.getElementById("picks").innerHTML=PICKS.map(p=>`<div class="pick"><b>${p[0]}. ${p[1]}</b><span class="id">${p[2]}</span><p>${p[3]}</p></div>`).join("");
+document.getElementById("locks").innerHTML=LOCKS.map(l=>`<li>${l}</li>`).join("");
+document.getElementById("seq").innerHTML=SEQ.map(s=>`<li>${s}</li>`).join("");
+
+const catsBox=document.getElementById("cats");
+CATS.forEach(c=>{
+  const sec=el("section");sec.id=c.id;
+  sec.appendChild(el("h3",null,`${c.k}. ${c.name}`));
+  sec.appendChild(el("p","blurb",c.blurb));
+  const w=el("div","tblwrap");
+  w.innerHTML=`<table><thead><tr><th>ID</th><th>Idea</th><th>Builds on</th><th>Effort</th><th>Value</th></tr></thead><tbody></tbody></table>`;
+  sec.appendChild(w);catsBox.appendChild(sec);
+});
+function render(){
+  const q=(document.getElementById("q").value||"").toLowerCase();
+  const fe=document.getElementById("fe").value, fv=document.getElementById("fv").value;
+  let shown=0;
+  CATS.forEach(c=>{
+    const tb=document.querySelector(`#${c.id} tbody`);
+    const rows=IDEAS.filter(i=>i[1]===c.k).filter(i=>{
+      if(fe&&i[4]!==fe)return false; if(fv&&i[5]!==fv)return false;
+      if(q&&!(i[0]+" "+i[2]+" "+i[3]).toLowerCase().includes(q))return false; return true;});
+    shown+=rows.length;
+    tb.innerHTML=rows.map(i=>{const warn=i[2].startsWith("⚠");
+      return `<tr><td class="id">${i[0]}</td><td>${warn?'<span class="warn">⚠ </span>':''}${i[2].replace(/^⚠\s*/,'')}</td><td class="builds">${i[3]}</td><td><span class="badge e-${i[4]}">${i[4]}</span></td><td><span class="badge v-${i[5]}">${i[5]}</span></td></tr>`;}).join("");
+    document.querySelector(`#${c.id}`).classList.toggle("hidden",rows.length===0);
+  });
+  document.getElementById("count").textContent=shown+" / "+IDEAS.length+" ideas";
+}
+["q","fe","fv"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+render();
+</script>
+</body>
+</html>

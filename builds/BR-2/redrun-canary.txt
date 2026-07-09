@@ -1,0 +1,3 @@
+verdict on REAL fixture: NO_FIX_NEEDED
+candidate_count on REAL fixture: 0
+EXPECTED -> RED-CANARY FIRED: asserting the real fixture yields fix-needed candidates correctly fails (REAL fixture is fully dictionary-covered — 0 fix-needed candidates). The emitter never invents candidates; only a real DICTIONARY_FIX_NEEDED term (e.g. a minimally-mutated fixture) produces one.

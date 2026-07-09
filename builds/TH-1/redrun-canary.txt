@@ -1,0 +1,3 @@
+gate exit on bad receipt = 2 (2=REFUSED). Reason line:
+  - receipt pass_claimed is not true
+EXPECTED FAILURE -> RED-CANARY FIRED: the harness correctly FAILS this deliberately-wrong expectation (bad receipt is NOT approved) -> the suite is red-capable, not green-by-construction.

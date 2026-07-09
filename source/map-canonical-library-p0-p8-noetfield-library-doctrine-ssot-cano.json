@@ -1,0 +1,125 @@
+{
+  "subsystem": "Canonical Library P0-P8 (noetfield-library: doctrine, SSOT, canon, line-engine, machine-loops)",
+  "what_it_is": "The ratified single-source-of-truth store for the governance system's laws, schemas, templates and data-registries across authority tiers P0-P8. It holds the constitution/invariants (P0), operational canon + machine-loop registry (P1), ratified SSOT rules (P2), cloud-kernel PDFs (P4), the Line-Engine execution architecture + a working Prompt-Forge compiler (P5), locked brain definitions (P6), the thinking-law doctrine + language layer (P7), and the validation/critique/repair loop specs (P8). It is the authority the rest of the repo reads first; higher tier wins on conflict.",
+  "current_state": {
+    "status": "partial",
+    "note": "Live and ratified as AUTHORITY (v0.9-SG-RATIFIED, merged PR#6, 143-file SHA256 manifest, 4/4 governance passes) and actively enforced (92 *.language_gate_review.json sidecars prove the wording gate runs against these files). But it is spec-complete / tool-incomplete within scope: the executable runners its own manifests reference live OUTSIDE this folder. CHESS-v2/manifest.json lists TOOLS/chess_pass_cli.py (no TOOLS/ dir in-scope); LANGUAGE_LAYER_v1 names build_dictionary_index.py + language_gate_pipeline_v1.py (absent in-library); and all 14 entry_script paths in machine-process-loops-v1.json point to repo-root scripts/ (locked P0-PGR execution). So the doctrine/schema/template/data layer is the buildable surface; the runners are the gap."
+  },
+  "key_assets": [
+    {
+      "path": "SG-Canonical-Library/noetfield-library/00-INDEX.md",
+      "kind": "doc",
+      "purpose": "Library truth table + authority order + current-state ledger; the mandated first read."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/ARCHITECT_START_HERE.md",
+      "kind": "doc",
+      "purpose": "Portable orientation spine: authority order, the 6 SSOT-v6 Level-0 invariants (author!=subject, Sina owns DECIDE, reality>report, etc.), core thesis."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/BIG_PICTURE_RELATION_MAP.md",
+      "kind": "doc",
+      "purpose": "One-view authority stack P0->Ledger + the 7 key law-chains (truth down / proposals up, contracts run, immutable floor, receipts-not-diagrams)."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json",
+      "kind": "data",
+      "purpose": "Registry of 14 machine loops (worker-exec, validation, adversarial critic x2, receipt-chain HMAC, dispatch reconciler, merge, self-repair, outside-audit, research, earned-autonomy) each with entry_script + receipt_path + founder_substitute + retires_trigger_ids. The machine-replaces-founder spine."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/data/founder-trigger-retirement-registry-v1.json",
+      "kind": "data",
+      "purpose": "Earned-autonomy registry: each founder trigger has a machine_substitute + green_receipts_required + consecutive_green + never_auto_retire list. Defines when the system may retire a human gate."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_pass.schema.json",
+      "kind": "schema",
+      "purpose": "JSON-Schema contract for a CHESS reasoning pass: 9 required fields, action enum PROCEED|PROCEED_WITH_PATCH|ASK_IF_IRREVERSIBLE, additionalProperties:false (BLOCK is forbidden)."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_receipt.schema.json",
+      "kind": "schema",
+      "purpose": "Receipt contract wrapping a chess_pass ($ref) + protected_feature_verification + status PASS|PARTIAL|FAILED. Paired with protected_feature_ledger.schema.json."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/CHESS-v2/manifest.json",
+      "kind": "config",
+      "purpose": "Package descriptor for the non-blocking reasoning machine: core_loop, action_labels, forbidden_action_labels:[BLOCK], and a 25-file inventory (references TOOLS/chess_pass_cli.py NOT present in-scope)."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P0-DOCTRINE/CHESS_PATTERN_REASONING_MACHINE_v2.0.md",
+      "kind": "doc",
+      "purpose": "Tier-0 doctrine: Forecast->Patch->Proceed->Verify move-improvement machine that upgrades a move before execution and never emits BLOCK."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py",
+      "kind": "script",
+      "purpose": "Working two-layer compiler: deterministic policy (lint/mode-detect/fact-extract/template + guardrail injection) with optional OpenRouter LLM pass that policy code re-asserts. The 'LLM proposes, policy enforces' pattern as runnable code."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P0-FOUNDATION-SPINE/LANGUAGE_LAYER_v1.md",
+      "kind": "doc",
+      "purpose": "Dictionary(meaning)->Terminology(wording) mint gate + language_gate pipeline spec (build_dictionary_index.py, language_gate_pipeline_v1.py, .cursor/hooks, pre-commit). Undefined terms fail-closed."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/SKILLS/SKILL_01_CHESS_PASS.md",
+      "kind": "skill",
+      "purpose": "Seven CHESS skills (SKILL_01..07: chess-pass, feature-parity-ledger, prompt-patcher, live-truth-verifier, restore-playbook, consequence-simulator, non-blocking-router) \u2014 the operator procedures for the reasoning machine."
+    }
+  ],
+  "extension_points": [
+    "SCHEMAS/*.schema.json (chess_pass, chess_receipt, protected_feature_ledger): stable JSON-Schema contracts any new validator/tool can validate objects against.",
+    "CHESS-v2/manifest.json: files[] inventory + forbidden_action_labels:[BLOCK] \u2014 a package-assembly + label-enforcement surface (currently references a TOOLS/chess_pass_cli.py that does not exist in-scope).",
+    "machine-process-loops-v1.json loops[]: each loop is a pluggable record (entry_script, validator, receipt_path, retires_trigger_ids) \u2014 new loops register here; a reconciler reads it.",
+    "founder-trigger-retirement-registry-v1.json triggers[]: green_receipts_required vs consecutive_green + never_auto_retire \u2014 the input surface for an autonomy scoreboard.",
+    "LANGUAGE_LAYER pipeline hooks: NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md is the meaning source that build_dictionary_index.py (absent in-library) is meant to compile into dictionary_index.json; the mint gate is the plug point.",
+    "*.language_gate_review.json (92 sidecars, one per governed file): a uniform {file, agent_review:[{type,line,reason,hint}]} shape ready to be aggregated.",
+    "PromptForge PIPELINE descriptor + module-level KNOWN_SYSTEMS / STANDING_CONSTRAINTS / SSOT_SYSTEM_PROMPT: extension points to widen the compiler or drive it from the dictionary.",
+    "CHESS-v2/INSTALL/WIRING_CHECKLIST.md: defined grep-proofs + acceptance criteria \u2014 an install-verification contract a harness can execute.",
+    "P0-TEMPLATES/*.md (CHESS pass prompt, agent execution contract, receipt): instantiation surface for generating new governed artifacts."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Build the missing in-library CHESS pass validator CLI: a zero-dep Python tool that validates a chess_pass JSON against SCHEMAS/chess_pass.schema.json AND enforces CHESS-v2/manifest.json forbidden_action_labels (reject any action=='BLOCK'), tested against EXAMPLES/sample_chess_pass.json. Closes the manifest's dangling TOOLS/chess_pass_cli.py reference.",
+      "builds_on": "SCHEMAS/chess_pass.schema.json + CHESS-v2/manifest.json (forbidden_action_labels) + EXAMPLES/sample_chess_pass.json",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build the offline dictionary index builder + mint-gate checker that LANGUAGE_LAYER_v1 names but that is absent in-library: parse NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md into dictionary_index.json, then verify every row in NOETFIELD_TERMINOLOGY_v1.md maps to a dictionary entry (undefined term = fail). Ship as a standalone CLI only \u2014 do NOT wire .cursor/hooks or pre-commit \u2014 which keeps it sandbox-safe.",
+      "builds_on": "P7-DOCTRINE/NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md + NOETFIELD_TERMINOLOGY_v1.md + LANGUAGE_LAYER_v1.md",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a wording-debt rollup dashboard that aggregates all 92 *.language_gate_review.json sidecars into one HTML/JSON report grouped by file and by review reason, ranking the most-flagged files. Pure read over existing sidecars (uniform {file, agent_review:[{line,reason,hint}]} shape).",
+      "builds_on": "the 92 *.language_gate_review.json sidecars (e.g. ARCHITECT_START_HERE.md.language_gate_review.json)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a static reconciler + autonomy scoreboard over the two P0 data registries: check referential integrity (every loops[].retires_trigger_ids resolves to a trigger_id; every trigger.receipt_sources maps to a loop.receipt_path) and render each founder trigger's retire-readiness (consecutive_green vs green_receipts_required, honoring never_auto_retire). Reads only the two JSON registries, never the live receipts/ tree, so it never touches locked P0-PGR execution.",
+      "builds_on": "P0-FOUNDATION-SPINE/data/machine-process-loops-v1.json + founder-trigger-retirement-registry-v1.json",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a golden/snapshot test harness for the Prompt-Forge compiler running only in --no-llm deterministic mode, using EXAMPLES/raw_to_patched_prompt_examples.md as fixtures and the built-in --demo, asserting stable compiled output and that STANDING_CONSTRAINTS + IF_BLOCKED are always injected. No network, no LLM key, so fully sandboxed.",
+      "builds_on": "P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py + EXAMPLES/raw_to_patched_prompt_examples.md",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a CHESS wiring-proof harness that executes WIRING_CHECKLIST.md's grep-proofs (Forecast->Patch->Proceed->Verify, PROCEED_WITH_PATCH, no BLOCK language) against a sandbox copy of a prompt set and emits a receipt that validates against SCHEMAS/chess_receipt.schema.json. Target sandbox prompt copies only \u2014 not live prompts or auto-merge \u2014 to stay phase-safe.",
+      "builds_on": "CHESS-v2/INSTALL/WIRING_CHECKLIST.md + SCHEMAS/chess_receipt.schema.json",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

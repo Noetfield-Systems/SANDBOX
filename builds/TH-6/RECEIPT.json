@@ -1,0 +1,21 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox snapshot harness. Never PASS.",
+  "catalog_item": "TH-6", "phase": "B0 — LOCK THE BOARD",
+  "title": "Prompt-Forge deterministic snapshot harness", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": { "files": ["SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/reference-code/prompt_forge_pipeline_v1.py"], "modified": false,
+    "method": "runs --demo --no-llm --json; strips volatile created_at; HOME=temp so no ~/.sina writes; --receipt never passed" },
+  "what_it_proves": [
+    "deterministic (--no-llm) demo output frozen as golden (created_at stripped)",
+    "hand-asserted invariants: used_llm=false, pipeline=prompt_forge, rebuild_risk finding present, facts.already_done non-empty",
+    "two runs identical (determinism); drift vs golden = INVESTIGATE not re-baseline",
+    "red-run canary: a used_llm=True assertion fails; golden drift detected"
+  ],
+  "chess_patches_applied": ["frozen golden + hand-asserted values (not golden-only)", "red-capable + committed canary", "no ~/.sina writes (HOME=temp, no --receipt)"],
+  "locks_respected": ["Lock 5 append-only", "no live call", "no LLM/network (--no-llm)", "worktree not pushed"],
+  "evidence": { "harness": "catalog/builds/TH-6/test_prompt_forge_snapshot.py", "golden": "catalog/builds/TH-6/golden/prompt_forge_demo_golden_v1.json",
+    "red_run_canary": "catalog/builds/TH-6/redrun-canary.txt", "results": { "self_runner": "3/3", "pytest": "3 passed" } },
+  "next_action": "TH-2"
+}

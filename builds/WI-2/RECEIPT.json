@@ -1,0 +1,42 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox library-scan runner. Reproduces the gate's own details.json roll-up; the gate's scan()+decide() is the trust spine. Emits gate-native PASS/WARN/PASS_WITH_REWRITE/FAIL per file, never a bare governance PASS.",
+  "catalog_item": "WI-2", "phase": "B2",
+  "title": "In-gate read-only library scan runner (glob corpus -> details.json roll-up)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "language_gate/language_gate_core_v1.py",
+      "language_gate/receipts/SG-Canonical-Library.library_scan.056cec9f66a064c7.details.json",
+      "language_gate/test_files/*"
+    ],
+    "modified": false,
+    "note": "globs test_files/* corpus, runs scan()+decide() per file, emits the sample's per-file roll-up schema to build-dir scratch (library_scan.details.json); no tracked receipt written"
+  },
+  "what_it_proves": [
+    "REAL violations_example.md -> rolls up FAIL carrying its real finding types (BANNED_REGISTER present), driven by on-disk content not a stamped verdict",
+    "a MINIMAL MUTATION of that real file (delete only the banned-register lines) -> no longer FAIL — proves FAIL is content-caused",
+    "REAL clean_example.md -> PASS (positive accepted; no gate decision relaxed)",
+    "every emitted row carries the canonical sample details.json key set {file,surface,decision,findings_count,regex_would_change,agent_would_change,agent_actions}; dropping any roll-up key fails the shape check",
+    "running the runner writes only build-dir scratch and leaves language_gate/receipts/ byte-for-byte unchanged (read-only)",
+    "decision vocab is the gate's own PASS/WARN/PASS_WITH_REWRITE/FAIL, never a bare governance PASS"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL test_files corpus and reproduces the REAL sample's schema (no strawman)",
+    "negative fixture is a minimally-mutated real on-disk artifact (banned lines removed), not a synthetic bad blob",
+    "shape check rejects a subset of sample keys — schema is never relaxed to admit a malformed row",
+    "agent_would_change=false / agent_actions=0 reported honestly (core exposes no agent stage on this surface), never faked to mimic the sample's agent values",
+    "emits details.json to scratch only; RECEIPTS_DIR is never written (Lock 5, read-only)"
+  ],
+  "locks_respected": ["Lock 5 append-only (only build-dir writes; tracked receipts/ unmodified)", "no live call", "worktree not pushed"],
+  "evidence": {
+    "runner": "catalog/builds/WI-2/wi2_library_scan.py",
+    "test": "catalog/builds/WI-2/test_wi2_library_scan.py",
+    "details_output": "catalog/builds/WI-2/library_scan.details.json",
+    "red_run_canary": "catalog/builds/WI-2/redrun-canary.txt",
+    "results": { "runner": "4 files scanned, 1 FAIL, shape matches sample", "self_runner": "7/7", "pytest": "7 passed", "receipts_dir": "unchanged" }
+  },
+  "exit_gate_B2": "WI-2 done (globbing library-scan runner reproduces the gate details.json schema; rejects a minimally-mutated real known-bad, accepts real clean).",
+  "next_action": "continue B2 catalog items"
+}

@@ -1,0 +1,51 @@
+# PROPOSAL - reconciles to .github/workflows/language-gate-ci-v1.yml on founder approval.
+# CI-2 (phase B4 / CI): language-gate-ci job.
+# Runs the language gate over a PR's changed-file list, REPORT-ONLY, and posts findings
+# to the job summary. NON-BLOCKING: never fails the check, never merges, never a required status.
+#
+# CI guards (asserted by test_ci2_language_gate_ci.py):
+#   - permissions: contents: read   (only; no write)
+#   - on: pull_request              (ONLY; never pull_request_target / push / schedule)
+#   - no secrets: / no credential env: blocks
+#   - gate invoked report-only (wrapper => write=False, --soft-undefined, no --write-*)
+#   - non-blocking (continue-on-error / `|| true`; no auto-merge, no required-status gate)
+name: language-gate-ci
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  language-gate-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compute changed files (base...head)
+        id: changed
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git diff --name-only --diff-filter=ACM \
+            "origin/${{ github.base_ref }}...HEAD" \
+            | grep -E '\.(md|mdc|txt|json)$' > changed_files.txt || true
+          echo "count=$(wc -l < changed_files.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Language gate (report-only, non-blocking)
+        continue-on-error: true
+        run: |
+          python3 catalog/builds/CI-2/language_gate_ci_wrapper.py \
+            --files-from changed_files.txt \
+            --surface auto \
+            --soft-undefined \
+            --json \
+            --summary-out "$GITHUB_STEP_SUMMARY"

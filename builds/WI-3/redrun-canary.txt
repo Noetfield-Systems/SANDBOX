@@ -1,0 +1,2 @@
+UNDEFINED_TERM for 'Brain Coherence Report': NONE (cleared)
+EXPECTED -> RED-CANARY FIRED: 'Brain Coherence Report' is no longer flagged UNDEFINED_TERM (backlog cleared) -> asserting it is still flagged correctly fails. Wiring has teeth.

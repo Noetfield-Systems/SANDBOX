@@ -1,0 +1,105 @@
+{
+  "subsystem": "Edge verifier worker + Supabase census layer (workers/ + infrastructure/)",
+  "what_it_is": "Two coupled pieces of the governance SSOT's trust/judging layer. (1) workers/github-app-advisory is a Cloudflare Worker acting as the INDEPENDENT second-account verifier in the brain-worker promotion chain: it authenticates as GitHub App 4179901 (installation 143449507), mints an installation token at the edge, pulls the SSOT and candidate artifacts (knowledge bundles + brain-worker code) from Noetfield-Systems/sina-governance-SSOT and Noetfield-Systems/SourceA, recomputes SHA256 over them, validates them against a declared artifact descriptor, and writes a PASS/FAIL/MATCH/BLOCKED advisory receipt to KV. PASS is only granted when it proves it ran on the SECONDARY CF account (b7282b4a5c17b84d62e3ef8866b878f8) and at the edge (cf-ray + WORKER_URL match) \u2014 i.e. runtime separation from the main SourceA account. (2) infrastructure/supabase/migrations/001_workflow_census_v1.sql is the WORKFLOW_CENSUS_v1 judging schema (per-loop rows + weekly rollups with deterministic GREEN/YELLOW/RED audit flags) that names every loop's receipt and value_class, populated weekly into the noetfield Supabase project.",
+  "current_state": {
+    "status": "partial",
+    "note": "Both pieces are LIVE but sit on locked/live surfaces. Advisory worker is deployed and serving on the secondary CF account (b7282b4a5c17b84d62e3ef8866b878f8) at sina-governance-ssot-advisory.kazemnezhadsina144.workers.dev \u2014 DEPLOYMENT_CHAIN_STATUS_v1.md shows it 'up; pass_claimed: false (gate)', and its /receipt/latest is consumed by gates/promotion_gate.py, so it is load-bearing in the LOCKED promotion path (promote gate correctly BLOCKED until verifier PASS). Census schema + workflow-census-weekly-v1 GH cron (Mon 08:00) write live to Supabase tkgpapowwplupyekpivy. Editing/redeploying index.js or writing to the live census tables is NOT sandbox-safe; offline harnesses over the same code/schema are."
+  },
+  "key_assets": [
+    {
+      "path": "workers/github-app-advisory/index.js",
+      "kind": "worker",
+      "purpose": "Cloudflare Worker: GitHub-App JWT/installation-token minting, SSOT+artifact SHA256 recompute, knowledge-bundle & brain-worker-bundle validation, edge/secondary-account PASS proof, receipt write to KV; routes /run, /receipt/latest, default info"
+    },
+    {
+      "path": "wrangler.github-app-advisory.jsonc",
+      "kind": "config",
+      "purpose": "Wrangler config pinning the worker to secondary CF account b7282b4a5c17b84d62e3ef8866b878f8, WORKER_URL, observability, and KV namespace RECEIPTS (id cf97659f15f14d06be4400caad4823c2)"
+    },
+    {
+      "path": "infrastructure/supabase/migrations/001_workflow_census_v1.sql",
+      "kind": "schema",
+      "purpose": "WORKFLOW_CENSUS_v1 tables: workflow_census_v1 (per-loop: host/schedule/cost/receipt_target/value_class enums) + workflow_census_runs_v1 (weekly rollup with audit_flags jsonb + audit_status GREEN/YELLOW/RED)"
+    },
+    {
+      "path": "scripts/workflow_census_v1.py",
+      "kind": "script",
+      "purpose": "Weekly census motor that classifies every loop and writes rows/rollups (--write-receipt --write-supabase --json); the populator behind the census schema"
+    },
+    {
+      "path": "scripts/apply_workflow_census_migration_v1.py",
+      "kind": "script",
+      "purpose": "Idempotent asyncpg applier for 001_workflow_census_v1.sql via NOETFIELD_SUPABASE_DATABASE_URL"
+    },
+    {
+      "path": ".github/workflows/workflow-census-weekly-v1.yml",
+      "kind": "config",
+      "purpose": "Mon 08:00 cron that applies the migration then runs the census against the noetfield Supabase secrets"
+    },
+    {
+      "path": "gates/promotion_gate.py",
+      "kind": "gate",
+      "purpose": "Consumer of the worker's /receipt/latest; enforces candidate_ref/path/sha + secondary-account/edge proof before any brain-worker deploy (referenced by promote_brain_worker_v1.sh)"
+    },
+    {
+      "path": "scripts/validate-governance-public-e2e-v1.sh",
+      "kind": "script",
+      "purpose": "E2E that reads VERIFIER_RECEIPT_URL=/receipt/latest and runs the public proof chain against the secondary CF account"
+    }
+  ],
+  "extension_points": [
+    "fetch() route table in index.js \u2014 currently only /run, /receipt/latest, and default info; new read-only routes (/health, /receipt/<id>, /receipts index) plug in here",
+    "ALLOWED_ARTIFACT_TYPES Set (currently knowledge_bundle, brain_worker_bundle) + matching validate* branch in buildReceipt \u2014 new artifact types slot in",
+    "ALLOWED_CANDIDATE_REPOS Set (Noetfield-Systems/sina-governance-SSOT + /SourceA) \u2014 additional repos to verify",
+    "validateKnowledgeBundleBytes dual-shape check (legacyChunk || sourceaChunk) \u2014 a third bundle chunk shape plugs into the same OR pattern; KNOWLEDGE_BUNDLE_LIMITS caps are one constant",
+    "edgeMetadata() PASS-eligibility predicate (edge_execution_proven && secondary_account_proven) \u2014 the trust criteria surface",
+    "buildReceipt() receipt schema \u2014 new fields/checks and status transitions (PASS/MATCH/FAIL/BLOCKED)",
+    "KV RECEIPTS store \u2014 only receipt:<id> and latest today; indexable/listable",
+    "workflow_census_v1 host CHECK enum + value_class enum + metadata jsonb, and workflow_census_runs_v1 audit_flags jsonb + audit_status enum \u2014 new hosts, value classes, and deterministic audit rules extend here",
+    "workflow-census-weekly-v1.yml workflow_dispatch inputs (traffic_visits_24h) \u2014 additional founder-snapshot inputs feed the census"
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Offline receipt-replay verifier harness: lift the pure functions from index.js (validateArtifactDescriptor, validateKnowledgeBundleBytes, sha256FromSortedHashMap, edgeMetadata) into a Node test module and replay captured receipts (receipts/step6-deliberate-non-pass-receipt.json, step8-tampered-independence-receipt.json) to re-derive status/PASS math without hitting GitHub or the live edge. Gives a regression test for the verifier logic.",
+      "builds_on": "workers/github-app-advisory/index.js validation functions + existing receipts/*.json fixtures",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Knowledge-bundle shape linter CLI: a standalone command that runs index.js's exact validateKnowledgeBundleBytes checks (both legacy and sourcea chunk shapes, KNOWLEDGE_BUNDLE_LIMITS caps) against a local candidate bundle file so authors get the pass/fail checks map BEFORE POSTing to the live /run worker.",
+      "builds_on": "validateKnowledgeBundleBytes + KNOWLEDGE_BUNDLE_LIMITS in workers/github-app-advisory/index.js",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Census dashboard as a simple HTML page rendering the weekly rollup: value_class breakdown (REVENUE/GUARD/META/NONE), cost_usd_month per class, and audit_status GREEN/YELLOW/RED from receipts/workflow-census-latest-summary.json + the workflow_census_runs_v1 shape. Pure read, no DB writes.",
+      "builds_on": "infrastructure/supabase/migrations/001_workflow_census_v1.sql + scripts/workflow_census_v1.py --json output",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Advisory-verifier-as-census-row generator: emit a workflow_census_v1 upsert payload for the verifier worker itself (host='cloudflare', receipt_target='/receipt/latest', value_class='GUARD', schedule='on /run') by reading a captured receipt; the census is meant to name every loop and this GUARD loop is currently unnamed. Produce the payload only (run against a sandbox DB, not live noetfield Supabase).",
+      "builds_on": "worker /receipt/latest schema + workflow_census_v1 table columns",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Deterministic census audit-rule expansion: add standing-audit flags to workflow_census_runs_v1.audit_flags (e.g. value_class='NONE' loop still costing >$0/mo; last_receipt_at staler than its schedule cadence) computed in workflow_census_v1.py, tested offline against a fixture census run so audit_status transitions are verifiable before any live write.",
+      "builds_on": "workflow_census_runs_v1 audit_flags/audit_status schema + scripts/workflow_census_v1.py",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a new artifact_type (e.g. 'census_snapshot') to ALLOWED_ARTIFACT_TYPES with a validator branch so the independent worker can also attest census-run receipts from the secondary account, extending runtime-separated verification beyond brain workers. Requires editing and redeploying the LIVE secondary-account worker and wiring it into the promotion/verify path, so not sandbox-safe.",
+      "builds_on": "ALLOWED_ARTIFACT_TYPES + buildReceipt artifact branches in workers/github-app-advisory/index.js",
+      "effort": "L",
+      "value": "med",
+      "phase_safe": false
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain Coherence Report</title>
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --ink: #1c2126; --muted: #5b646e;
+    --line: #e2e6ea; --accent: #3a4a5a; --bar-track: #e6e9ec;
+    --s0:#b23b3b; --s1:#c65a2e; --s2:#c79024; --s3:#7f9a3c; --s4:#4f8a5b; --s5:#2f7d54;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --bar-track:#2a323b;
+      --s0:#e06767; --s1:#e08a53; --s2:#d9b45a; --s3:#a9c56b; --s4:#77b98a; --s5:#5fc191;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+    --line:#2a323b; --accent:#9fb4c7; --bar-track:#2a323b;
+    --s0:#e06767; --s1:#e08a53; --s2:#d9b45a; --s3:#a9c56b; --s4:#77b98a; --s5:#5fc191;
+    --lock-bg:#2b2718; --lock-ink:#d8c384; --banner-bg:#8f2626; --banner-ink:#ffffff;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --bar-track:#e6e9ec;
+    --s0:#b23b3b; --s1:#c65a2e; --s2:#c79024; --s3:#7f9a3c; --s4:#4f8a5b; --s5:#2f7d54;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700;
+    text-align:center; padding:10px 14px; border-radius:8px; letter-spacing:.02em;
+    font-size:13px; margin-bottom:24px; }
+  h1 { font-size:26px; margin:8px 0 4px; }
+  h2 { font-size:18px; margin:0 0 10px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .meta { display:flex; flex-wrap:wrap; gap:14px; color:var(--muted); font-size:13px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:10px 0; margin:0 0 22px; }
+  .meta b { color:var(--ink); font-weight:600; }
+  .scope { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--accent);
+    border-radius:8px; padding:12px 14px; font-size:13.5px; color:var(--muted); margin:0 0 26px; }
+  .overall { display:flex; align-items:center; gap:16px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:0 0 12px; }
+  .score-chip { font-size:30px; font-weight:800; min-width:74px; height:74px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; color:#fff; }
+  .overall .label { font-size:13px; color:var(--muted); }
+  section.cat { border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:14px 0; background:var(--bg); }
+  .cat-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .cat-head h2 { margin:0; }
+  .pill { font-size:12px; font-weight:700; color:#fff; padding:2px 10px; border-radius:999px; white-space:nowrap; }
+  .bar { height:8px; background:var(--bar-track); border-radius:999px; overflow:hidden; margin:10px 0 12px; }
+  .bar > span { display:block; height:100%; border-radius:999px; }
+  .observed { margin:0 0 10px; }
+  .evidence, .step { font-size:13.5px; color:var(--muted); margin:4px 0; }
+  .evidence b, .step b { color:var(--ink); font-weight:600; }
+  table.rubric { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 0; }
+  table.rubric th, table.rubric td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.rubric th { color:var(--muted); font-weight:600; }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+  .ladder { list-style:none; padding:0; margin:8px 0 0; }
+  .ladder li { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin:8px 0;
+    display:flex; align-items:center; gap:12px; }
+  .ladder .tname { font-weight:600; flex:1; }
+  .tag-avail { background:var(--panel); color:var(--accent); border:1px solid var(--line);
+    font-size:12px; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .tag-locked { background:var(--lock-bg); color:var(--lock-ink); font-size:12px; font-weight:700;
+    padding:2px 10px; border-radius:999px; }
+  .gate-note { font-size:12px; color:var(--muted); margin-top:2px; }
+  h3.section-title { font-size:16px; margin:34px 0 6px; border-top:1px solid var(--line); padding-top:22px; }
+  footer { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH — not for public hosting (Tier-1 diagnosis deliverable, sample data)</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>Brain Coherence Report</h1>
+  <p class="sub">Tier-1 (diagnosis only) — diagnosis of the current stack. No autonomy or outcome promise.</p>
+  <div class="meta">
+    <span><b>Prepared for</b> Noetfield Systems Inc. — self-audit (dogfood)</span>
+    <span><b>Date</b> 2026-07-09</span>
+    <span><b>Scope</b> Diagnosis only</span>
+  </div>
+  <div class="scope">Tier-1 diagnosis of Noetfield&#x27;s own operating brain, run BY the same audit method it sells — grade-its-own-homework. Every observation is backed by an evidence artifact from a real governance session (11 findings). It describes what was observed and makes no autonomy or outcome promise. Build or managed-operation work is a separate, later tier.</div>
+
+  <div class="overall">
+    <div class="score-chip" style="background:var(--s3)">3</div>
+    <div>
+      <div style="font-weight:700; font-size:16px;">Overall coherence: partial</div>
+      <div class="label">Mean of the seven diagnostic scores below, on a 0-5 coherence scale.</div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Diagnostic findings</h3>
+    <section class="cat">
+    <div class="cat-head">
+      <h2>Stack Fragmentation</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">The operating brain spans 6+ repos and 4 concurrent agent lanes on one shared checkout. The revenue organ&#x27;s proof (offers sent, replies, leads) lands in external sinks — Telegram, the gateway_leads DB, /ready probes — with no single on-disk source of truth, so the census cannot even see 4 of its own gateway motors.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>4 of 6 census motors flagged dead — prose receipt_globs, proof off-disk (finding MO-2)</li><li>6-repo / 4-agent multi-lane topology on one worktree base</li><li>gateway proof split across Telegram + gateway_leads DB + /ready probes, unconsolidated</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Give each gateway motor one real on-disk receipt path (a census bridge) so the revenue organ has a single visible source of truth and its ROI becomes computable.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Definition Drift</h2>
+      <span class="pill" style="background:var(--s3)">3 / 5 &middot; partial</span>
+    </div>
+    <div class="bar"><span style="width:60%; background:var(--s3)"></span></div>
+    <p class="observed">A dictionary-first language gate enforces wording (225 terms, fail-closed), which is a real strength — but 15 commercial/product terms were flagged undefined and 7 founder-touchpoint triggers are referenced by the loops yet never defined in the registry.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>15 UNDEFINED_TERM backlog on P9/P10 docs (since cleared by a product overlay)</li><li>7 dangling retires_trigger_ids in the loop registry (finding WI-4)</li><li>225-term dictionary + fail-closed gate already in place</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Ratify the 7 dangling founder triggers (or retire the loop references) so the registry is routing truth again.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Agent Theater</h2>
+      <span class="pill" style="background:var(--s5)">5 / 5 &middot; coherent</span>
+    </div>
+    <div class="bar"><span style="width:100%; background:var(--s5)"></span></div>
+    <p class="observed">The strongest dimension. The system runs on negative-proof: every one of 50 audited units ships a red-capable test that must be able to fail, and the independent verifiers surfaced real defects rather than rubber-stamping. Anti-theater is a lived discipline here, not an aspiration.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>50 of 50 units carry a committed red-run canary that actually fires</li><li>verifiers surfaced 11 real findings — not PASS-theater</li><li>verdict vocabulary is CHECK_OK / CHECK_REJECTED, never a bare PASS</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Keep it — this is the moat. Extend the red-capable gate into report-only CI so the discipline survives handoff.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Missing Receipts</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">Receipt doctrine is strong on paper but key proofs are missing or unmeasurable: the one real execution receipt is PARTIAL (no founder authorization, no stored evidence), the live Brain&#x27;s knowledge-bundle hash is null, and the gateway motors emit no on-disk receipt at all.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>M03 execution receipt is not PASS-eligible — missing founder_authorization_ref + evidence (finding GV-1)</li><li>brain_deployment_state bundle_sha256 = null</li><li>4 gateway motors produce zero countable on-disk receipts (finding MO-2)</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Backfill founder_authorization_ref + stored evidence on execution receipts, and wire the gateway census bridge so revenue proof is countable.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Dead / Broken Workflows</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">Several loops are running-but-invisible or broken at the reference layer: 4 gateway motors are dead to the census, and all 5 repair candidates point at packets that do not exist on disk — the rejection→repair cycle cannot close.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>4 of 6 census motors dead (finding MO-2)</li><li>5 of 5 repair candidates UNRESOLVED_PACKET (finding MO-4)</li><li>governance_stale_pointer_queue empty — a ready sink with nothing fed into it</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Confirm the 4 gateway motors&#x27; liveness via their health endpoints, then fix or retire; re-point or retire the 5 orphaned repair candidates.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Founder Overload</h2>
+      <span class="pill" style="background:var(--s2)">2 / 5 &middot; gaps</span>
+    </div>
+    <div class="bar"><span style="width:40%; background:var(--s2)"></span></div>
+    <p class="observed">Governance offloads meaningful work, but 58% of all loops are META (governance-about-governance), dwarfing the 8 loops that produce guard or revenue value — and every irreversible move stays founder-gated behind a growing DECIDE queue.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>META = 22 of 38 loops (57.9%), exceeding GUARD+REVENUE combined (finding MO-3)</li><li>11-item founder DECIDE queue accumulated this session</li><li>sends, deploys, and merges are all founder_blocked</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Reclassify the unclassified loops (much of the 58% is classification debt), then retire or merge the genuinely-META remainder to rebalance effort toward revenue.</div>
+  </section>
+  <section class="cat">
+    <div class="cat-head">
+      <h2>Missing Decision Spine</h2>
+      <span class="pill" style="background:var(--s3)">3 / 5 &middot; partial</span>
+    </div>
+    <div class="bar"><span style="width:60%; background:var(--s3)"></span></div>
+    <p class="observed">A real decision spine exists — an SSOT constitution, a CHESS forecasting machine, and an LLM-free Decision Language Machine — but the DLM&#x27;s apply-map fence silently drops unvalidated founder items, quietly narrowing founder authority.</p>
+    <div class="evidence"><b>Observed evidence:</b><ul><li>SSOT v6 constitution + CHESS reasoning machine + Decision Language Machine all present (a genuine spine)</li><li>DLM fence leak: 51 unvalidated ADVISOR/FOUNDER items dropped with no accountability (finding GV-6)</li><li>a one-line fix (deferred_unvalidated) is prepared and proven to close the leak</li></ul></div>
+    <div class="step"><b>Recommended first step:</b> Apply the prepared one-line fence patch so no founder decision item is ever silently dropped.</div>
+  </section>
+
+
+  <h3 class="section-title">Scoring rubric</h3>
+  <p class="sub">0-5 coherence score per diagnostic category (higher is more coherent).</p>
+  <table class="rubric">
+    <thead><tr><th>Score</th><th>Level</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td><span class="dot" style="background:var(--s0)"></span>0</td><td>absent</td><td>no shared spine observed for this dimension</td></tr>
+      <tr><td><span class="dot" style="background:var(--s1)"></span>1</td><td>fragmented</td><td>pieces exist but do not connect; frequent contradiction</td></tr>
+      <tr><td><span class="dot" style="background:var(--s2)"></span>2</td><td>gaps</td><td>partial structure with material blind spots</td></tr>
+      <tr><td><span class="dot" style="background:var(--s3)"></span>3</td><td>partial</td><td>a spine exists but is inconsistent or unowned</td></tr>
+      <tr><td><span class="dot" style="background:var(--s4)"></span>4</td><td>mostly-coherent</td><td>coherent with a small number of open edges</td></tr>
+      <tr><td><span class="dot" style="background:var(--s5)"></span>5</td><td>coherent</td><td>receipt-backed and consistent across the stack</td></tr>
+    </tbody>
+  </table>
+  <p class="gate-note">Overall score formula: overall = rounded mean of the seven category scores</p>
+
+  <h3 class="section-title">Engagement ladder</h3>
+  <p class="sub">This report is the first step. The later steps are shown for context. The two most advanced steps stay locked until their proof conditions are met.</p>
+  <ul class="ladder">
+    <li><span class="tname">Tier 1 &mdash; Brain Coherence Report (this deliverable)</span><span class="tag-avail">diagnosis, delivered</span></li>
+    <li><span class="tname">Tier 2 &mdash; Foundation build (bounded scope)<div class="gate-note">A separate, scoped engagement. Offered as a build, with no autonomy promise.</div></span><span class="tag-avail">scoped build</span></li>
+    <li><span class="tname">Tier 3 &mdash; Managed operation<div class="gate-note">Locked. Unlocks only after a running system produces receipts over time.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+    <li><span class="tname">Tier 4 &mdash; Architecture partnership<div class="gate-note">Locked. Reserved for later, after the managed tier is proven.</div></span><span class="tag-locked">LOCKED &middot; proof-gated</span></li>
+  </ul>
+
+  <footer>
+    This report describes what was observed in the client&#x27;s current stack on the date shown. It is a diagnosis. It makes no autonomy promise and no outcome promise. Build and managed-operation work are separate, later engagements with their own scope.
+  </footer>
+</div>
+</body>
+</html>

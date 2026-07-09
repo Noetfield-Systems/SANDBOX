@@ -1,0 +1,5 @@
+cost_per_signal_cad on REAL build: 'unknown'
+blocker_count (derived, latest receipt): 0
+no_fabrication_violations on clean build: []
+EXPECTED -> RED-CANARY FIRED: cost_per_signal_cad is 'unknown' (no local cost_event source) — NOT fabricated to 0.0
+The no-fabrication contract holds: underivable metrics stay 'unknown', never 0.

@@ -1,0 +1,56 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a deterministic weekly founder ROI digest rendered from three real P0-PGR receipts. Its proof is data-driven: the digest reflects the real ranked queue and asserts the send/deploy/cost counters are exactly zero; a minimal mutation of the scorecard (nonzero send/deploy) flips the NO-SEND/NO-DEPLOY invariant to BREACH and makes assert_invariants() raise. Never a bare governance PASS.",
+  "catalog_item": "DX-8", "phase": "B4 — dashboards + commercial (R5 rung deliverable)",
+  "title": "Weekly Founder ROI Digest (md + HTML) from Phase-2 queue/scorecard/exec receipts", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "receipts/p0pgr/phase2_queue_v1.json",
+      "receipts/p0pgr/phase2_scorecard_v1.json",
+      "receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json"
+    ],
+    "modified": false,
+    "note": "reads three real Phase-2 receipts read-only and renders a founder-facing digest into a local out/ dir; sources never modified."
+  },
+  "what_it_proves": [
+    "the digest reflects the REAL ranked queue: 8 ranked moves in the exact order M03:86.0, M05:74.0, M04:73.75, M02:58.5, M06:58.5, M07:58.0, M01:54.5, M09:50.5 (matches scorecard.queue_order byte-for-byte)",
+    "surfaces executed candidates (M10 PASS, M03 PARTIAL) with quality_state + cost, the two founder-eyes findings (F1 CLAIM_AMBIGUITY, F2 DOC_STALE), and the held items (M08 HOLD_CLOUD_UNSAFE, M10 SELF) — nothing silently dropped",
+    "running counters rendered with explicit status: external_sends/forms_submitted/deploys/merges/authority_changes/estimated_cost_usd are present AND exactly zero -> NO-SEND/NO-DEPLOY invariant HELD",
+    "Lock 10: both generated files carry a visible 'DO NOT PUSH — not for public hosting' banner and are written only to a local out/ path (never a hosting path)",
+    "EMPTY-SINK / STALE distinction: an absent counter renders UNPOPULATED (not a silent 0) and drops the invariant to UNKNOWN; sources carry FRESH/STALE freshness badges (FRESH at data-time, STALE under a future as_of)",
+    "theme-aware, brand-neutral, self-contained HTML (inline CSS); derived aggregates watermarked 'DERIVED — advisory, not a guaranteed claim'; no autonomy or guaranteed-outcome claim",
+    "deterministic: no wall-clock read (as_of defaults to latest source timestamp), so identical inputs render byte-identical output",
+    "NEGATIVE / red-capable — a MINIMAL MUTATION of the real scorecard (external_sends 0->3 or deploys 0->1) flips invariant_ok to False, marks the counter BREACH, and makes assert_invariants() raise; same model code, opposite verdict"
+  ],
+  "chess_patches_applied": [
+    "positive fixture is the REAL rendered digest built from the three real receipts, not an authored strawman",
+    "negative fixture is a single-field counter mutation of the real scorecard; the zero-invariant is never relaxed to pass",
+    "absent counter is treated as UNPOPULATED/UNKNOWN, never coerced to an all-clear 0 (EMPTY-SINK guard)",
+    "verdict vocab CHECK_OK / CHECK_REJECTED-style (invariant HELD vs BREACH/UNKNOWN); origin=sandbox-advisory / authority=none; never a bare governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (three source receipts read-only; all writes confined to catalog/builds/DX-8, generated artifacts to local out/)",
+    "Lock 10 dashboards/commercial (generated md+HTML to local out/ only, visible DO-NOT-PUSH banner, no autonomy/outcome claim, watermarked derived metrics)",
+    "no live call (no network/CF/Supabase/sends/deploys; digest asserts send/deploy/cost counters are zero)",
+    "worktree not pushed; no git write commands; ignored other lanes' untracked drops (CO-6/, graph-out/, scripts/*repo_graph*, receipts/l0-*)"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/DX-8/dx8_founder_roi_digest.py",
+    "template": "catalog/builds/DX-8/digest_template.html",
+    "generated_digest_md": "catalog/builds/DX-8/out/founder_roi_digest.md",
+    "generated_digest_html": "catalog/builds/DX-8/out/founder_roi_digest.html",
+    "test": "catalog/builds/DX-8/test_dx8_founder_roi_digest.py",
+    "red_run_canary": "catalog/builds/DX-8/redrun-canary.txt",
+    "results": {
+      "renderer_run": "exit 0; as_of=2026-07-08T13:38:48Z, ranked=8, executed=2, findings=2, held=2, invariant HELD (all zero)",
+      "self_runner": "10/10 green exit 0",
+      "pytest": "10 passed",
+      "red_run_canary": "FIRED — mutated scorecard (external_sends=4, deploys=2) makes invariant BREACH; asserting invariant HELD raised AssertionError (exit 1)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes == 0; only untracked catalog/builds/DX-8/ plus unrelated lane drops)"
+    }
+  },
+  "exit_gate_B4": "DX-8 done — weekly founder ROI digest renders deterministically from the three real Phase-2 receipts, reflects the real ranked queue, asserts and shows the send/deploy/cost counters at zero, and its zero-invariant is red-capable by minimal mutation.",
+  "next_action": "wire the digest to the live Phase-2 receipt set each week; add a per-move ROI-delta column once successive scorecards exist; consider a founder-eyes email/export variant behind the same NO-SEND guard."
+}

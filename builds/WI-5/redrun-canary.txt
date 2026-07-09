@@ -1,0 +1,7 @@
+verdict on minimally-mutated JSON: CHECK_REJECTED
+ranking(json):   ['M03', 'M09', 'M05', 'M04', 'M02', 'M06', 'M07', 'M01']
+ranking(module): ['M03', 'M05', 'M04', 'M02', 'M06', 'M07', 'M01', 'M09']
+M09 score json=82.0 module=50.5
+Traceback (most recent call last):
+  File "<stdin>", line 16, in <module>
+AssertionError: RED-CANARY FIRED: mutating one factor (M09 direct_revenue 0.1->1.0) shifts the ranking/score -> verify() returns CHECK_REJECTED; asserting CHECK_OK correctly fails. The parity check discriminates.

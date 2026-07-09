@@ -1,0 +1,139 @@
+{
+  "subsystem": "P9 Pattern Factory + P10 Product Layers (Noetfield sellable patterns & commercial product/service layer)",
+  "what_it_is": "P9 is a library of sellable, receipt-backed governance PATTERNS (the reusable \"features\" products are sold on: signal-factory, brain-audit, zero-drift, anti-theater, auto-heal, plus two v1 governance patterns for alive-doc staleness and operational-language). P10 is the commercial \"what is sold\" layer: entity/product docs (Noetfield parent, SourceA, TrustField-as-separate-venture), full service definitions with tiered pricing (Agentic Cost Governance, Operational Language Audit, Alive-Doc Audit), two live-product blueprints (Sina Gateway, TrustField Partner Access Platform), and venture dictionary overlays. Together they encode the staged commercial ladder: Brain Audit (sells now) -> Zero-Drift proof -> Operating Brain Install -> Managed Brain -> VIP. These are SSOT definition docs; the actual execution machinery (language_gate/, P8-MACHINE-LOOPS, scripts, CF workers) lives OUTSIDE this scope.",
+  "current_state": {
+    "status": "partial",
+    "note": "Definition layer is rich and current (dated 2026-07-03 to 07-07). Some referenced products are LIVE outside this scope: Sina Gateway (Railway), TrustField Partner Access Platform (trustfield.ca W1-W10 green), SourceA Brain chatbot (CF Worker). But the commercial tiers are STAGED/GATED by the brain-as-a-service proof-gate: Tier-1 audits sell now, Tier-3 Managed Brain is locked until SourceA runs 24/7 with receipts. pattern-factory-index.md self-marks 'Members (TODO to expand)'. Services (agentic-cost-governance) are explicitly pre-launch/pilot. The live language_gate already scans these docs (9 *.language_gate_review.json sidecars present, with open UNDEFINED_TERM warnings on brain-as-a-service.md x8, auto-heal x3, anti-theater x2)."
+  },
+  "key_assets": [
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/pattern-factory-index.md",
+      "kind": "doc",
+      "purpose": "Index + doctrine of sellable patterns; states the commercial ladder and explicitly flags 'Members (TODO to expand)' \u2014 the plug-in point for new patterns."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-as-a-service.md",
+      "kind": "doc",
+      "purpose": "Central commercial doctrine: the staged proof-gate and 4-tier offer ladder (Brain Audit -> Operating Brain Install -> Managed Brain -> VIP), front door = 'Operating Brain Install'."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-audit-v1.md",
+      "kind": "doc",
+      "purpose": "Tier-1 sellable-NOW offer: diagnoses 7 stack pathologies -> 'Brain Coherence Report + roadmap'. No proof required; fastest cash path. Has no report template yet."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/signal-factory-v1.md",
+      "kind": "doc",
+      "purpose": "Signal Factory skill spec: fixed triage output contract (classification, 4 scores, next_action, JSON receipt author!=subject). Live as anthropic-skills:signal-factory but 'structural verifier worker-build pending'."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/operational-language-governance-pattern-v1.md",
+      "kind": "doc",
+      "purpose": "Richest pattern: full machine reference (language_gate artifacts, 7-bucket classification, RC3 receipts 158 files/0 WARN, reusable client checklist). The proven engine behind the language audit product."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/alive-doc-staleness-governance-pattern-v1.md",
+      "kind": "doc",
+      "purpose": "Staleness/stale-pointer governance pattern (7 finding classes, repair-queue loop) backing the Alive-Doc Governance Audit product."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/zero-drift-target.md",
+      "kind": "doc",
+      "purpose": "First proof module: same-input->same-decision across model swaps; the credibility anchor that unlocks Tier-2. Also anti-theater.md + auto-heal-hospital.md define the other saleable feature-patterns."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/product-vs-canon-boundary.md",
+      "kind": "doc",
+      "purpose": "Boundary law: Canon governs HOW the system runs; Product layers govern WHAT is sold; they cross-reference but never compete."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-service.md",
+      "kind": "doc",
+      "purpose": "Full 5-tier service definition (AI Spend Leak Audit -> Policy Pack -> Firewall Pilot -> ROI Advisory -> Cost Ledger) with pricing bands, explicit non-claims, and Noetfield/SourceA/NOOS role split."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-SSOT.md",
+      "kind": "schema",
+      "purpose": "Binding vocabulary + policy rules + ROI metrics table (cost-per-successful-task, leak_rate, policy compliance, premium justification rate) for the cost-governance service \u2014 directly implementable metric specs."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/operational-language-governance-audit.md",
+      "kind": "doc",
+      "purpose": "Commercial surface for the language pattern: 3 tiers with fixed scope + price bands ($4K-8K audit), proof artifacts, reusable client checklist. Ready-to-sell offer shape."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md",
+      "kind": "doc",
+      "purpose": "LOCKED, BUILT & LIVE (Railway) personal gateway: mirror->route->capture->tag wizard, gateway_leads Supabase schema, rule-based priority_tag, and an explicit DEFERRED backlog (scoring engine, admin dashboard, segmentation)."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/TRUSTFIELD_PARTNER_ACCESS_PLATFORM_v1.md",
+      "kind": "doc",
+      "purpose": "LIVE on trustfield.ca: two partner surfaces + 5-tier GTM ladder (Sandbox -> RPAA Discovery CAD4k -> MSP channel -> Integration Program -> Partner Access), non-negotiable regulatory boundary table."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SOURCEA_DICTIONARY_OVERLAY_v1.md",
+      "kind": "data",
+      "purpose": "Venture overlay pattern instance: local terms point to SG canon (never redefine), cross-refs machine index language_gate/sourcea_dictionary_overlay_index_v1.json. Template for new-venture overlays (TrustField draft mirrors it)."
+    },
+    {
+      "path": "SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-as-a-service.md.language_gate_review.json",
+      "kind": "gate",
+      "purpose": "Live language-gate sidecar output; one per doc (9 total). Shows open UNDEFINED_TERM queue (System Architect, Brain Coherence Report, Managed Deterministic Brain, etc.) \u2014 proof the gate runs on these files and a concrete backlog to clear."
+    }
+  ],
+  "extension_points": [
+    "pattern-factory-index.md explicitly says 'Members (TODO to expand)' \u2014 new patterns plug in as new .md files following the template (definition / proving-ground / receipts / buyer-pain / how-to-sell).",
+    "The 9 *.language_gate_review.json sidecars are emitted by the live language_gate pipeline; new/edited docs get scanned and produce UNDEFINED_TERM warnings \u2014 a self-refreshing backlog and a place a product-terms overlay plugs in.",
+    "Dictionary overlays (SOURCEA_DICTIONARY_OVERLAY_v1, TRUSTFIELD_DICTIONARY_OVERLAY_DRAFT_v1) each point to a machine index (language_gate/*_overlay_index_v1.json); adding a new venture = add an overlay doc + index following the fixed class taxonomy.",
+    "Every service doc (agentic-cost-governance, operational-language-audit, alive-doc-audit) exposes an explicit Tier 1-5 ladder with fixed scope + price bands per the UNLOCK doctrine \u2014 new tiers/deliverables slot into that ladder.",
+    "agentic-cost-governance-SSOT.md defines a concrete vocabulary + policy-rules + ROI-metrics table that audit tooling / policy templates are meant to compute against.",
+    "SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md \u00a77 has a named DEFERRED backlog (learned scoring, admin dashboard, segmentation UI, cross-venture matching) that reads exported gateway_leads rows.",
+    "signal-factory-v1.md defines a fixed JSON receipt contract and requires a structural verifier (author!=subject) that is marked 'worker-build pending'.",
+    "brain-audit-v1.md enumerates 7 diagnostic categories for the 'Brain Coherence Report' but no report template/rubric exists yet."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Build a static HTML Pattern Factory catalog / storefront page that renders all 7 patterns and their matching commercial surfaces (buyer pain, tier, price band, proof receipts, ladder position) pulled from the P9 pattern docs + P10 service docs. Directly answers the index's 'TODO to expand' and fits the founder-law that deliverables are simple web pages, not decks.",
+      "builds_on": "pattern-factory-index.md + brain-as-a-service.md ladder + operational-language-governance-audit.md / agentic-cost-governance-service.md pricing",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Create a NOETFIELD_PRODUCT_DICTIONARY_OVERLAY (+ machine index) following the SourceA/TrustField overlay pattern to classify the commercial/product terms the live language_gate currently flags as UNDEFINED_TERM (System Architect, Native Pattern Thinker, Brain Coherence Report, Managed Deterministic Brain, BaaS HOLD, Sellable NOW...). Clears the open sidecar warnings via point-to-canon + NEEDS_SG_ENTRY queue, dry-scan only.",
+      "builds_on": "the *.language_gate_review.json sidecars (brain-as-a-service x8, auto-heal x3, anti-theater x2) + SOURCEA_DICTIONARY_OVERLAY_v1.md pattern",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Author the missing 'Brain Coherence Report' deliverable template + scoring rubric (HTML/markdown) with the 7 diagnostic sections brain-audit-v1 names (stack fragmentation, definition drift, agent theater, missing receipts, dead workflows, founder overload, missing decision-spine). Turns the 'sellable NOW, fastest cash path' Tier-1 offer from prose into a repeatable, deliverable artifact.",
+      "builds_on": "brain-audit-v1.md (offer + 7 diagnosis targets) and brain-as-a-service.md Tier-1 honesty anchor",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Prototype a Tier-1 AI Spend Leak Audit scanner in the sandbox that ingests a mock agent-run/token log and computes the SSOT's defined metrics (leak_rate, cost-per-successful-task, top-5 optimization targets) and emits the promised audit JSON. Proves the cost-governance Tier-1 deliverable on synthetic data without touching any customer infra or CF.",
+      "builds_on": "agentic-cost-governance-SSOT.md ROI metrics table (\u00a73) + agentic-cost-governance-service.md Tier-1 deliverable spec",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build the still-pending Signal Factory structural receipt verifier: a JSON schema for the fixed triage receipt + a checker that validates all fixed fields exist, scores are 0-5, risk>=4 sets the human-review routing flag, and author!=subject. Completes the 'worker-build pending' piece behind the already-live signal-factory skill.",
+      "builds_on": "signal-factory-v1.md output contract + receipt requirement (author!=subject)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a static Gateway lead-intelligence dashboard prototype (from the blueprint's DEFERRED list) that reads EXPORTED/mock gateway_leads rows and visualizes priority_tag distribution, venture_route funnel, and lead_type segments. Phase-safe ONLY as a mock/exported-data prototype \u2014 do NOT wire it to the live Railway app or Supabase.",
+      "builds_on": "SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md \u00a77 DEFERRED backlog + gateway_leads schema (\u00a75)",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

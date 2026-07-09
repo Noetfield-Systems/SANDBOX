@@ -1,0 +1,16 @@
+MO-8 RED-RUN CANARY  (designed move M05 — dry-run NEVER sends)
+
+Deliberately-wrong assertion, run against the REAL tool over a fully-ready synthetic draft:
+    assert rec["highest_state_reached"] == "approved_pending_send"
+
+Observed on the fully-ready (8/8) synthetic draft:
+    readiness_score      : 8/8   (all_predicates_ready=True)
+    highest_state_reached: founder_blocked
+    dispatch_now         : False
+    send_authorized      : False
+
+EXPECTED -> RED-CANARY FIRED (exit 1, AssertionError):
+    full 8/8 predicate readiness does NOT unlock a send. The state is HARDCODED-capped
+    at founder_blocked independent of the scores, so asserting it reaches
+    approved_pending_send correctly fails. The founder_blocked cap has teeth — readiness
+    is a score, NOT send authorization.

@@ -1,0 +1,5 @@
+CO-6 red-run canary — deliberately-wrong data-driven assertion.
+real mock breakdown: high=5 medium=4 low=3 unpopulated=1 (grand_total=13)
+deliberately-wrong assertion: high == 99
+result -> AssertionError raised (canary FIRED): WRONG-ON-PURPOSE: asserted high==99 but real breakdown high=5 (medium=4 low=3 unpopulated=1)
+Interpretation: the breakdown is genuinely computed from the mock rows; a false count claim cannot pass. The data-driven test has teeth (not green-by-construction). Companion dogfood tooth: injecting '100% guaranteed certified' into the rendered HTML flips the repo language_gate to FAIL / CHECK_REJECTED.

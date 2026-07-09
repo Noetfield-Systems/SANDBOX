@@ -1,0 +1,4 @@
+receipt with `cost` removed -> verdict=CHECK_REJECTED
+cited: ["$: missing required field 'cost'"]
+EXPECTED -> RED-CANARY FIRED: WRONG CLAIM: mutated receipt is NOT conformant
+The validator correctly rejects a receipt missing a required field.

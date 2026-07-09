@@ -1,0 +1,39 @@
+{
+  "skill_name": "receipt-ledger-auditor",
+  "note": "Agent-graded negative scenarios for the receipt-ledger auditor (dual-claim collisions, malformed receipts, near-simultaneous different-identity receipts, duplicate basenames). Reconciles to skills/receipt-ledger-auditor/evals/evals.json.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Two receipts written within the cluster window claim the same task_cell but with different motor/agent identity (a possible dual-claim collision after a multi-agent session).",
+      "expected_output": "Agent flags the near-simultaneous different-identity pair as a possible dual-claim collision to investigate, and does not treat two receipts as double confirmation.",
+      "files": [],
+      "expectations": [
+        "Surfaces the two receipts as a suspicious near-simultaneous pair with differing identity",
+        "Frames it as a possible dual-claim collision needing human judgment, not proof-doubled",
+        "Does not conclude the ledger is clean while the collision stands"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A receipt file under receipts/ is malformed JSON that cannot be parsed.",
+      "expected_output": "Agent reports the unparseable receipt as NOT proof of anything and refuses to count it toward a PASS, rather than skipping it silently.",
+      "files": [],
+      "expectations": [
+        "Explicitly calls out the malformed/unparseable receipt by path",
+        "States it cannot serve as proof-of-done",
+        "Does not let the malformed file pass unremarked or count as evidence"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The same receipt basename stem appears under two different top-level receipt directories (a duplicated logical receipt).",
+      "expected_output": "Agent flags the duplicate basename across dirs as a possible duplicate/relocated claim to disambiguate, not an ordinary pair of distinct receipts.",
+      "files": [],
+      "expectations": [
+        "Identifies the duplicate basename stem and both locations",
+        "Treats it as a duplicate/relocation to investigate, not two independent proofs",
+        "Does not silently accept both as separate confirmations"
+      ]
+    }
+  ]
+}

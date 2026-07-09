@@ -1,0 +1,23 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox eval suites + validator. Never PASS.",
+  "catalog_item": "TH-4", "phase": "B0 — LOCK THE BOARD",
+  "title": "Three missing skill eval suites", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": { "files": ["skills/registry-motor-validator", "skills/receipt-ledger-auditor", "skills/staleness-gate-auditor", "skills/pr-conflict-resolver/evals (schema template)"], "modified": false },
+  "what_it_proves": [
+    "3 authored eval suites (9 negative scenarios) for the skills that had none, matching the pr-conflict-resolver evals schema",
+    "each suite is well-formed, targets a real skill, and its wrapped scripts exist",
+    "malformed suite / missing skill / missing expectations -> caught",
+    "all 3 previously-uncovered skills now have a suite"
+  ],
+  "scope_note": "Scenarios are agent-graded fixtures (like the existing pr-conflict-resolver evals). The wrapped scripts read fixed repo paths and some write receipts, so this validator does NOT run them (avoids repo pollution). A full lift-vs-baseline measurement via an LLM grader is a follow-up (pr-conflict-resolver/evals/benchmark.*).",
+  "chess_patches_applied": ["negative scenarios the skill must catch (not happy-path)", "structural validator exits nonzero + red-run canary", "no wrapped-script execution -> append-only respected"],
+  "locks_respected": ["Lock 5 append-only (no wrapped-script runs, no receipt writes)", "no live call", "worktree not pushed"],
+  "evidence": { "validator": "catalog/builds/TH-4/run_evals.py", "suites": "catalog/builds/TH-4/evals/*.evals.json",
+    "test": "catalog/builds/TH-4/test_th4_eval_suites.py", "red_run_canary": "catalog/builds/TH-4/redrun-canary.txt",
+    "results": { "validator": "CHECK_OK exit 0", "self_runner": "4/4", "pytest": "4 passed" } },
+  "exit_gate_B0": "COMPLETE — all 10 B0 items done (TH-1, TH-2, TH-3, TH-4, TH-6, GV-3, GV-4, GV-5, WI-7, DX-3). TH-5 is B1.",
+  "next_action": "B1 trust spine (GV-1 Receipt Verifier) — founder go"
+}

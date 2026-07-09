@@ -1,0 +1,64 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a PROPOSAL GitHub Actions workflow (language-gate-ci) plus a report-only wrapper that runs the existing language gate over a PR's changed-file list and posts findings to the job summary, non-blocking. Proof is the repo language_gate dogfood via the wrapper: CHECK_OK when the real test files behave (violations flagged, clean clean, minimal mutation flips), never a bare governance PASS. The YAML is authored in this build dir only and reconciles to .github/workflows/ on founder approval; it was NOT installed, NOT run, and .github/ was NOT touched.",
+  "catalog_item": "CI-2", "phase": "B4 - CI",
+  "title": "language-gate-ci job: pull_request workflow runs the language gate (report-only: --json --soft-undefined) over a PR's changed files, findings to job summary, non-blocking",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "ground": {
+    "files": [
+      ".githooks/pre-commit",
+      "language_gate/language_gate_pipeline_v1.py",
+      "language_gate/language_gate_core_v1.py",
+      "language_gate/language_gate_agent_rewrite_v1.py",
+      "language_gate/test_files/violations_example.md",
+      "language_gate/test_files/clean_example.md"
+    ],
+    "modified": false,
+    "note": "pre-commit shows the gate is invoked per changed *.md/*.mdc/*.txt/*.json file (skipping receipts/ and node_modules/); the CI wrapper mirrors that filter and calls the pipeline report-only. All ground files read-only."
+  },
+  "deliverables": {
+    "workflow_proposal": "catalog/builds/CI-2/language-gate-ci-v1.yml",
+    "wrapper_script": "catalog/builds/CI-2/language_gate_ci_wrapper.py",
+    "test": "catalog/builds/CI-2/test_ci2_language_gate_ci.py",
+    "red_run_canary": "catalog/builds/CI-2/redrun-canary.txt"
+  },
+  "what_it_proves": [
+    "the wrapper runs the real language_gate pipeline report-only (write=False, skip_agent=True, strict_undefined=False == the CLI's --json --soft-undefined --skip-agent) over a changed-file list, applying the same *.md/*.mdc/*.txt/*.json filter and receipts/ + node_modules/ skips as .githooks/pre-commit",
+    "POSITIVE - clean_example.md scans clean (decision PASS, 0 findings, not flagged) and violations_example.md is flagged (decision FAIL, 3 blocking findings incl. OVERCLAIM/BANNED_REGISTER)",
+    "RED-CAPABLE minimal mutation - a valid clean copy carries 0 blocking findings on a public surface; appending ONE overclaim sentence ('100% guaranteed and fully certified') flips it to FAIL with an OVERCLAIM blocker; reverting the single token reproduces the clean verdict (same gate, opposite outcome, no policy relaxation)",
+    "report-only / no pollution - the wrapper redirects all pipeline receipts to an ephemeral tempdir, so scanning writes NOTHING into the tracked language_gate/receipts dir or next to the scanned files (asserted by test_report_only_writes_nothing_to_tracked_repo)",
+    "non-blocking - the wrapper CLI always exits 0 even on a FAIL finding (advisory), and the workflow step carries continue-on-error: true",
+    "YAML CI guards asserted by the test: permissions == {contents: read} only (no write), on == {pull_request} only (no pull_request_target/push/schedule/dispatch), no secrets:/credential env: block, gate invoked report-only (no --write*), non-blocking (continue-on-error: true; no auto-merge/required-status)",
+    "guard teeth verified out-of-band: mutating the YAML copy (contents:write / adding push: / adding an env secrets block / removing continue-on-error) makes the corresponding guard assertion FIRE"
+  ],
+  "ci_guards_baked_in": [
+    "permissions: contents: read (only)",
+    "on: pull_request (only) - never pull_request_target / push / schedule",
+    "no secrets: and no credential env: (no CF/Supabase/GitHub-token references)",
+    "wrapper invokes the gate report-only (--json --soft-undefined, no --write*, no --fail-on-block-merge)",
+    "findings posted to $GITHUB_STEP_SUMMARY; job is NON-BLOCKING (continue-on-error, no auto-merge, no required-status)"
+  ],
+  "locks_respected": [
+    "append-only: all writes confined to catalog/builds/CI-2; ground files + language_gate read-only; no tracked file edited",
+    "no-live: no network, no secrets, HOME redirected to temp for wrapper/self-runner/canary runs; the wrapper writes zero receipts into the repo",
+    "isolation: .github/ NOT touched (YAML authored as a proposal in the build dir); brain-loop-autorun-v1.yml and all existing workflows untouched; core.hooksPath not set; workflow not run",
+    "did not read or stage other lanes' files (CI-1/CI-3/CI-4/CI-5, graph-out/, receipts/l0-*, scripts/*repo_graph*); no git write commands"
+  ],
+  "evidence": {
+    "results": {
+      "wrapper_violations_example": "decision=FAIL, blocking=3, findings=8 -> flagged",
+      "wrapper_clean_example": "decision=PASS, blocking=0, findings=0 -> clean",
+      "minimal_mutation": "clean copy blocking=0 (PASS) -> +1 overclaim sentence -> FAIL blocking>=1 (OVERCLAIM) -> revert -> PASS",
+      "self_runner": "11/11 green, exit 0",
+      "pytest": "11 passed in 0.03s",
+      "red_run_canary": "FIRED - asserting clean_example.md is flagged raised AssertionError, exit 1",
+      "guard_teeth": "contents:write / push: / env-secrets / removed continue-on-error each FIRE the matching guard",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside CI-2 == 0; language_gate/ has no new receipt/sidecar)"
+    },
+    "environment_note": "pytest requires its deps from the user site-packages (HOME-derived); the offline self-runner reproduces all 11 checks under HOME=temp. pytest was run against the real HOME (offline, read-only) to confirm the file is standard-pytest collectable."
+  },
+  "exit_gate_B4": "CI-2 done - language-gate-ci proposal workflow runs the existing language gate report-only (--json --soft-undefined) over a PR's changed-file list and posts non-blocking findings to the job summary; the wrapper dogfoods clean vs flagged on the real test files, flips on a minimal overclaim mutation, writes nothing into the repo, and every CI guard (contents:read, pull_request-only, no secrets/env, non-blocking) is asserted with teeth.",
+  "next_action": "On founder approval, reconcile language-gate-ci-v1.yml (and the wrapper) into .github/workflows/ + scripts/; optionally widen the changed-file surface inference or add a per-surface matrix. Consider CI-1/CI-3 siblings on the same CI lane."
+}

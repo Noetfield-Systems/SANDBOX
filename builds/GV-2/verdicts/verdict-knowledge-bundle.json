@@ -1,0 +1,11 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "bundle": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/catalog/builds/GV-2/../../../proposals/step4-submitted-knowledge-bundle/knowledge-bundle.json",
+  "descriptor": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/catalog/builds/GV-2/../../../receipts/step4-submitted-knowledge-bundle-receipt.json",
+  "bundle_sha256": "afceca7dddfe062bd121d353f9d0a90aacce612da93cf492c252802e3adcf0f1",
+  "shape_reasons": [],
+  "hash_reasons": []
+}

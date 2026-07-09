@@ -1,0 +1,2 @@
+errors on malformed suite: ["bad.evals.json[eval 0]: missing 'expectations'", "bad.evals.json[eval 0]: 'expectations' must be a non-empty list"]
+RED-CANARY FIRED: malformed eval suite rejected -> validator has teeth.

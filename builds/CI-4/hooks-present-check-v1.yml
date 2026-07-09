@@ -1,0 +1,49 @@
+# PROPOSAL — reconciles to .github/workflows/hooks-present-check-v1.yml on founder approval.
+# CI-4 (phase B4 · CI). Non-blocking 'hooks-present' check: WARNS only, never blocks.
+#
+# CI guards baked in (asserted by test_ci4_hooks.py):
+#   - permissions: contents: read  (only; no write scopes)
+#   - on: pull_request  ONLY  (no pull_request_target / push / schedule)
+#   - no secrets: / no credential env:  (no tokens of any kind)
+#   - invoked script runs REPORT-ONLY (--json, no --strict, no write/install flags)
+#   - NON-BLOCKING: continue-on-error + `exit 0`; findings go to the job summary;
+#     no auto-merge, no required-status enforcement.
+name: hooks-present-check-v1
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hooks-present:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Report-only warn. core.hooksPath is read (never written); the checker is
+      # invoked in --json report mode without --strict, so it always exits 0.
+      - name: hooks-present (report-only, warn only)
+        continue-on-error: true
+        run: |
+          set +e
+          CONFIGURED="$(git config core.hooksPath || true)"
+          python3 catalog/builds/CI-4/hooks_present_report.py \
+            --root . \
+            --hooks-path "${CONFIGURED}" \
+            --json | tee hooks_present_report.json
+          {
+            echo "### hooks-present (advisory, non-blocking)"
+            echo ""
+            echo '```json'
+            cat hooks_present_report.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          # Always succeed: this check WARNS, it never blocks the PR.
+          exit 0

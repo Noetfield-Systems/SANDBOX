@@ -1,0 +1,78 @@
+{
+  "schema": "p0pgr-phase2-rank-factors-v1",
+  "note": "Externalized copy of scripts/p0pgr_phase2_rank_v1.py WEIGHTS + FACTORS, verbatim, for reviewable parity. Advisory only; the module constants remain the source of truth.",
+  "source_module": "scripts/p0pgr_phase2_rank_v1.py",
+  "weights": {
+    "direct_revenue": 35,
+    "trust_proof": 25,
+    "workload_reduction": 15,
+    "cloud_now": 15,
+    "reversibility": 10
+  },
+  "factors": {
+    "M03": {
+      "direct_revenue": 0.9,
+      "trust_proof": 1.0,
+      "workload_reduction": 0.3,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "Protects live CAD 4k offer + /register funnel; pure external read"
+    },
+    "M04": {
+      "direct_revenue": 0.85,
+      "trust_proof": 0.8,
+      "workload_reduction": 0.2,
+      "cloud_now": 0.8,
+      "reversibility": 0.9,
+      "rationale": "Conversion audit; needs labeled test identity + gating care -> slightly less immediately executable"
+    },
+    "M05": {
+      "direct_revenue": 0.8,
+      "trust_proof": 0.6,
+      "workload_reduction": 0.4,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "Unblocks first compliant outbound pipeline; predicate audit only, zero send"
+    },
+    "M02": {
+      "direct_revenue": 0.2,
+      "trust_proof": 0.7,
+      "workload_reduction": 0.6,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "Registry trust underpins all dispatch; repo-evidence sweep"
+    },
+    "M06": {
+      "direct_revenue": 0.5,
+      "trust_proof": 0.4,
+      "workload_reduction": 0.4,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "~$20/mo dead-spend recovery + governor enforceability"
+    },
+    "M07": {
+      "direct_revenue": 0.3,
+      "trust_proof": 0.3,
+      "workload_reduction": 1.0,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "Packet factory; ranked only for its revenue/trust template share per founder rule"
+    },
+    "M01": {
+      "direct_revenue": 0.2,
+      "trust_proof": 0.6,
+      "workload_reduction": 0.5,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "Census triage; trust recovery, low direct revenue"
+    },
+    "M09": {
+      "direct_revenue": 0.1,
+      "trust_proof": 0.7,
+      "workload_reduction": 0.3,
+      "cloud_now": 1.0,
+      "reversibility": 1.0,
+      "rationale": "P0 leak sweep; governance trust, no direct revenue"
+    }
+  }
+}

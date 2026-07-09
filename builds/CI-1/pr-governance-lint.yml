@@ -1,0 +1,54 @@
+# PROPOSAL — reconciles to .github/workflows/pr-governance-lint.yml on founder approval.
+# Advisory, report-only, NON-BLOCKING governance lint of the PR body against
+# .github/pull_request_template.md. Never blocks a merge; posts findings to the job summary.
+#
+# CI GUARDS (asserted by test_ci1_pr_governance_lint.py):
+#   - permissions: contents: read   (only; no write scopes)
+#   - on: pull_request              (ONLY; never pull_request_target / push / schedule)
+#   - NO secrets: / no credential env: blocks
+#   - runs the parser in REPORT-ONLY mode (JSON), never --write-* / --fail-on-block-merge
+#   - job is non-blocking (continue-on-error; no required-status / auto-merge enforcement)
+name: pr-governance-lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  governance-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # NON-BLOCKING: advisory only. A failed/missing-field lint never fails the check run.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run pr-governance-lint (report-only)
+        id: lint
+        continue-on-error: true
+        env:
+          # PR body only — no credentials, no tokens. Injected via env to avoid
+          # interpolating untrusted body text into the shell command.
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s' "$PR_BODY" > pr_body.txt
+          python catalog/builds/CI-1/ci1_pr_governance_lint.py pr_body.txt > lint_report.json
+          cat lint_report.json
+
+      - name: Post findings to job summary
+        if: always()
+        run: |
+          {
+            echo "## pr-governance-lint (advisory · report-only · non-blocking)"
+            echo ""
+            echo '```json'
+            cat lint_report.json 2>/dev/null || echo '{"error":"no report produced"}'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

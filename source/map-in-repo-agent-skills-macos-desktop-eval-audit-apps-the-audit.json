@@ -1,0 +1,123 @@
+{
+  "subsystem": "In-repo Agent Skills + macOS desktop eval/audit apps (the auditing & skill-packaging layer)",
+  "what_it_is": "Seven Claude Code Agent Skills (SKILL.md = YAML frontmatter + markdown playbook) that wrap the repo's Python governance-enforcement scripts so an agent runs and interprets them correctly (real numbers + escalation posture) instead of skimming for a bare PASS/FAIL. Four of the audit skills are also packaged as double-click macOS .app bundles: a bash launcher runs a generate.py that shells the underlying script read-only and renders a live HTML dashboard to /tmp. One skill (pr-conflict-resolver) additionally ships an eval harness proving a +0.24 pass-rate lift versus no-skill.",
+  "current_state": {
+    "status": "partial",
+    "note": "Skills themselves are LIVE and complete: every script/data file they wrap was verified to exist on disk (audit_receipt_ledger_v1.py, agent_read_staleness_engine_v1.py, verify_agent_read_staleness_v1.sh, validate_parallel_automation_governance_v1.py, audit_automation_surface_v1.py, check.py, and all 5 referenced data/*.json). BUT: (1) only 1 of the 4 audit skills (pr-conflict-resolver) has an evals/ harness \u2014 the other three have none. (2) All 4 desktop apps HARDCODE REPO=/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sina-governance-SSOT (the founder's Desktop clone, NOT this worktree) \u2014 verified that path exists, so they run only on the founder's Mac against a different checkout. (3) The PR-Conflict-Resolver app is the odd one out: it ships a frozen 85KB static report.html and does NOT regenerate, while the other three regenerate live each launch. (4) .app bundles are unsigned and hand-maintained \u2014 no build/packaging script exists in-tree; STYLE CSS + launcher bash are copy-pasted across bundles. Note: the four audit skills are in-repo files but are NOT in this session's active skill list, whereas the adjacent p0pgr-* trio is."
+  },
+  "key_assets": [
+    {
+      "path": "skills/pr-conflict-resolver/SKILL.md",
+      "kind": "skill",
+      "purpose": "Governance-aware git merge-conflict playbook: classifies each conflicted file (append-only receipt / structured registry / LOCKED canon / generated artifact / ordinary code / lane doc), does structural JSON registry merge via git show :2:/:3:, and escalates duplicate-owner / LOCKED conflicts instead of auto-picking."
+    },
+    {
+      "path": "skills/staleness-gate-auditor/SKILL.md",
+      "kind": "skill",
+      "purpose": "Wraps verify_agent_read_staleness_v1.sh / agent_read_staleness_engine_v1.py; interprets blocker_count vs warn_count vs alive_surfaces, and flags the missing_read_surface false-blocker caveat for sibling-repo docs in sandboxed sessions."
+    },
+    {
+      "path": "skills/receipt-ledger-auditor/SKILL.md",
+      "kind": "skill",
+      "purpose": "Wraps audit_receipt_ledger_v1.py; interprets malformed_count / missing_timestamp_count / cluster_count (cross-motor same-second collisions) as post-hoc single-tree analog of the pr-conflict-resolver collision signal."
+    },
+    {
+      "path": "skills/registry-motor-validator/SKILL.md",
+      "kind": "skill",
+      "purpose": "Wraps validate_parallel_automation_governance_v1.py + audit_automation_surface_v1.py; enforces L1 (one writer per task cell) and L4 (registry is routing truth): duplicate motor_id, unregistered workflow, missing task cell."
+    },
+    {
+      "path": "skills/pr-conflict-resolver/evals/evals.json",
+      "kind": "test",
+      "purpose": "4-scenario eval suite (L1 registry violation, receipt-filename collision, LOCKED doc, generated sidecar) with per-scenario expectations[] \u2014 the schema template any other skill's evals would mirror."
+    },
+    {
+      "path": "skills/pr-conflict-resolver/evals/benchmark.json",
+      "kind": "test",
+      "purpose": "Benchmark run output: with-skill 100% vs without-skill 76% pass rate (+0.24), 3 runs/config, with per-expectation evidence and analyst notes on which evals discriminate."
+    },
+    {
+      "path": "desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py",
+      "kind": "script",
+      "purpose": "Reference generator pattern: subprocess.run([python3, scripts/<engine>, --json, --fail-on never], cwd=REPO) then renders a stat-row + blockers/warns/alive tables to /tmp/*.html. Read-only (no --write-receipt/--write-queue)."
+    },
+    {
+      "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py",
+      "kind": "script",
+      "purpose": "Same live-dashboard pattern for the receipt ledger audit (clusters/malformed/missing-timestamp cards); shares the identical STYLE CSS block with the other two generators."
+    },
+    {
+      "path": "desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py",
+      "kind": "script",
+      "purpose": "Runs both governance validators and shows dual PASS/FAIL mini-badges + raw stdout/stderr; notes that audit_automation_surface_v1.py writes its own receipt each run by design."
+    },
+    {
+      "path": "desktop-app/PR-Conflict-Resolver-Report.app/Contents/Resources/report.html",
+      "kind": "data",
+      "purpose": "Frozen 85KB static eval report (does NOT regenerate) \u2014 the only bundle that ships a snapshot instead of a live generate.py."
+    },
+    {
+      "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/MacOS/launcher",
+      "kind": "script",
+      "purpose": "Bash launcher template (near-identical across all 4 apps): runs generate.py, then opens the /tmp HTML as a chromeless Chrome/Edge/Brave --app window with fallback to the OS default handler."
+    },
+    {
+      "path": "desktop-app/Receipt-Ledger-Auditor.app/Contents/Info.plist",
+      "kind": "config",
+      "purpose": "macOS bundle metadata (CFBundleIdentifier systems.noetfield.sg.*, CFBundleExecutable launcher, unsigned) \u2014 the manifest that would be stamped by any bundle-build script."
+    }
+  ],
+  "extension_points": [
+    "Add a new skills/<name>/SKILL.md dir with the established frontmatter (name / description / compatibility) to register a new governance capability \u2014 the compatibility: block already declares the exact scripts+data a skill depends on.",
+    "generate.py contract: each wraps a script that emits --json and renders HTML to /tmp/<slug>-report.html; a new dashboard plugs onto any script that speaks --json.",
+    "The single REPO = Path('/Users/.../Desktop/.../sina-governance-SSOT') constant in all 3 live generate.py is the one pin point to parameterize (env var / git rev-parse / bundle-relative).",
+    "The identical STYLE CSS block (duplicated verbatim across 3 generate.py) and the near-identical launcher bash + Info.plist are factor-out points for a shared template.",
+    "evals/ schema (id / prompt / expected_output / expectations[] in evals.json; run_summary delta in benchmark.json) is a reusable harness \u2014 currently only pr-conflict-resolver uses it.",
+    "The four audit surfaces (staleness, receipt-ledger, registry/motor, pr-conflict) each already produce a machine JSON verdict, so they can be chained into one roll-up console or a single combined receipt.",
+    "compatibility: frontmatter lists each skill's required scripts/data \u2014 a lint pass can cross-check those declarations against files actually on disk."
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Build the 3 missing eval suites (staleness-gate-auditor, receipt-ledger-auditor, registry-motor-validator) mirroring skills/pr-conflict-resolver/evals/ \u2014 e.g. staleness: a stale-law pattern matching an ACTIVE surface must be reported as a named blocker not a bare FAIL; receipt-ledger: a cross-type same-second cluster must be surfaced not auto-picked; registry: a duplicate motor_id must be called an L1 violation. Gives all four skills the same +pass-rate evidence pr-conflict-resolver has.",
+      "builds_on": "skills/pr-conflict-resolver/evals/{evals.json,benchmark.json,benchmark.md}",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Ship a unified 'Governance Console' HTML dashboard (or 5th .app) that runs all three live generate.py scripts plus a pr-conflict summary and shows one CLEAN/FINDINGS roll-up with the four sub-badges \u2014 the four generators already emit a common badge/stat-row vocabulary, so it's a compose, not a rewrite. All wrappers stay read-only (no --write-receipt), so it never mutates the tree.",
+      "builds_on": "the three generate.py live-dashboard scripts + shared STYLE block + launcher pattern",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "De-pin the apps: change the hardcoded REPO constant in all 3 generate.py to resolve the repo root from a NOETFIELD_SG_REPO env var, then git rev-parse --show-toplevel, then bundle-relative fallback \u2014 so the apps run on any checkout (incl. sandboxes/CI) instead of only the founder's Desktop clone. Small, surgical, unblocks every other app idea.",
+      "builds_on": "REPO = Path('/Users/.../Desktop/.../sina-governance-SSOT') in the 3 generate.py + the launcher's DIR resolution",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Give PR-Conflict-Resolver-Report.app parity with the other three: replace its frozen 85KB static report.html with a generate.py that renders skills/pr-conflict-resolver/evals/benchmark.json live (pass-rate delta, per-eval expectations, analyst notes) so reopening the app reflects the latest benchmark run instead of a snapshot.",
+      "builds_on": "evals/benchmark.json + the generate.py render pattern from the other bundles",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a build/packaging script (scripts or desktop-app/build.py) that stamps out a .app bundle from a shared launcher template + shared STYLE.css + a per-app config (name, bundle id, generator) \u2014 eliminating the copy-pasted CSS/launcher/Info.plist and making a new audit-app a one-line config addition. Codifies the currently hand-maintained bundle layout.",
+      "builds_on": "the 3 identical STYLE blocks, 4 near-identical launcher scripts, and the *.app/Contents/Info.plist manifests",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Write a skill-manifest self-linter (skill + tiny script) that parses every skills/*/SKILL.md compatibility: block and asserts each referenced script/data path actually exists on disk \u2014 catching a skill that points at a moved/renamed script, which is the same 'authority pointing at something that no longer resolves' failure mode staleness-gate-auditor exists to catch, but applied to the skills layer itself. I verified the wrapped files exist today; this keeps it true.",
+      "builds_on": "the compatibility: frontmatter in all 7 SKILL.md files + the existence-check pattern (all wrapped scripts/data confirmed present)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+MO-7 STALE-LAW SWEEP — RED-RUN CANARY (deliberately-wrong assertion that MUST fail)
+
+Real-surface result: CHECK_OK exit 0 — all 31 in-repo ACTIVE read surfaces are clean
+(the pattern-source file data/stale_law_guard_patterns_v1.json is excluded as the
+detector's own rule table; it self-matches by construction). A clean result is only
+trustworthy because the detector is proven to have teeth two ways:
+
+  positive control (synthetic known-bad surface) hits: ['deploy_vercel_word',
+      'mac_only_24_7', 'noos_for_vercel', 'vercel_deploy_owner']
+  minimal-mutation of REAL AGENTS.md (append "Deploy owner: Vercel") hits:
+      [('deploy_vercel_word', 'Vercel')]
+
+Deliberately-wrong assertion:  assert (no hits on the mutated real surface) AND
+                               (no hits on the positive control)  -> "surfaces are clean"
+
+EXPECTED -> RED-CANARY FIRED: both the injected-into-real-surface token and the
+hardcoded positive control ARE detected, so asserting they are clean correctly fails.
+This is the guard that a zero-hit real sweep can never be a broken-regex false-clean.
+The sweep has teeth.

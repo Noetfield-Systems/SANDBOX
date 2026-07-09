@@ -1,0 +1,20 @@
+{
+  "_watermark": "SYNTHETIC — not a guaranteed claim; known-bad fixture (out-of-bounds score) for CO-5 red-run",
+  "signal_id": "sig_bad_score_260708",
+  "timestamp": "2026-07-08T17:42:11Z",
+  "source": "web_form",
+  "classification": "client",
+  "decision": "reply",
+  "author": "signal-factory-triage-agent",
+  "subject": "prospective-client-co",
+  "scores": {
+    "trust": 4,
+    "risk": 2,
+    "automation_value": 3,
+    "commercial_value": 7
+  },
+  "risk_score": 2,
+  "action": "draft a scoping reply",
+  "result": "triaged",
+  "status": "complete"
+}

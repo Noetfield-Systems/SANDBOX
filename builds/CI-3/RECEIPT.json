@@ -1,0 +1,63 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox build. Report-only receipt validator + reusable composite action + PROPOSAL workflow. Verdict vocab CHECK_OK/CHECK_REJECTED, never PASS.",
+  "catalog_item": "CI-3",
+  "phase": "B4 — CI",
+  "title": "Reusable validate-receipt composite action (report-only, jsonschema-free)",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "extracted_from": ".github/workflows/p0pgr-shadow-cycle-v1.yml (the 'Independent receipt validation' step)",
+    "ground_schema": "p0-pgr/P0_PROMPT_LOOP_STATE_SCHEMA_v1.json",
+    "sample_receipt": "receipts/p0pgr/P0PGR-CYCLE-20260708T131048Z.json",
+    "modified": false,
+    "method": "extracted the inline jsonschema.Draft202012Validator step into a dependency-free (no jsonschema) Python validator wrapped by a composite action.yml; a proposal caller workflow demonstrates it under CI guards"
+  },
+  "deliverables": {
+    "composite_action": "catalog/builds/CI-3/action.yml",
+    "validator": "catalog/builds/CI-3/validate_receipt.py",
+    "proposal_workflow": "catalog/builds/CI-3/ci-3-validate-receipt.yml",
+    "test": "catalog/builds/CI-3/test_validate_receipt.py",
+    "red_run_canary": "catalog/builds/CI-3/redrun-canary.txt"
+  },
+  "what_it_proves": [
+    "the real example cycle receipt validates against the loop-state schema -> CHECK_OK exit 0",
+    "a MINIMAL MUTATION (delete required top-level `cost`) -> CHECK_REJECTED citing the missing field",
+    "a nested mutation (bad `state` enum) is also rejected",
+    "running the validator leaves the receipt and schema byte-identical (sha256 unchanged); report-only",
+    "the proposal workflow carries all CI guards, asserted by the test"
+  ],
+  "ci_guards_asserted": {
+    "permissions": "contents: read ONLY (no write scope anywhere)",
+    "on": "pull_request ONLY (no pull_request_target / push / schedule / workflow_dispatch)",
+    "no_secrets_or_env": "no secrets. refs, no env: credential block, no CF_/SUPABASE/GITHUB_TOKEN/API_KEY tokens",
+    "report_only": "composite action invokes the validator with --json; never --write-supabase/--write-receipt/--fail-on-block-merge",
+    "non_blocking": "validation step is continue-on-error: true; findings posted to $GITHUB_STEP_SUMMARY; no auto-merge / required-status enforcement"
+  },
+  "chess_patches_applied": [
+    "validates against the REAL example cycle receipt and REAL ground schema (no strawman)",
+    "positive proof + a minimally-mutated negative (missing required field) — RED-before-GREEN via canary",
+    "read-only; verdicts to stdout/job-summary, never edits the receipt or schema (Lock 5 append-only)",
+    "YAML authored as a PROPOSAL in the build dir; not written into .github/ (multi-agent isolation)",
+    "origin=sandbox-advisory / authority=none; emits CHECK_OK/CHECK_REJECTED, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (ground workflow, schema, receipts unmodified)",
+    "no live call (no network, no secrets, HOME=temp)",
+    "did not run the workflow, did not touch .github/ or brain-loop-autorun/existing workflows",
+    "worktree not pushed"
+  ],
+  "results": {
+    "self_runner": "9/9 green (HOME=temp, PyYAML-free path)",
+    "pytest": "9 passed",
+    "validator_on_real_receipt": "CHECK_OK exit 0",
+    "red_canary": "FIRED (missing-required receipt correctly rejected; false CHECK_OK claim fails)",
+    "input_sha": "receipt + schema unchanged",
+    "tracked_changes_outside_build_dir": "zero"
+  },
+  "next_action": "reconcile action.yml + ci-3-validate-receipt.yml into .github/ on founder approval"
+}

@@ -1,0 +1,40 @@
+{
+  "skill_name": "staleness-gate-auditor",
+  "note": "Agent-graded negative scenarios for the staleness gate (alive docs that went stale/retired while others still cite them as authority). Reconciles to skills/staleness-gate-auditor/evals/evals.json.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A doc registered as an 'alive doc' in data/agent_read_surfaces_v1.json was marked RETIRED/superseded, but another live doc still cites it as current authority.",
+      "expected_output": "Agent flags this as a blocker (a doc actively misleading readers), names the stale doc and the citing doc, and does not report the alive-doc set as current.",
+      "files": [],
+      "expectations": [
+        "Identifies the retired/superseded doc still being cited as live",
+        "Classifies it as a blocker (actively misleading), not a mild warning",
+        "Names both the stale doc and where it is cited as authority",
+        "Does not report the staleness gate as clean while the stale citation stands"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "An alive doc listed in agent_read_surfaces_v1.json no longer exists on disk (deleted/renamed).",
+      "expected_output": "Agent flags the missing registered surface rather than treating a non-existent file as current.",
+      "files": [],
+      "expectations": [
+        "Detects the registered alive-doc path that is absent on disk",
+        "Reports it as a real gap, not silently skips it",
+        "Does not count a missing file as 'current'"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A doc matches a stale-law pattern in data/stale_law_guard_patterns_v1.json but only warrants a warning (not actively misleading).",
+      "expected_output": "Agent correctly distinguishes a warning (worth a look) from a blocker (actively misleading) instead of collapsing both into a bare PASS/FAIL.",
+      "files": [],
+      "expectations": [
+        "Applies the stale-law pattern and classifies severity",
+        "Distinguishes warning vs blocker rather than a bare PASS/FAIL",
+        "Explains why this instance is a warning and not a blocker"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "file": "language_gate/test_files/clean_example.md",
+    "surface": "internal",
+    "decision": "PASS",
+    "findings_count": 0,
+    "regex_would_change": false,
+    "agent_would_change": false,
+    "agent_actions": 0,
+    "finding_types": []
+  },
+  {
+    "file": "language_gate/test_files/cold_session_doctrine_sample_v1.md",
+    "surface": "internal",
+    "decision": "PASS",
+    "findings_count": 0,
+    "regex_would_change": false,
+    "agent_would_change": false,
+    "agent_actions": 0,
+    "finding_types": []
+  },
+  {
+    "file": "language_gate/test_files/tombstone_only.md",
+    "surface": "internal",
+    "decision": "PASS_WITH_REWRITE",
+    "findings_count": 5,
+    "regex_would_change": true,
+    "agent_would_change": false,
+    "agent_actions": 0,
+    "finding_types": [
+      "ALIAS_RETIRED",
+      "SYNONYM_DRIFT"
+    ]
+  },
+  {
+    "file": "language_gate/test_files/violations_example.md",
+    "surface": "internal",
+    "decision": "FAIL",
+    "findings_count": 8,
+    "regex_would_change": true,
+    "agent_would_change": false,
+    "agent_actions": 0,
+    "finding_types": [
+      "ALIAS_RETIRED",
+      "BANNED_REGISTER",
+      "SYNONYM_DRIFT",
+      "UNDEFINED_TERM"
+    ]
+  }
+]

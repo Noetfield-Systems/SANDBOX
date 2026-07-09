@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<stdin>", line 22, in <module>
+AssertionError: RED-CANARY: asserting a non-executable hook with unset core.hooksPath counts as installed
+report on known-bad sample:
+  installed        = False
+  hook_executable  = False
+  warnings         = ['hook not executable: .githooks/pre-commit', 'core.hooksPath is not set to .githooks (got: None) — run install_git_hooks.sh to install']
+
+
+EXPECTED -> RED-CANARY FIRED: the checker reports installed=False for a non-executable pre-commit hook with core.hooksPath unset, so asserting it is installed correctly raises AssertionError. The hooks-present check is not green-by-construction — it flags a real not-installed state.

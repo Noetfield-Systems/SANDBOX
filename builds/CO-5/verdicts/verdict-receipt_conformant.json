@@ -1,0 +1,9 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "subject_signal_id": "sig_seo_vendor_260708",
+  "schema_errors": [],
+  "contract_reasons": [],
+  "subject_receipt": "fixtures/receipt_conformant.json"
+}

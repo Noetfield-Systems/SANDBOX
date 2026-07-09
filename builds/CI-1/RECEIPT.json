@@ -1,0 +1,59 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. CI-1 is a REPORT-ONLY pr-governance-lint: a Python parser that, given a PR body string, asserts the governance-required fields from .github/pull_request_template.md are present (lane + receipt_id filled, both required checkboxes checked) and prints a JSON report, plus a pull_request-only, non-blocking workflow YAML PROPOSAL that runs it over the PR body and posts findings to the job summary. Never a bare governance PASS.",
+  "catalog_item": "CI-1", "phase": "B4 - CI (pr-governance-lint)",
+  "title": "Report-only PR governance lint (required-field / required-checkbox parser + non-blocking pull_request workflow proposal)",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "ground": {
+    "files": [
+      ".github/pull_request_template.md",
+      ".github/copilot-instructions.md"
+    ],
+    "modified": false,
+    "note": "read-only ground truth; the lint enforces the template's structured fields (lane/motor_id_or_human_gate/receipt_id + the two non-duplication checkboxes)."
+  },
+  "deliverables": {
+    "parser_report_only": "catalog/builds/CI-1/ci1_pr_governance_lint.py",
+    "workflow_yaml_proposal": "catalog/builds/CI-1/pr-governance-lint.yml",
+    "sample_valid": "catalog/builds/CI-1/sample_pr_body_valid.md",
+    "sample_mutation": "catalog/builds/CI-1/sample_pr_body_missing_receipt.md",
+    "test": "catalog/builds/CI-1/test_ci1_pr_governance_lint.py",
+    "red_run_canary": "catalog/builds/CI-1/redrun-canary.txt",
+    "reconcile_target": ".github/workflows/pr-governance-lint.yml (on founder approval; NOT written by this build)"
+  },
+  "what_it_proves": [
+    "the parser lints the VALID sample PR body (lane=sg_governance filled, receipt_id filled, both required checkboxes [x]) to ok=True with missing==[]",
+    "MUTATION teeth: reverting exactly the receipt_id line back to its template placeholder <!-- ... --> flips ok=False with missing==['receipt_id']; a placeholder HTML comment counts as UNFILLED, never satisfied",
+    "second independent teeth: unchecking the non-duplication box flips ok=False with missing containing checkbox:non_duplication",
+    "REPORT-ONLY / NON-BLOCKING: the script ALWAYS exits 0; the pass/fail signal lives in the JSON report's ok field, so the CI job is advisory and never blocks a merge",
+    "CI GUARDS asserted against the YAML proposal: permissions == {contents: read} only (no write scope in executable yaml); on: pull_request ONLY (never pull_request_target/push/schedule/workflow_dispatch); NO secrets: refs and no credential env keys (only PR_BODY = github.event.pull_request.body); job continue-on-error (non-blocking) and invokes the parser in report-only mode (no --write-supabase/--write-receipt/--fail-on-block-merge); findings posted to GITHUB_STEP_SUMMARY",
+    "RED-CAPABLE: the canary asserts the receipt-less body PASSES the lint (ok True) and correctly FIRES (AssertionError, exit 1)"
+  ],
+  "guards_asserted": {
+    "permissions_contents_read_only": true,
+    "on_pull_request_only": true,
+    "no_secrets_or_credential_env": true,
+    "non_blocking_report_only": true
+  },
+  "locks_respected": [
+    "wrote ONLY inside catalog/builds/CI-1/ (multi-agent isolation)",
+    "authored the GitHub Actions YAML as a PROPOSAL in the build dir; did NOT write into .github/workflows/",
+    "append-only: edited no tracked file; touched no existing workflow (brain-loop-autorun-v1.yml et al. untouched)",
+    "no live call (no network/secrets/HOME=temp respected); no git write commands; no core.hooksPath",
+    "did not read/stage/depend on other lanes' files or the untracked drops (graph-out/, receipts/l0-*, scripts/*repo_graph*)"
+  ],
+  "evidence": {
+    "results": {
+      "parser_valid": "ok=True missing=[] exit=0",
+      "parser_mutation": "ok=False missing=['receipt_id'] exit=0 (report-only, non-blocking)",
+      "self_runner": "8 self-runnable checks passed, exit 0",
+      "pytest": "9 passed",
+      "red_run_canary": "FIRED (asserting the receipt-less body reads ok=True raised AssertionError, exit 1)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside CI-1 == 0)"
+    }
+  },
+  "exit_gate_B4": "CI-1 done - report-only pr-governance-lint parser + non-blocking pull_request workflow proposal; the parser reads the template's required fields/checkboxes from data (placeholder == unfilled) with a minimal-mutation flip, and the test asserts every mandated CI guard (contents:read, pull_request-only, no secrets/env, non-blocking, report-only). Canary has teeth.",
+  "next_action": "on founder approval, reconcile pr-governance-lint.yml to .github/workflows/; optionally extend the parser to lint lane values against data/github_automation_registry_v1.json task_cell_owners."
+}

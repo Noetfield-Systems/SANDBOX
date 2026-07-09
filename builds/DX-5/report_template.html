@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wording-debt rollup</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e; --line:#e2e6ea;
+    --accent:#3a4a5a; --chip-bg:#eef1f4; --chip-ink:#3a4a5a; --chip-n:#1c2126;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --review-bg:#f4e2d6; --review-ink:#8a4a1e; --clean-bg:#dcece0; --clean-ink:#2f6d47;
+    --unpop-bg:#e6e2d2; --unpop-ink:#6b5a2e; --policy-bg:#dfe6ef; --policy-ink:#33506f;
+    --debt-hi:#b23b3b; --row-alt:#fafbfc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0; --line:#2a323b;
+      --accent:#9fb4c7; --chip-bg:#232b34; --chip-ink:#b7c4d0; --chip-n:#e7ecf1;
+      --banner-bg:#8f2626; --banner-ink:#ffffff;
+      --review-bg:#3a2a1c; --review-ink:#e0a76a; --clean-bg:#1e3327; --clean-ink:#77b98a;
+      --unpop-bg:#2b2718; --unpop-ink:#d8c384; --policy-bg:#22303f; --policy-ink:#9fb4c7;
+      --debt-hi:#e06767; --row-alt:#161b21;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0; --line:#2a323b;
+    --accent:#9fb4c7; --chip-bg:#232b34; --chip-ink:#b7c4d0; --chip-n:#e7ecf1;
+    --banner-bg:#8f2626; --banner-ink:#ffffff;
+    --review-bg:#3a2a1c; --review-ink:#e0a76a; --clean-bg:#1e3327; --clean-ink:#77b98a;
+    --unpop-bg:#2b2718; --unpop-ink:#d8c384; --policy-bg:#22303f; --policy-ink:#9fb4c7;
+    --debt-hi:#e06767; --row-alt:#161b21;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e; --line:#e2e6ea;
+    --accent:#3a4a5a; --chip-bg:#eef1f4; --chip-ink:#3a4a5a; --chip-n:#1c2126;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --review-bg:#f4e2d6; --review-ink:#8a4a1e; --clean-bg:#dcece0; --clean-ink:#2f6d47;
+    --unpop-bg:#e6e2d2; --unpop-ink:#6b5a2e; --policy-bg:#dfe6ef; --policy-ink:#33506f;
+    --debt-hi:#b23b3b; --row-alt:#fafbfc;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700; text-align:center;
+    padding:10px 14px; border-radius:8px; letter-spacing:.02em; font-size:13px; margin-bottom:24px; }
+  h1 { font-size:25px; margin:8px 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  .stats { display:flex; flex-wrap:wrap; gap:16px; margin:0 0 16px; }
+  .stat { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 16px; }
+  .stat .n { font-size:26px; font-weight:800; }
+  .stat .l { font-size:12px; color:var(--muted); }
+  .summary { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin:0 0 22px; }
+  .sum-line { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:5px 0; }
+  .sum-label { font-size:12px; font-weight:700; color:var(--muted); min-width:78px; text-transform:uppercase; letter-spacing:.03em; }
+  .chip { display:inline-flex; align-items:center; gap:5px; background:var(--chip-bg); color:var(--chip-ink);
+    font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+  .chip i { font-style:normal; font-weight:800; color:var(--chip-n); }
+  .chip-none { opacity:.6; }
+  .table-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; position:sticky; top:0; background:var(--panel); z-index:1; }
+  tbody tr:nth-child(even) { background:var(--row-alt); }
+  td.rank { color:var(--muted); font-variant-numeric:tabular-nums; width:44px; }
+  td.file code { font-size:12px; word-break:break-all; }
+  td.debt { width:96px; }
+  .debt-n { font-size:16px; color:var(--debt-hi); font-variant-numeric:tabular-nums; }
+  td.reasons { max-width:360px; }
+  td.reasons .chip { margin:1px 3px 1px 0; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; }
+  .d-review { background:var(--review-bg); color:var(--review-ink); }
+  .d-clean { background:var(--clean-bg); color:var(--clean-ink); }
+  .d-unpop { background:var(--unpop-bg); color:var(--unpop-ink); }
+  .d-policy { background:var(--policy-bg); color:var(--policy-ink); }
+  footer { margin-top:26px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">__BANNER_TEXT__</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>Wording-debt rollup</h1>
+  <p class="sub">Files ranked by open language_gate wording-debt, tallied read-only from the
+  <code>*.language_gate_review.json</code> sidecars in the canonical library. Most debt first.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">__FILE_COUNT__</div><div class="l">sidecars tallied</div></div>
+    <div class="stat"><div class="n">__CORPUS_TOTAL__</div><div class="l">total wording-debt items</div></div>
+  </div>
+
+  <div class="summary">__CORPUS_SUMMARY__</div>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>#</th><th>File</th><th>Debt</th><th>Reasons</th><th>Decision</th></tr></thead>
+      <tbody>
+      __TABLE_ROWS__
+      </tbody>
+    </table>
+  </div>
+
+  <footer>__FOOTER_NOTE__</footer>
+</div>
+</body>
+</html>

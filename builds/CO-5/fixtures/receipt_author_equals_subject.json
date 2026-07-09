@@ -1,0 +1,20 @@
+{
+  "_watermark": "SYNTHETIC — not a guaranteed claim; known-bad fixture (author==subject) for CO-5 red-run",
+  "signal_id": "sig_self_triage_260708",
+  "timestamp": "2026-07-08T17:42:11Z",
+  "source": "dm",
+  "classification": "partner",
+  "decision": "reply",
+  "author": "acme-partner-bot",
+  "subject": "acme-partner-bot",
+  "scores": {
+    "trust": 3,
+    "risk": 3,
+    "automation_value": 2,
+    "commercial_value": 3
+  },
+  "risk_score": 3,
+  "action": "steer to a bounded milestone",
+  "result": "triaged",
+  "status": "complete"
+}

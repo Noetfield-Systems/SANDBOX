@@ -1,0 +1,40 @@
+# CI-3 — Reusable validate-receipt composite action.
+# Extracted from p0pgr-shadow-cycle-v1.yml's "Independent receipt validation"
+# step, made dependency-free (no jsonschema) and report-only.
+#
+# Report-only contract: this action READS a receipt + a schema and prints a
+# verdict to the job summary. It never writes Supabase, never writes a receipt,
+# never fails-on-block-merge, and holds NO secrets/credentials. The consuming
+# workflow keeps the step non-blocking (continue-on-error: true) so a rejected
+# receipt informs but never blocks the merge.
+name: validate-receipt
+description: >-
+  Validate a P0-PGR receipt JSON against a JSON-Schema, report-only. Dependency-free
+  (no jsonschema). Prints a CHECK_OK / CHECK_REJECTED verdict with cited errors.
+
+inputs:
+  receipt-path:
+    description: Path to the receipt JSON to validate.
+    required: true
+  schema-path:
+    description: Path to the JSON-Schema to validate against.
+    required: true
+    default: p0-pgr/P0_PROMPT_LOOP_STATE_SCHEMA_v1.json
+
+runs:
+  using: composite
+  steps:
+    - name: Validate receipt (report-only, never trust the producer's own claim)
+      shell: bash
+      run: |
+        python "${{ github.action_path }}/validate_receipt.py" \
+          --receipt "${{ inputs.receipt-path }}" \
+          --schema "${{ inputs.schema-path }}" \
+          --json | tee /tmp/ci3_validate.json || true
+        {
+          echo "## CI-3 validate-receipt (report-only, non-blocking)"
+          echo '```json'
+          cat /tmp/ci3_validate.json
+          echo '```'
+          echo "Advisory only — informs the PR, never blocks the merge."
+        } >> "$GITHUB_STEP_SUMMARY"

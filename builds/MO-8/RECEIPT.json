@@ -1,0 +1,54 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox dry-run scorer (designed move M05). Emits CHECK_OK/CHECK_REJECTED verdicts, never a bare governance PASS. Scores readiness only; NEVER sends. Output is a 'readiness score, NOT send authorization'.",
+  "catalog_item": "MO-8", "phase": "B3",
+  "title": "Commercial-Pulse Dispatch-Check DRY-RUN (readiness scorer, never sends, founder_blocked-capped)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "scripts/commercial_pulse_dispatch_check_v1.py",
+      "data/commercial_pulse_queue_v1.json"
+    ],
+    "modified": false,
+    "note": "imports the ground checker's pure check_dispatchable() to score the 8 real dispatchability_predicates over a SYNTHETIC draft; reads the ground queue read-only. Both ground files byte-identical after run (sha unchanged); queue stays [] on disk. main()/write_malformed_receipt of the ground checker are never called (no receipt writes)."
+  },
+  "what_it_proves": [
+    "scores the 8 REAL predicates over a fully-ready SYNTHETIC draft (fake icp_stranger_id, example.com email, synthetic content) -> 8/8, all_predicates_ready=True",
+    "STATE CAP (M05): even at 8/8 readiness the dry-run caps at founder_blocked with dispatch_now=False and send_authorized=False — full predicate readiness does NOT unlock a send",
+    "RED-before-GREEN on the PREDICATE SCORING: a MINIMAL MUTATION of the ready draft (drop casl.unsubscribe_url) flips exactly one predicate -> 7/8 (casl_unsubscribe), proving the scorer discriminates and is not a rubber stamp",
+    "a not-ready synthetic draft scores strictly LOWER (4/8) than the ready draft — the score tracks the predicates",
+    "send-safety detector has TEETH (positive controls): a record with highest_state_reached past founder_blocked, or dispatch_now=True, or send_authorized truthy -> flagged -> CHECK_REJECTED (a clean pass can't be a broken detector)",
+    "AST-based send-tool self-scan has TEETH: a seeded send_broadcast(...) call is flagged; the real tool source scans clean (0 hits) — never imports/calls any send/broadcast/batch-email tool",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any send-safety violation (not an always-exit-0 stub)",
+    "running the tool leaves both ground files byte-identical (sha unchanged) and the queue [] on disk"
+  ],
+  "chess_patches_applied": [
+    "founder_blocked and dispatch_now=false are HARDCODED independent of the predicate scores; a fully-ready draft is still capped (no readiness->authorization leak)",
+    "predicate scoring reuses the REAL ground check_dispatchable() (no strawman, no relaxed re-implementation)",
+    "positive proof for the scorer is a single-field minimal mutation (8/8 -> 7/8); positive controls seed real leaks/calls so a zero-hit can't be a false-clean",
+    "reads ground checker + queue only; never calls the ground main()/write_malformed_receipt (no receipt writes); queue kept [] (no enqueue)",
+    "origin=sandbox-advisory / authority=none; labelled 'readiness score, NOT send authorization'; reports a finding/verdict, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (ground checker + queue unmodified, sha unchanged; queue stays [])",
+    "no live call (no network/Supabase/send/broadcast/batch-email; DRAFT-only: dispatch_now=false, no AUTO_DISPATCH_APPROVED, no cron uncommented)",
+    "no send/broadcast/batch-email tool imported or called (AST self-scan, 0 hits)",
+    "write-scoped to catalog/builds/MO-8/ only; untouched other-lane motor files",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/MO-8/mo8_pulse_dispatch_dryrun.py",
+    "test": "catalog/builds/MO-8/test_mo8_pulse_dispatch_dryrun.py",
+    "red_run_canary": "catalog/builds/MO-8/redrun-canary.txt",
+    "results": {
+      "tool_run": "CHECK_OK exit 0 (ready 8/8, not-ready 4/8, both capped at founder_blocked, queue empty, 0 send-token hits)",
+      "self_runner": "8/8 green",
+      "pytest": "8 passed",
+      "canary": "RED-CANARY FIRED exit 1 (asserting fully-ready draft reaches approved_pending_send correctly fails; state capped at founder_blocked)",
+      "ground_sha": "unchanged (queue + checker); queue==[] on disk"
+    }
+  },
+  "exit_gate_B3": "MO-8 done — commercial-pulse dispatch-check dry-run (M05): scores 8 real predicates over synthetic drafts, HARDCODES founder_blocked/dispatch_now=false, proves the cap holds even at 8/8; RED-before-GREEN on predicate scoring (8/8->7/8 minimal mutation) and on the send-safety + send-tool detectors (positive controls). NEVER sends.",
+  "next_action": "If the commercial pulse ever advances past founder_blocked, this dry-run is the gate that must reject it before any real dispatch; escalate readiness scores to founder, never auto-send."
+}

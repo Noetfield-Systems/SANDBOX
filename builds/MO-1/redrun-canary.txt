@@ -1,0 +1,2 @@
+lint on AUTO_DISPATCH template: ["status 'AUTO_DISPATCH_APPROVED' is not DRAFT (MO-1 emits DRAFT only; AUTO_DISPATCH_APPROVED is founder-gated)"]
+EXPECTED -> RED-CANARY FIRED: AUTO_DISPATCH_APPROVED template is rejected by lint -> asserting it's clean correctly fails. DRAFT-only gate holds.

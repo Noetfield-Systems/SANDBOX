@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern Factory Storefront</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --card:#ffffff;
+    --sell-bg:#e5f2ea; --sell-ink:#2f7d54; --sell-line:#bfe0cd;
+    --build-bg:#eaf0f6; --build-ink:#3a5a7a; --build-line:#c8d8e8;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --lock-line:#ddcea8;
+    --warn-bg:#fbeede; --warn-ink:#9a6a1e; --warn-line:#e8cfa0;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --synth-bg:#f0ecf6; --synth-ink:#6a4f8a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+      --line:#2a323b; --accent:#9fb4c7; --card:#161b21;
+      --sell-bg:#17301f; --sell-ink:#5fc191; --sell-line:#255238;
+      --build-bg:#182633; --build-ink:#8fb6dc; --build-line:#274058;
+      --lock-bg:#2b2718; --lock-ink:#d8c384; --lock-line:#4a4224;
+      --warn-bg:#2e2410; --warn-ink:#e0b45a; --warn-line:#524019;
+      --banner-bg:#8f2626; --banner-ink:#ffffff;
+      --synth-bg:#221b30; --synth-ink:#b79fda;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0;
+    --line:#2a323b; --accent:#9fb4c7; --card:#161b21;
+    --sell-bg:#17301f; --sell-ink:#5fc191; --sell-line:#255238;
+    --build-bg:#182633; --build-ink:#8fb6dc; --build-line:#274058;
+    --lock-bg:#2b2718; --lock-ink:#d8c384; --lock-line:#4a4224;
+    --warn-bg:#2e2410; --warn-ink:#e0b45a; --warn-line:#524019;
+    --banner-bg:#8f2626; --banner-ink:#ffffff;
+    --synth-bg:#221b30; --synth-ink:#b79fda;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e;
+    --line:#e2e6ea; --accent:#3a4a5a; --card:#ffffff;
+    --sell-bg:#e5f2ea; --sell-ink:#2f7d54; --sell-line:#bfe0cd;
+    --build-bg:#eaf0f6; --build-ink:#3a5a7a; --build-line:#c8d8e8;
+    --lock-bg:#efe7d6; --lock-ink:#6b5a2e; --lock-line:#ddcea8;
+    --warn-bg:#fbeede; --warn-ink:#9a6a1e; --warn-line:#e8cfa0;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --synth-bg:#f0ecf6; --synth-ink:#6a4f8a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700;
+    text-align:center; padding:10px 14px; border-radius:8px; letter-spacing:.02em;
+    font-size:13px; margin-bottom:24px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  h1 { font-size:26px; margin:8px 0 4px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 18px; max-width:70ch; }
+  .ladder { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 24px; padding:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+  .ladder .rung { flex:1 1 200px; border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:var(--card); }
+  .ladder .rung .tl { font-weight:600; font-size:13.5px; }
+  .ladder .rung .tn { font-size:12px; color:var(--muted); margin-top:4px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+  .card { border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:var(--card);
+    display:flex; flex-direction:column; gap:10px; }
+  .card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .card-head h2 { font-size:17px; margin:0; }
+  .badge { font-size:11.5px; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; border:1px solid; }
+  .b-sell { background:var(--sell-bg); color:var(--sell-ink); border-color:var(--sell-line); }
+  .b-build { background:var(--build-bg); color:var(--build-ink); border-color:var(--build-line); }
+  .b-lock { background:var(--lock-bg); color:var(--lock-ink); border-color:var(--lock-line); }
+  .tier-label { font-size:12px; color:var(--muted); font-weight:600; }
+  .what { font-size:13.5px; margin:0; }
+  .pain { font-size:12.5px; color:var(--muted); margin:0; }
+  .pain b, .proof b, .commercial b { color:var(--ink); font-weight:600; }
+  .commercial { font-size:12.5px; margin:0; }
+  .proof { font-size:12px; color:var(--muted); margin:0; border-top:1px solid var(--line); padding-top:8px; }
+  .price-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:2px; }
+  .price { font-size:15px; font-weight:700; }
+  .price.locked { color:var(--lock-ink); }
+  .price.unpop { color:var(--warn-ink); font-weight:700; }
+  .synth-tag { font-size:10.5px; font-weight:700; letter-spacing:.02em; padding:1px 7px; border-radius:999px;
+    background:var(--synth-bg); color:var(--synth-ink); }
+  .unpop-tag { font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:999px;
+    background:var(--warn-bg); color:var(--warn-ink); border:1px solid var(--warn-line); }
+  .price-note { font-size:11.5px; color:var(--muted); margin:0; }
+  .src { font-size:11px; color:var(--muted); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+  h3.section-title { font-size:16px; margin:34px 0 6px; border-top:1px solid var(--line); padding-top:22px; }
+  .disclaimer { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--synth-ink);
+    border-radius:8px; padding:12px 14px; font-size:12.5px; color:var(--muted); margin:20px 0 0; }
+  footer { margin-top:26px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH - not for public hosting (Pattern Factory storefront, synthetic pricing)</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>Noetfield Pattern Factory</h1>
+  <p class="sub">Receipt-backed patterns. Diagnosis sells now; autonomy tiers stay proof-gated until SourceA runs 24/7 with receipts.</p>
+
+  <h3 class="section-title">Engagement ladder</h3>
+  <div class="ladder">
+    <div class="rung" data-gate="sells_now"><div class="tl">Tier 1 &middot; Brain Audit</div><div class="tn">Diagnosis only. Zero proof of our own result required.</div></div>
+    <div class="rung" data-gate="bounded_build"><div class="tl">Tier 2 &middot; Operating Brain Install / Brain v0</div><div class="tn">Bounded build. Anchor = one pattern proven on SourceA (zero-drift). No autonomy promise.</div></div>
+    <div class="rung" data-gate="locked"><div class="tl">Tier 3 &middot; Managed Deterministic Brain</div><div class="tn">LOCKED. Unlocks only after SourceA runs 24/7 with receipts.</div></div>
+    <div class="rung" data-gate="locked"><div class="tl">Tier 4 &middot; VIP Brain Architecture</div><div class="tn">LOCKED. Reserved for later, after the managed tier is proven.</div></div>
+  </div>
+
+  <h3 class="section-title">Patterns</h3>
+  <div class="grid">
+        <div class="card" data-gate="bounded_build" data-tier="2">
+      <div class="card-head">
+        <h2>Signal Factory</h2>
+        <span class="badge b-build">BOUNDED BUILD</span>
+      </div>
+      <div class="tier-label">Tier 2 - Operating Brain Install (bounded build)</div>
+      <p class="what">Triage a raw inbound signal into a fixed decision report: classification, implied need, four 0-5 scores, one bounded next action, a machine-checkable JSON receipt.</p>
+      <p class="pain"><b>Buyer pain:</b> Inbound noise (pitches, cold email, form submits) with no consistent, auditable way to decide what to do with each one.</p>
+      <p class="commercial"><b>Offer:</b> Inbound-triage automation recipe, delivered as a SourceA skill the client runs on their own stack.</p>
+      <div class="price-row"><span class="price unpop">UNPOPULATED</span><span class="unpop-tag">UNPOPULATED</span></div><p class="price-note">Architect-locked spec; worker-build pending. Pricing not yet populated for this pattern.</p>
+      
+      <p class="proof"><b>Proof / guardrail:</b> risk &gt;= 4 routes to human/legal review (no autonomous action); sender claims stay assertions, never laundered as facts.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/signal-factory-v1.md</div>
+    </div>
+    <div class="card" data-gate="sells_now" data-tier="1">
+      <div class="card-head">
+        <h2>Brain Audit</h2>
+        <span class="badge b-sell">SELLS NOW</span>
+      </div>
+      <div class="tier-label">Tier 1 - Brain Audit (sells now, diagnosis only)</div>
+      <p class="what">Diagnose stack fragmentation, definition drift, agent theater, missing receipts, dead workflows, founder overload, and a missing decision-spine. Deliver a Brain Coherence Report plus a first executable roadmap.</p>
+      <p class="pain"><b>Buyer pain:</b> Ten competent fragments (agents, prompts, docs) that do not share a spine; the puzzle stays incomplete even when every piece exists.</p>
+      <p class="commercial"><b>Offer:</b> Diagnostic engagement. We diagnose the client&#x27;s chaos; no claim is made about our own result.</p>
+      <div class="price-row"><span class="price">$2K - $8K</span><span class="synth-tag">SYNTHETIC - not a guaranteed claim</span></div><p class="price-note">SYNTHETIC indicative pilot band.</p><div class="src">band source: sibling diagnostic bands: agentic-cost-governance-service.md Tier 1 ($2K-$5K) + operational-language-governance-audit.md Tier 1 ($4K-$8K)</div>
+      
+      <p class="proof"><b>Proof / guardrail:</b> Needs zero SourceA proof: the deliverable is a report + roadmap; nothing about our own result is claimed.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/brain-audit-v1.md</div>
+    </div>
+    <div class="card" data-gate="bounded_build" data-tier="2">
+      <div class="card-head">
+        <h2>Zero-Drift Target</h2>
+        <span class="badge b-build">BOUNDED BUILD</span>
+      </div>
+      <div class="tier-label">Tier 2 - Operating Brain Install (bounded build)</div>
+      <p class="what">Hold the client&#x27;s locked vocabulary, framing, and strategy and execute it identically over time: same input to same decision object, across runs and model swaps, with semantic-firewall violations blocked.</p>
+      <p class="pain"><b>Buyer pain:</b> Our AI drifts our definitions and gives different answers to the same thing; it cannot be trusted to stay on-spec.</p>
+      <p class="commercial"><b>Offer:</b> The credibility-anchor proof module inside an Operating Brain Install: locked-definitions to decision-core to soup-wall.</p>
+      <div class="price-row"><span class="price">$8K - $20K</span><span class="synth-tag">SYNTHETIC - not a guaranteed claim</span></div><p class="price-note">SYNTHETIC indicative pilot band.</p><div class="src">band source: brain-as-a-service.md Tier 2 (Operating Brain Install / Brain v0), bounded build</div>
+      
+      <p class="proof"><b>Proof / guardrail:</b> Receipts: same input to same decision object across runs and model swaps; semantic-firewall violations blocked; content-identity held.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/zero-drift-target.md</div>
+    </div>
+    <div class="card" data-gate="bounded_build" data-tier="2">
+      <div class="card-head">
+        <h2>Anti-Theater</h2>
+        <span class="badge b-build">BOUNDED BUILD</span>
+      </div>
+      <div class="tier-label">Tier 2 - Operating Brain Install (bounded build)</div>
+      <p class="what">The system cannot fake success. Flaws are blind-detected and heals are independently verified; no self-certification. Blind-detected flaw to independent FAIL/PASS to live-unchanged-on-FAIL, logged.</p>
+      <p class="pain"><b>Buyer pain:</b> Agents report green while things break (grade-its-own-homework).</p>
+      <p class="commercial"><b>Offer:</b> The verifier/receipt substrate designed into an Operating Brain Install so the client&#x27;s system proves its own work.</p>
+      <div class="price-row"><span class="price">$8K - $20K</span><span class="synth-tag">SYNTHETIC - not a guaranteed claim</span></div><p class="price-note">SYNTHETIC indicative pilot band.</p><div class="src">band source: brain-as-a-service.md Tier 2 substrate (verifier/receipt loop), bounded build</div>
+      
+      <p class="proof"><b>Proof / guardrail:</b> The provability is the product: a blind-detected issue independently caught, on signed receipts (malformed bundle to FAIL to gate-refused to live-unchanged).</p>
+      <div class="src">source: P9-PATTERN-FACTORY/anti-theater.md</div>
+    </div>
+    <div class="card" data-gate="sells_now" data-tier="1">
+      <div class="card-head">
+        <h2>Operational Language Governance</h2>
+        <span class="badge b-sell">SELLS NOW</span>
+      </div>
+      <div class="tier-label">Tier 1 - Language &amp; Decision Cleanup Audit (sells now)</div>
+      <p class="what">Map where agents, forms, decisions, and docs disagree about words. Deliver a machine-readable classification index, a gated dry scan, a safe rewrite plan, and an escalation queue. Diagnosis first; no unsupervised bulk rewrite.</p>
+      <p class="pain"><b>Buyer pain:</b> Terminology drift and undefined system words: the linter flags everything, CI noise blocks merges, and a clean pass quietly creates new warnings.</p>
+      <p class="commercial"><b>Offer:</b> Read-only audit of the client&#x27;s language debt with a safe fix order and a receipt; managed weekly loop is a separate, later tier.</p>
+      <div class="price-row"><span class="price">$4K - $8K</span><span class="synth-tag">SYNTHETIC - not a guaranteed claim</span></div><p class="price-note">SYNTHETIC indicative pilot band.</p><div class="src">band source: operational-language-governance-audit.md Tier 1 (1-2 week diagnostic pilot band)</div>
+      
+      <p class="proof"><b>Proof / guardrail:</b> Proven on the SG library (158 files, 0 WARN at RC3) and a 127-term SourceA overlay. Client results depend on corpus quality and escalation throughput.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/operational-language-governance-pattern-v1.md</div>
+    </div>
+    <div class="card" data-gate="locked" data-tier="3">
+      <div class="card-head">
+        <h2>Auto-Heal Hospital</h2>
+        <span class="badge b-lock">LOCKED / proof-gated</span>
+      </div>
+      <div class="tier-label">Tier 3 - Managed Deterministic Brain (LOCKED)</div>
+      <p class="what">Continuous, bounded self-repair: detect, diagnose adversarially, fix content/plan/config (never the substrate), verify, re-probe. A fix that does not move a real metric auto-reverts.</p>
+      <p class="pain"><b>Buyer pain:</b> Our system degrades silently and someone has to babysit it.</p>
+      <p class="commercial"><b>Offer:</b> Managed, receipt-backed self-repair loop running on the client&#x27;s stack.</p>
+      <div class="price-row"><span class="price locked">LOCKED - no figure offered</span></div><p class="price-note">Price gated with the tier: no figure is offered until the proof condition is met.</p>
+      <p class="price-note">Managed autonomy tier. Unlocks only after SourceA runs 24/7 with receipts. Rendered LOCKED, never sold as a running result.</p>
+      <p class="proof"><b>Proof / guardrail:</b> Heal only counts if it moves a real signal (auto-revert otherwise); self-heal may never touch the immutable floor; improvement is measured, not declared.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/auto-heal-hospital.md</div>
+    </div>
+    <div class="card" data-gate="locked" data-tier="3">
+      <div class="card-head">
+        <h2>Alive-Doc &amp; Stale-Pointer Governance</h2>
+        <span class="badge b-lock">LOCKED / proof-gated</span>
+      </div>
+      <div class="tier-label">Tier 3 - Managed weekly autorun (LOCKED)</div>
+      <p class="what">Separate alive (ACTIVE) from index (READ_SURFACE) from dead (RETIRED). Detect stale patterns, retired motors, and missing paths across ACTIVE authority roots; write a repair queue with a receipt on a weekly autorun.</p>
+      <p class="pain"><b>Buyer pain:</b> Stale ACTIVE pointers downgrade the whole stack to last week&#x27;s mistakes: agents repair retired motors and read the wrong runtime truth.</p>
+      <p class="commercial"><b>Offer:</b> Managed weekly staleness scan with a repair queue and receipt. A one-shot diagnostic sells at Tier 1; the managed loop is the locked tier.</p>
+      <div class="price-row"><span class="price locked">LOCKED - no figure offered</span></div><p class="price-note">Price gated with the tier: no figure is offered until the proof condition is met.</p>
+      <p class="price-note">Managed weekly autorun. Unlocks only after SourceA runs 24/7 with receipts. Rendered LOCKED, never sold as a running result.</p>
+      <p class="proof"><b>Proof / guardrail:</b> Seven finding classes (missing_read_surface, stale_law_pattern, retired_workflow_motor, library_registry_drift, superseded_still_active, ...). Machines inspect authority only; never bulk-edit ledgers or form exports.</p>
+      <div class="src">source: P9-PATTERN-FACTORY/alive-doc-staleness-governance-pattern-v1.md</div>
+    </div>
+
+  </div>
+
+  <div class="disclaimer">All price bands are SYNTHETIC indicative pilot ranges drawn from the P10 product docs, shown for storefront layout only. They are not quotes and not a guaranteed claim. Fixed name / fixed price / fixed scope is set per engagement.</div>
+
+  <footer>This storefront lists Pattern Factory patterns and the staged engagement ladder. Diagnosis tiers sell now; the managed autonomy tiers stay LOCKED and proof-gated until SourceA runs 24/7 with receipts. It makes no autonomy promise and no outcome promise. Price bands are synthetic indicative ranges for layout only, not quotes.</footer>
+</div>
+</body>
+</html>

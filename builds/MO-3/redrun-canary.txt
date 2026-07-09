@@ -1,0 +1,14 @@
+MO-3 RED-RUN CANARY (deliberately-wrong assertion that MUST fail)
+
+deliberately-wrong assertion: attribute(real_rules, newest_census).verdict == "CHECK_OK"
+actual verdict on REAL data: CHECK_REJECTED
+  reason: census counts META=22 > GUARD+REVENUE=8 -> standing cost rule tripped
+          (mirrors the census's own audit_status=RED); tool exits 1.
+
+RESULT -> RED-CANARY FIRED:
+  AssertionError: DELIBERATELY-WRONG: asserting CHECK_OK on real census that is CHECK_REJECTED
+  process exit=1 (nonzero).
+
+The report has teeth: it cannot be coaxed into CHECK_OK while the real census
+attributes a dominant META cost. A zero-hit CHECK_OK IS reachable (proven by the
+balanced positive-control census in the test), so CHECK_REJECTED is not a stuck verdict.

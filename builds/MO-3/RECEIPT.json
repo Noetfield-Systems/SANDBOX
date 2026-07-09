@@ -1,0 +1,61 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox value-class cost attribution report. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. Read-only over the rules file and the newest census evidence bundle; the tool itself is the trust spine.",
+  "catalog_item": "MO-3", "phase": "B3", "designed_move": "M06",
+  "title": "Value-class cost attribution table (static, read-only; rules x newest census)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "data/workflow_census_value_class_rules_v1.json",
+      "receipts/p0pgr/evidence/evidence-dd61a460b6927e46.json"
+    ],
+    "modified": false,
+    "note": "joins rules.by_task_cell (32 task_cells -> value_class) with the newest census counts {GUARD:5, META:22, NONE:8, REVENUE:3}; both files read-only, sha unchanged"
+  },
+  "finding": {
+    "verdict": "CHECK_REJECTED",
+    "total_cost_loops": 38,
+    "cost_by_value_class": { "REVENUE": 3, "GUARD": 5, "META": 22, "NONE": 8 },
+    "cost_rule_violations": [
+      { "rule": "META cost > GUARD+REVENUE cost -> RED", "detail": "META=22 > GUARD+REVENUE=8 (system grooming itself)" }
+    ],
+    "interpretation": "The newest census attributes 57.9% of the 38-loop operational cost (22 loops) to META, exceeding GUARD+REVENUE combined (8 loops). The standing_audit_rule 'META cost > GUARD+REVENUE cost -> audit_status RED' is tripped; this report independently reproduces the census's own recorded audit_status=RED. REVENUE lane is non-empty (3), so that rule holds. REPORTED as a finding, not relaxed away."
+  },
+  "what_it_proves": [
+    "REAL rules x newest census -> the join maps a KNOWN task_cell to its declared value_class: gateway_lead_capture is REVENUE per the rules AND lands in the report's REVENUE group (exact anchor mapping asserted)",
+    "a MINIMAL MUTATION of the real rules (flip gateway_lead_capture REVENUE->GUARD) moves that task_cell out of the REVENUE group into GUARD -- mutating the rule changes the grouping",
+    "REAL census (META=22 > GUARD+REVENUE=8) trips the standing cost rule -> CHECK_REJECTED, mirroring the census's own audit_status=RED (the checker has teeth; exits 1)",
+    "POSITIVE-CONTROL census (balanced counts) -> CHECK_OK: a zero-hit is reachable, so CHECK_REJECTED is not a stuck/always-fail verdict",
+    "seeding an empty REVENUE lane into the balanced census re-trips CHECK_REJECTED (RED-before-GREEN; no relaxation)",
+    "cost totals and shares are read straight from the census counts (attribution is not fabricated)",
+    "running the report leaves BOTH ground-truth files byte-identical (sha unchanged); tool is strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any cost-rule violation (not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL rules + REAL newest census and records CHECK_REJECTED reproducing the census audit RED (no strawman)",
+    "positive proof is a minimally-mutated balanced census that legitimately reconciles clean; no cost-rule relaxation",
+    "join anchor is asserted on a real declared mapping (gateway_lead_capture -> REVENUE); the rule-mutation red case moves it between groups",
+    "reads both ground-truth files, never writes to either (Lock 5 / read-only)",
+    "origin=sandbox-advisory / authority=none; reports the cost-attribution finding, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 1/2/5/6/7 append-only (both ground-truth files unmodified, sha unchanged; wrote only inside catalog/builds/MO-3/)",
+    "no live call (no network, no Supabase, no sends/deploy)",
+    "DRAFT-only N/A (read-only report; no packet/dispatch surface touched)",
+    "read-only report; worktree not pushed"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/MO-3/mo3_value_class_cost.py",
+    "test": "catalog/builds/MO-3/test_mo3_value_class_cost.py",
+    "red_run_canary": "catalog/builds/MO-3/redrun-canary.txt",
+    "results": {
+      "real_data": "CHECK_REJECTED exit 1 (META cost 22 > GUARD+REVENUE 8; reproduces census audit_status=RED)",
+      "self_runner": "8/8 green",
+      "pytest": "8 passed in 0.05s (pytest 8.4.1)",
+      "ground_truth_sha": "unchanged (both files)"
+    }
+  },
+  "exit_gate_B3": "MO-3 done (static value-class cost attribution report joins rules x newest census, attributes the 38-loop cost by value_class, and surfaces the META-cost-domination finding as CHECK_REJECTED; RED-before-GREEN via minimal rule-mutation grouping change + balanced-census positive control).",
+  "next_action": "Escalate the META-cost-domination finding: 22 of 38 loops (57.9%) are META vs 8 GUARD+REVENUE -- the system is grooming itself; propose retiring META loops or growing GUARD/REVENUE to clear audit_status RED."
+}

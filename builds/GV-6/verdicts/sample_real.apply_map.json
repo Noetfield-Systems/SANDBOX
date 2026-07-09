@@ -1,0 +1,42 @@
+{
+  "schema": "decision_language_machine_apply_map_v1",
+  "status": "EMPTY",
+  "target_form": "FORM_OFFICIAL",
+  "partial_batch": true,
+  "pick_count": 0,
+  "picks": [],
+  "machine_closed_without_founder": [
+    "ENF-04",
+    "ENF-13",
+    "ENF-15",
+    "ENF-18",
+    "Q-CHAT-CLOUD-01",
+    "Q-FINAL-04",
+    "Q-FINAL-07",
+    "Q-SESSION-INBOX-NEXT",
+    "Q-SESSION-PHASE0-SPOT",
+    "Q-CONF-B0503-CONSUMER",
+    "Q-CONF-CREED-36V14",
+    "Q-CONF-FALSE-DONE-GUARD",
+    "Q-BC-03",
+    "Q-BC-07",
+    "Q-CW-SOURCEA-APP",
+    "Q-CW-HUB-RETIRE",
+    "Q-THREAD-DEPLOY-01",
+    "Q-WBC-STYLE-B1"
+  ],
+  "deferred_ids": [
+    "11.05",
+    "Q-THREAD-10STEP-01",
+    "Q-FINAL-03",
+    "Q-MF-05",
+    "Q-MF-06",
+    "Q-CONF-F002-BROKER",
+    "Q-BC-08",
+    "Q-BC-10",
+    "Q-MF-07",
+    "Q-SESSION-ARCH-GEMINI-WS",
+    "Q-SESSION-ARCH-SCAFFOLD"
+  ],
+  "note": "Submit map is downstream of validation \u2014 never auto-submit FORM_OFFICIAL"
+}

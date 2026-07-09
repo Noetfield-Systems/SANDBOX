@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wording-debt rollup</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e; --line:#e2e6ea;
+    --accent:#3a4a5a; --chip-bg:#eef1f4; --chip-ink:#3a4a5a; --chip-n:#1c2126;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --review-bg:#f4e2d6; --review-ink:#8a4a1e; --clean-bg:#dcece0; --clean-ink:#2f6d47;
+    --unpop-bg:#e6e2d2; --unpop-ink:#6b5a2e; --policy-bg:#dfe6ef; --policy-ink:#33506f;
+    --debt-hi:#b23b3b; --row-alt:#fafbfc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0; --line:#2a323b;
+      --accent:#9fb4c7; --chip-bg:#232b34; --chip-ink:#b7c4d0; --chip-n:#e7ecf1;
+      --banner-bg:#8f2626; --banner-ink:#ffffff;
+      --review-bg:#3a2a1c; --review-ink:#e0a76a; --clean-bg:#1e3327; --clean-ink:#77b98a;
+      --unpop-bg:#2b2718; --unpop-ink:#d8c384; --policy-bg:#22303f; --policy-ink:#9fb4c7;
+      --debt-hi:#e06767; --row-alt:#161b21;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161a; --panel:#1a2027; --ink:#e7ecf1; --muted:#9aa5b0; --line:#2a323b;
+    --accent:#9fb4c7; --chip-bg:#232b34; --chip-ink:#b7c4d0; --chip-n:#e7ecf1;
+    --banner-bg:#8f2626; --banner-ink:#ffffff;
+    --review-bg:#3a2a1c; --review-ink:#e0a76a; --clean-bg:#1e3327; --clean-ink:#77b98a;
+    --unpop-bg:#2b2718; --unpop-ink:#d8c384; --policy-bg:#22303f; --policy-ink:#9fb4c7;
+    --debt-hi:#e06767; --row-alt:#161b21;
+  }
+  :root[data-theme="light"] {
+    --bg:#ffffff; --panel:#f6f7f9; --ink:#1c2126; --muted:#5b646e; --line:#e2e6ea;
+    --accent:#3a4a5a; --chip-bg:#eef1f4; --chip-ink:#3a4a5a; --chip-n:#1c2126;
+    --banner-bg:#7a1f1f; --banner-ink:#ffffff;
+    --review-bg:#f4e2d6; --review-ink:#8a4a1e; --clean-bg:#dcece0; --clean-ink:#2f6d47;
+    --unpop-bg:#e6e2d2; --unpop-ink:#6b5a2e; --policy-bg:#dfe6ef; --policy-ink:#33506f;
+    --debt-hi:#b23b3b; --row-alt:#fafbfc;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:24px 20px 64px; }
+  .banner { background:var(--banner-bg); color:var(--banner-ink); font-weight:700; text-align:center;
+    padding:10px 14px; border-radius:8px; letter-spacing:.02em; font-size:13px; margin-bottom:24px; }
+  h1 { font-size:25px; margin:8px 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .theme-toggle { float:right; font-size:12px; color:var(--muted); cursor:pointer; user-select:none;
+    border:1px solid var(--line); border-radius:6px; padding:3px 9px; background:var(--panel); }
+  .stats { display:flex; flex-wrap:wrap; gap:16px; margin:0 0 16px; }
+  .stat { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 16px; }
+  .stat .n { font-size:26px; font-weight:800; }
+  .stat .l { font-size:12px; color:var(--muted); }
+  .summary { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin:0 0 22px; }
+  .sum-line { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:5px 0; }
+  .sum-label { font-size:12px; font-weight:700; color:var(--muted); min-width:78px; text-transform:uppercase; letter-spacing:.03em; }
+  .chip { display:inline-flex; align-items:center; gap:5px; background:var(--chip-bg); color:var(--chip-ink);
+    font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+  .chip i { font-style:normal; font-weight:800; color:var(--chip-n); }
+  .chip-none { opacity:.6; }
+  .table-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; position:sticky; top:0; background:var(--panel); z-index:1; }
+  tbody tr:nth-child(even) { background:var(--row-alt); }
+  td.rank { color:var(--muted); font-variant-numeric:tabular-nums; width:44px; }
+  td.file code { font-size:12px; word-break:break-all; }
+  td.debt { width:96px; }
+  .debt-n { font-size:16px; color:var(--debt-hi); font-variant-numeric:tabular-nums; }
+  td.reasons { max-width:360px; }
+  td.reasons .chip { margin:1px 3px 1px 0; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; }
+  .d-review { background:var(--review-bg); color:var(--review-ink); }
+  .d-clean { background:var(--clean-bg); color:var(--clean-ink); }
+  .d-unpop { background:var(--unpop-bg); color:var(--unpop-ink); }
+  .d-policy { background:var(--policy-bg); color:var(--policy-ink); }
+  footer { margin-top:26px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">DO NOT PUSH — not for public hosting (internal wording-debt rollup, advisory)</div>
+  <span class="theme-toggle" onclick="(function(r){var t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);})(document.documentElement)">toggle theme</span>
+  <h1>Wording-debt rollup</h1>
+  <p class="sub">Files ranked by open language_gate wording-debt, tallied read-only from the
+  <code>*.language_gate_review.json</code> sidecars in the canonical library. Most debt first.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">92</div><div class="l">sidecars tallied</div></div>
+    <div class="stat"><div class="n">229</div><div class="l">total wording-debt items</div></div>
+  </div>
+
+  <div class="summary"><div class="sum-line"><span class="sum-label">Reasons</span><span class="chip">AGENT_REVIEW<i>31</i></span><span class="chip">UNDEFINED_TERM<i>89</i></span><span class="chip">PLAIN_ENGLISH<i>9</i></span><span class="chip">REGEX_REWRITE<i>35</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>65</i></span></div><div class="sum-line"><span class="sum-label">Decisions</span><span class="chip">REVIEW<i>77</i></span><span class="chip">SIDECAR_PREVIEW_ONLY<i>15</i></span></div></div>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>#</th><th>File</th><th>Debt</th><th>Reasons</th><th>Decision</th></tr></thead>
+      <tbody>
+      <tr><td class="rank">1</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/TERMINOLOGY_DICTIONARY_FULL_AUDIT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">22</b></td><td class="reasons"><span class="chip">REGEX_REWRITE<i>22</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">2</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/2026-06-30-deep-mined-gems.md</code></td><td class="debt"><b class="debt-n">19</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>3</i></span><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">REGEX_REWRITE<i>3</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>12</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">3</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/history/strategy-ssot-v5.md</code></td><td class="debt"><b class="debt-n">15</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>14</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">4</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/history/strategy-ssot-v4.md</code></td><td class="debt"><b class="debt-n">14</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>13</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">5</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/history/strategy-ssot-v3.md</code></td><td class="debt"><b class="debt-n">10</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>9</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">6</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-as-a-service.md</code></td><td class="debt"><b class="debt-n">8</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>8</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">7</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/gap-doctrine-ssot-v1.md</code></td><td class="debt"><b class="debt-n">7</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>6</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">8</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/history/strategy-ssot-v2.md</code></td><td class="debt"><b class="debt-n">6</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>5</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">9</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/P0_GAP_FINAL_ANSWER_2026-07-04.md</code></td><td class="debt"><b class="debt-n">5</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>5</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">10</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P0-DOCTRINE/CHESS_PATTERN_REASONING_MACHINE_v2.0.md</code></td><td class="debt"><b class="debt-n">4</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>4</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">11</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/return-on-cognition.md</code></td><td class="debt"><b class="debt-n">4</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>3</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">12</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/COMPLETENESS_AUDIT.md</code></td><td class="debt"><b class="debt-n">4</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>4</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">13</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/FORM_OFFICIAL_80_OPEN_PICKS_2026-07-07.md</code></td><td class="debt"><b class="debt-n">4</b></td><td class="reasons"><span class="chip">REGEX_REWRITE<i>4</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">14</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P1-CANON/NOETFIELD_SYSTEMS_OPERATING_PLAN.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>3</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">15</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/SSOT_CONFLICT_LOG_R_SPLIT_v0.1.2.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>3</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">16</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/8-layer-kernel-and-L0-map.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>2</i></span><span class="chip">REGEX_REWRITE<i>1</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">17</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/LINE_ENGINE_ARCHITECTURE_v0.1.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>3</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">18</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/auto-heal-hospital.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>3</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">19</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/2026-07-03-reconciliation.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">20</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/ARCHITECT2_CONSISTENCY_CHECK_2026-07-04.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">REGEX_REWRITE<i>3</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">21</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/DLM_DICTIONARY_GAP_TRIAGE_RC2_2026-07-07.md</code></td><td class="debt"><b class="debt-n">3</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>3</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">22</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P1-CANON/BRAIN_REGISTRY_LEARNING_GATE_v0.1.4.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">23</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/noetfield.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">24</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/LINE_ENGINE_ARCHITECTURE_v0.2_HARDENED.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">25</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/deterministic-brain-doctrine.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">26</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/receipts-not-diagrams.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">27</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-OVERLAYS/TRUSTFIELD_PARTNER_ACCESS_CHESS_OVERLAY_v2.0.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">28</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/anti-theater.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">29</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/GATEWAY_PUBLIC_LAUNCH_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">30</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LIBRARY_RECONCILIATION_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">31</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SOURCEA_LANE_PREFLIGHT_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">32</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/gap-audit-2026-06-30.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">PLAIN_ENGLISH<i>1</i></span><span class="chip">LATENT_UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">33</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/open-items.md</code></td><td class="debt"><b class="debt-n">2</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>2</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">34</td><td class="file"><code>SG-Canonical-Library/noetfield-library/ARCHITECT_START_HERE.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">35</td><td class="file"><code>SG-Canonical-Library/noetfield-library/BIG_PICTURE_RELATION_MAP.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">36</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P1-CANON/BRAIN_REGISTRY_IMPL_PROMPT_v0.1.4.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">37</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P1-CANON/MACHINE_LOOPS_v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">38</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P1-CANON/WORK_ORDER_IDE_LANE_v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">39</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">40</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/agentic-cost-governance-service.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">41</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/trustfield.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">42</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/CANONICAL_D4_PACKAGE_v0.1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">43</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/OPEN_BLOCKERS.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">44</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P2-SSOT/SSOT_INDEX.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">45</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/capability-router-circuit-breaker.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">46</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P5-LINE-ENGINE/line-engine-specs-v0.1-v0.2.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">47</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">48</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/contracts-run-the-system.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">49</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/immutable-floor.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">50</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/layered-agents.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">51</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/negative-proof.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">52</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P7-DOCTRINE/targets-vs-blockers.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">53</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P8-MACHINE-LOOPS/SOURCEA_E2E_CHECK_REGISTRY_LOCKED_v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">54</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P8-MACHINE-LOOPS/merge-authority-tiers-T0-T3.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">55</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/brain-audit-v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">56</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P9-PATTERN-FACTORY/signal-factory-v1.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">57</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/2026-06-30-governance-loop.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">58</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/CONVERSATION_STARTED_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">59</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/E2E_AUDIT_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">60</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/FORM_OFFICIAL_80_FOUNDER_OVERRIDES_2026-07-07.json</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">REGEX_REWRITE<i>1</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">61</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/FOUNDER_DECISION_BATCH_SIMPLIFIED_FORM_2026-07-07.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">62</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/GATEWAY_REVENUE_ORGAN_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">63</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/GATEWAY_STAGING_DEPLOY_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">64</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/GITHUB_CLOUD_ALIGNMENT_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">65</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LANE_PREFLIGHT_RECEIPTS_2026-07-05/NOETFIELD_OS.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">66</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LANE_PREFLIGHT_RECEIPTS_2026-07-05/SINAAI_MONO.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">67</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LANE_PREFLIGHT_RECEIPTS_2026-07-05/SINA_GATEWAY.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">68</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LANE_PREFLIGHT_RECEIPTS_2026-07-05/STUDIO_IDE.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">69</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LANE_PREFLIGHT_RECEIPTS_2026-07-05/TRUSTFIELD.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">70</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/LIBRARY_STATE_FOR_SG_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">71</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/MAC_WORKER_EXECUTION_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">72</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/NOOS_INTEGRATOR_SYNC_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">73</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/P0_VERIFY_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">74</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/PHASE_LOOP_STEP10_MERGE_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">75</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/REVENUE_WORK_AUTHORIZATION_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">76</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/ROI_HEAL_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">77</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SERVICE_REGISTRY_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">AGENT_REVIEW<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">78</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SG_INSTALL_RECEIPT_v0.8_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">79</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SOURCEA_BRAIN_AGENT_READINESS_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">80</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SOURCEA_FORM_OFFICIAL_PARTIAL_SUBMIT_RECEIPT_2026-07-07.json</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">REGEX_REWRITE<i>1</i></span></td><td class="decision"><span class="badge d-policy">SIDECAR_PREVIEW_ONLY</span></td></tr>
+      <tr><td class="rank">81</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SOURCEA_TIER1_DELIVERY_READINESS_RECEIPT_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">82</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SSOT_V6_AUTHORITY_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">83</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/SUPABASE_PAUSE_TRIAGE_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">84</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/THE_REAL_DIAGNOSIS_revenue-organ_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">85</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/TIER1_PILOT_LAUNCH_RECEIPT_2026-07-05.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">86</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/UNLOCK_DOCTRINE_LIBRARY_ANALYSIS_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">87</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/V0.9_GOVERNANCE_PASS_3_NEXT_STEPS_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">88</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/V0.9_REPO_FRAGMENTATION_LEDGER_DRAFT_2026-07-04.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">89</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/WORKFLOW_CENSUS_DISPATCH_2026-07-06.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">90</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/closed-loops.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">91</td><td class="file"><code>SG-Canonical-Library/noetfield-library/P99-LEDGER/ratified-decisions.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      <tr><td class="rank">92</td><td class="file"><code>SG-Canonical-Library/noetfield-library/PLAYBOOKS/TRUSTFIELD_PARTNER_ACCESS_RESTORE_PLAYBOOK_v2.0.md</code></td><td class="debt"><b class="debt-n">1</b></td><td class="reasons"><span class="chip">UNDEFINED_TERM<i>1</i></span></td><td class="decision"><span class="badge d-review">REVIEW</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Advisory rollup. Each count is tallied read-only from the language_gate_review sidecars that already sit next to the library documents; nothing here is a synthetic or guaranteed claim. CLEAN means the sidecar carries debt keys but zero open items; UNPOPULATED means the sidecar carries none of the known debt keys (treat as empty-sink / stub, not as all-clear).</footer>
+</div>
+</body>
+</html>

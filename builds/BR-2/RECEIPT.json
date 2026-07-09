@@ -1,0 +1,51 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox emitter. Produces a DRAFT dictionary-fix PROPOSAL (candidate entries), never a write to dictionary_index.json and never a governance PASS.",
+  "catalog_item": "BR-2", "phase": "B3",
+  "title": "DLM -> language_gate dictionary-fix PROPOSAL emitter", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "grounds": [
+      "decision_language_machine_v1/dlm_terms_v1.py (DICTIONARY_FIX_NEEDED / ALIAS_RETIRED statuses)",
+      "language_gate/dictionary_index.json (read-only skip source)",
+      "decision_language_machine_v1/test_fixtures/form_official_80_open_v1.json (80-item fixture)"
+    ],
+    "modified": false,
+    "note": "runs the DLM dictionary_check over the 80-item fixture with all DLM writes redirected to a temp dir (dlm_core_v1.OUTPUT_DIR/RECEIPTS_DIR + dlm_pipeline_v1.OUTPUT_DIR monkeypatched, per TH-2); emits proposal to this build dir only"
+  },
+  "what_it_proves": [
+    "REAL 80-item fixture -> proposal with candidate_count=0 (verdict NO_FIX_NEEDED): the corpus is fully dictionary-covered today (48 flags = 32 DICTIONARY_OK + 16 CODE_ALIAS_OK, 0 DICTIONARY_FIX_NEEDED)",
+    "NEGATIVE by MINIMAL MUTATION of the real fixture on disk (inject one undefined term `zorptflux capsule` into item[0].question) -> that term appears as a proposal CANDIDATE and the CLI exits 1 (a hit) — RED-before-GREEN",
+    "POSITIVE CONTROL / no-relaxation: injecting a term that IS already in dictionary_index.json (`agnostic`) the same way -> it is NOT re-proposed; a zero-candidate run therefore can't be a broken-regex false-clean",
+    "running the emitter leaves dictionary_index.json byte-identical (sha unchanged); the tool hard-refuses to target dictionary_index.json as its --out",
+    "proposal stamped origin=sandbox-advisory / authority=none / status=DRAFT / pass_claimed=false; verdict vocab is NO_FIX_NEEDED / FIX_NEEDED_TERMS_FOUND, never PASS"
+  ],
+  "chess_patches_applied": [
+    "runs the REAL DLM dictionary_check over the REAL fixture (no strawman classifier); writes redirected to temp per TH-2 (Lock 5)",
+    "negative fixture is a MINIMAL MUTATION of the real on-disk fixture (one injected term), not a fabricated corpus; the injected term only extracts+flags because it is genuinely undefined",
+    "guard is proven live by a positive-control term already in the dictionary being skipped — the skip is not vacuous",
+    "detector exit contract: non-empty candidate list -> exit 1; a seeded hit proves the nonzero exit is reachable (not an always-exit-0 audit)",
+    "emitter is proposal-only: never opens dictionary_index.json for write; refuses --out == dictionary_index.json"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (dictionary_index.json unmodified; DLM output|receipts untouched via temp-dir redirect; proposal written only inside catalog/builds/BR-2/)",
+    "no live call (no network, no Supabase, no sends, HOME=temp)",
+    "DRAFT-only (proposal status=DRAFT, authority=none, no dispatch)",
+    "wrote only inside my build dir; touched no gate/shared files"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/BR-2/br2_dict_fix_emitter.py",
+    "test": "catalog/builds/BR-2/test_br2_dict_fix_emitter.py",
+    "proposal_on_real_fixture": "catalog/builds/BR-2/dictionary_fix_proposal_v1.json",
+    "red_run_canary": "catalog/builds/BR-2/redrun-canary.txt",
+    "results": {
+      "real_fixture": "NO_FIX_NEEDED candidate_count=0 exit 0",
+      "seeded_mutation": "FIX_NEEDED_TERMS_FOUND, `zorptflux capsule` proposed, exit 1",
+      "positive_control": "`agnostic` NOT re-proposed",
+      "self_runner": "6/6 green",
+      "pytest": "6 passed",
+      "dictionary_index_sha": "unchanged"
+    }
+  }
+}

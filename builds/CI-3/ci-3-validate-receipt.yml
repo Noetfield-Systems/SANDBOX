@@ -1,0 +1,34 @@
+# CI-3 — PROPOSAL workflow (reconciles to .github/workflows/ on founder approval).
+# Demonstrates the reusable validate-receipt composite action on a PR.
+#
+# CI GUARDS (asserted in test_validate_receipt.py):
+#   - permissions: contents: read   (read-only, no write scopes)
+#   - on: pull_request ONLY          (never pull_request_target / push / schedule)
+#   - NO secrets: / env: credentials  (no CF / Supabase / GitHub token refs)
+#   - script runs REPORT-ONLY (--json), never --write-*/--fail-on-block-merge
+#   - NON-BLOCKING: continue-on-error true, findings to job summary, no auto-merge
+name: ci-3-validate-receipt
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate the example cycle receipt (advisory, non-blocking)
+        continue-on-error: true
+        uses: ./catalog/builds/CI-3
+        with:
+          receipt-path: receipts/p0pgr/P0PGR-CYCLE-20260708T131048Z.json
+          schema-path: p0-pgr/P0_PROMPT_LOOP_STATE_SCHEMA_v1.json

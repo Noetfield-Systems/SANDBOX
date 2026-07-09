@@ -1,0 +1,649 @@
+{
+  "lenses": [
+    {
+      "lens": "commercial-founder-control",
+      "likely_misread": [
+        "CO-4: executor reads 'overclaim enforcement ... block patterns on website/public surfaces' as license to run the gate against and REWRITE the live trustfield.ca copy (or scan-in-place the separate TrustField-Technologies repo @ f0f37c8) \u2014 the catalog's own \u26a0 note and Locks 2/9 mean offline dry-run over a fixture ONLY. 'Enforcement' is not 'deploy'; 'CI on web copy' already exists as a reachable live path.",
+        "Anti-downgrade trap on WI-3/WI-6/CO-4: 'clear the UNDEFINED_TERM backlog' / 'externalize the six allowlists' / 'clean up' misread as DELETING CONFLICT_PHRASE + REGULATORY_COPY_RISK + OVERCLAIM_PATTERN entries so a failing P9/P10 gate scan turns green \u2014 that strips the exact regulatory tripwire protecting both ventures' public copy. Simplify/clean = relocate with identical findings, never remove a guard.",
+        "CO-1/CO-2: 'deliverable a client receives' / 'storefront' misread as 'publish it' \u2014 HTML pushed to the www stack (or Vercel), violating Lock 10 (build the file, never push) and making a public priced Operating-Brain offer before the UNLOCK v2 GTM lock the founder controls.",
+        "Phase ordering: the linear B0\u2192B4 list misread as a strict dependency chain, so the executor finishes all ~35 plumbing ideas before touching CO-1, starving the only revenue-facing deliverable though \u00a75 states CO-1 has no dependency on the above.",
+        "CO-2 tier rendering: brain-as-a-service's STAGED proof-gate misread as a flat price list, so Tier-3 'Managed Brain / 24-7 trustworthy unattended / zero-drift proven' and Tier-4 render as AVAILABLE offers \u2014 an overclaim of proven autonomy the doc explicitly gates.",
+        "CO-3: 'synthetic data' misread as 'make it realistic' \u2014 executor swaps the synthetic fixture for a real founder/client token log, pulling private spend data in and emitting a leak_rate the SSOT forbids presenting as a guaranteed-savings claim.",
+        "MO-8: a PASS from the dispatch-check misread as send-authorization, and the empty commercial_pulse queue populated with real ICP-stranger PII to 'test properly' \u2014 Lock 7 keeps send founder_blocked and the draft must stay a labeled test."
+      ],
+      "second_move_risk": [
+        "CO-4 built as a generic block-pattern engine, then move-2 wired to the already-documented 'RPAA positioning CI on web copy' \u2192 it either rewrites live trustfield.ca or, if its patterns drift, PASSES copy that self-claims MSP/PSP/MSB status \u2014 silent regulatory misstatement on a live funnel for an entity Noetfield does not own.",
+        "Guard entries externalized/loosened in WI-3/WI-6/CO-4, then move-2 a P9/P10 or web-copy scan that previously FAILED on overclaims now PASSES \u2014 the overclaim tripwire is gone and nobody notices until public copy has drifted.",
+        "Portfolio starvation: B0-B3 (35 ideas, many M/L) consume all sessions; move-2 the R=0 metabolism problem (11.25k visits/24h, 0 non-test leads) is still untouched because no client-receivable deliverable or lead-capture shipped \u2014 the system hardens plumbing while the survival KPI stays at zero.",
+        "CO-1/CO-2 shipped as local HTML, then move-2 'shared' by pushing to the Cloudflare www stack \u2192 a public priced offer goes live before UNLOCK v2, committing name/price/scope the founder did not ratify.",
+        "CO-3 synthetic scanner, then move-2 pointed at a real Tier-1 engagement emitting a leak_rate headline with no customer receipt (SSOT rule 4) \u2192 a client-facing savings number Noetfield must stand behind.",
+        "MO-8 dispatch-check now returns PASS on a fully-populated draft (queue currently empty), then move-2 approval/send flipped because the readiness result is mistaken for authorization \u2014 Lock 7 founder_blocked bypassed."
+      ],
+      "third_move_consequence": [
+        "CO-4 \u2192 altered or wrongly-passed live trustfield.ca regulatory copy \u2192 RPAA/FINTRAC-adjacent misrepresentation on a live funnel for a SEPARATE, not-yet-incorporated entity ('reserved to be incorporated \u2014 do not claim filed') that Noetfield 'serves, does not own' \u2014 a legal/regulatory claim plus cross-entity control breach Noetfield cannot unilaterally unwind.",
+        "CO-1/CO-2 pushed live \u2192 binding public offer at a stated price \u2192 founder loses GTM sequencing control (UNLOCK v2 fixed-name/price/scope discipline); rendering Tier-3 as available = deceptive-autonomy claim and advertising exposure for an unproven result.",
+        "Plumbing-first path \u2192 three phases of green harnesses with still-zero payment receipts \u2192 the plan optically 'succeeds' (all B0-B3 exits green) while first-dollar is untouched \u2014 portfolio-level governance theater, the exact 'reports green while metabolism is dead' failure the product sells against.",
+        "Deleted overclaim/CONFLICT_PHRASE guards \u2192 both ventures' public copy free to drift into MSP/PSP self-claims with the tripwire removed \u2192 regulatory exposure surfaced only after copy is already public."
+      ],
+      "patches": [
+        "Re-sequence for metabolism: pull CO-1 (client-receivable Brain Coherence Report) into a parallel lane starting at/after B0 per \u00a75 step 5; gate B4's non-commercial breadth (dashboards/CI) behind 'at least one client-receivable deliverable rendered' so revenue work is not last-and-crowded.",
+        "Split CO-4 into CO-4a (OFFLINE: block-pattern engine + dry-run REGULATORY_COPY_RISK report over a CHECKED-IN fixture copy of web text) and CO-4b (wire to any live surface = founder-gated, ASK). Forbid reading/scanning-in-place/writing the TrustField-Technologies repo (f0f37c8) or trustfield.ca; the agent authors NO RPAA/FINTRAC/MSB status assertions.",
+        "Lock-10 reinforcement for every CO/DX HTML: write to a local out/ path, stamp a visible 'DO NOT PUSH \u2014 not for public hosting' banner in the artifact, touch no Cloudflare www / Railway / deploy command, never Vercel (Lock 9).",
+        "Overclaim fence on CO-2/CO-1: render tiers strictly from the brain-as-a-service STAGED gate \u2014 Tier-3/Tier-4 must render as 'LOCKED / proof-gated', never available; run language_gate over the generated HTML and require a clean pass before 'done' (dogfood the overclaim guard).",
+        "Guard-preservation clause (anti-downgrade) on WI-3/WI-6/CO-4: externalizing or 'clearing' allowlists/overlays must be behavior-preserving \u2014 assert pre/post OVERCLAIM_PATTERN + CONFLICT_PHRASE + REGULATORY_COPY_RISK findings are identical (add to TH-3 golden); removing a guard entry is forbidden \u2014 only additions/relocations that pass the diff.",
+        "CO-3 fence: hard-code the synthetic fixture path, forbid ingesting real token logs, watermark every leak_rate 'SYNTHETIC \u2014 not a guaranteed-savings claim; customer receipt required' tied to SSOT rule 4 / \u00a75 out-of-scope.",
+        "MO-8: keep send founder_blocked; make the dispatch-check output state 'readiness score, NOT send authorization'; keep the queue a labeled test draft \u2014 no real ICP-stranger PII."
+      ],
+      "flagged_items": [
+        {
+          "id_or_phase": "CO-4",
+          "why": "Only item with live-venture + regulatory + cross-entity teeth: trustfield.ca is live, RPAA/MSP/PSP positioning, separate not-yet-incorporated entity Noetfield does not own, a documented 'CI on web copy' live path exists. Offline build/prove over a fixture is safe; any wiring to the live surface or the TrustField repo, or agent-authored regulatory assertions, is founder-gated and not unilaterally reversible.",
+          "label": "ASK_IF_IRREVERSIBLE"
+        },
+        {
+          "id_or_phase": "CO-2",
+          "why": "Publishes pricing and tiers; must stay a local-only file (Lock 10, no Vercel/Lock 9), render Tier-3/4 as proof-gated not available (brain-as-a-service STAGED gate), and pass language_gate before done. Safe with those patches; a live push or flat tier list becomes a public priced/overclaimed offer.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-1",
+          "why": "The actual revenue item and lowest-risk. Pull it forward out of B4 to attack R=0; add the Lock-10 no-push banner and render only Tier-1 diagnosis (no autonomy claim). Safe deliverable, just mis-sequenced and needs the no-push/overclaim fence.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-3",
+          "why": "Synthetic-only is safe, but SSOT forbids guaranteed-savings claims and requires receipt-gated claims; fence the fixture path, block real token-log ingestion, and watermark the leak_rate. Prevents a synthetic demo becoming an unreceipted client-facing savings number.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-3",
+          "why": "Clearing the UNDEFINED_TERM backlog must not delete CONFLICT_PHRASE/REGULATORY_COPY_RISK overclaim guards to force a green scan; behavior-preserving with a golden findings diff.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-6",
+          "why": "Externalizing the six hardcoded allowlists is safe only if provably behavior-identical; a loosened allowlist silently disables overclaim enforcement on both ventures' copy. Require a pre/post golden diff.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "MO-8",
+          "why": "Dry-run scoring is Lock-7 compliant, but the output must not read as send-authorization and the queue must not be populated with real ICP-stranger PII. Keep send founder_blocked and draft labeled-test.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "Phase B4",
+          "why": "All three sellable-NOW items plus TrustField regulatory enforcement are stuffed into the final, most-crowded phase behind ~35 plumbing ideas \u2014 the plan over-invests in B0-B3 governance and under-serves the R=0 metabolism target (11.25k visits/24h, 0 leads). Resequence: gate B4 breadth behind a shipped CO-1.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "Phases B0-B3",
+          "why": "Individually reversible/advisory (harnesses, verifiers, wiring, dry-run motors) and safe to proceed \u2014 but collectively they must not consume all capacity ahead of any revenue-facing deliverable; treat CO-1 as a parallel lane, not a successor.",
+          "label": "PROCEED"
+        }
+      ],
+      "lens_action": "PROCEED_WITH_PATCH"
+    },
+    {
+      "lens": "governance-fence",
+      "likely_misread": [
+        "Treat the DLM's self-emitted stage decision:\"PASS\" (dlm_pipeline_v1.py lines 33-113, including apply_map EMPTY->PASS at line 113) as a governance/promotion PASS, and build GV-1/GV-6/DX-1/DX-4/DX-6 to read the .decision field, surfacing a sandbox self-certification as a real gate PASS.",
+        "Wire BR-1 to raw dlm_classify_v1.py output or {run_id}.processed.json instead of the fenced {run_id}.apply_map.json, bypassing the apply-map fence (and GV-6) entirely.",
+        "Read status:\"READY\" + target_form:\"FORM_OFFICIAL\" as submit-authorization and emit non-DRAFT packets or set a form-submit field; the 'never auto-submit' guard is only a note (dlm_apply_map_v1.py line 85), not enforced.",
+        "Build GV-6 by importing and re-running build_apply_map and diffing against itself (author==subject), or by asserting the receipt says decision==PASS, instead of independently checking invariants over a persisted apply_map.json.",
+        "Interpret machine_closed_without_founder as 'already approved, safe to dispatch' rather than 'escaped founder review, must be surfaced.'",
+        "Under Phase-B0/B1 'green on CURRENT behavior', weaken GV-6's strict 'every ADVISOR/FOUNDER_FACT id in picks OR missing_ids' invariant when it fails on the default partial_batch=True READY path (which surfaces dropped founder items nowhere) \u2014 downgrading the fence to make the harness pass.",
+        "Read 'hardens DLM's one governance fence' / catalog 'simplify/minimal' as license to edit build_apply_map: drop the BLOCKED_UNVALIDATED branch, the machine_closed field, or flip the partial_batch default to make outputs uniform."
+      ],
+      "second_move_risk": [
+        "A genuine FOUNDER_FACT mis-clustered into CLUSTER-DICT-FIX is forced to MACHINE_VALIDATABLE by the early-return at classify_item lines 65-69 (which returns before the FOUNDER_FACT loop at line 71); it lands in machine_closed_without_founder, and BR-1 turns it into a dispatchable DRAFT packet the founder never saw.",
+        "BR-1 emits outbox packets; MO-1 clusters them into reusable TPL-* templates whose status slot inherits the DLM apply-map status, minting a template whose default is not DRAFT.",
+        "GV-1/GV-6/DX-4 verdict receipts land in the same receipts/ bus as real gate receipts with no origin marker; a DX-1/DX-6 dashboard renders a sandbox self-check 'PASS' beside genuine promotion-gate output.",
+        "DX-4 reimplements gates/promotion_gate.py success logic, drifts from it, and reports PASS on a deploy the real gate would FAIL_INVARIANT.",
+        "MO-8 scores all 8 dispatchability_predicates 'ready'; a reader treats that as go and the commercial_pulse founder_blocked flag (lock #7) looks stale/removable.",
+        "BR-4 parity test fails and someone 'fixes' parity by treating the sandbox Python validator as source of truth over the live CF worker index.js (locks #2/#3)."
+      ],
+      "third_move_consequence": [
+        "Founder DECIDE authority quietly narrows: the DLM classifier + cluster stage become the sole unchecked arbiter of what never reaches the founder sheet, and BR-1 industrializes that bypass into the dispatch queue \u2014 the exact Author!=Subject / Sina-owns-DECIDE breach, even while every artifact remains labeled DRAFT/advisory.",
+        "A future R3/R4/R5 unlock (currently locked) inherits packets whose founder-bypass provenance is invisible; the first real dispatch closes a founder decision no human ratified.",
+        "A sandbox-emitted PASS propagates into a client-facing Brain Coherence Report (CO-1) or Governance Console (DX-2) and is read as independent verification -> trust-integrity/overclaim exposure for a live venture (adjacent to CO-4's regulatory surface).",
+        "Weakening build_apply_map to satisfy a green harness permanently removes the system's one governance fence, and the removal is invisible because CI stays green."
+      ],
+      "patches": [
+        "GV-6: validate a PERSISTED {run_id}.apply_map.json artifact \u2014 never re-call build_apply_map \u2014 assert invariants independently, IGNORE the receipt's decision field, exit non-zero on violation, and ship a negative fixture (machine_closed intersect picks != empty, or READY with an unvalidated FOUNDER_FACT surfaced nowhere) proving rejection per the Phase-B1 negative-proof exit rule.",
+        "GV-6 invariants to add: (a) target_form==FORM_OFFICIAL implies status in {READY,EMPTY,BLOCKED_UNVALIDATED} AND no submit/auto_submit/dispatch_now field present; (b) under partial_batch=True every ADVISOR_REVIEW/FOUNDER_FACT id appears in picks OR an explicit deferred_unvalidated list. Do NOT relax this invariant to pass current behavior.",
+        "Fence-gap fix (additive, founder-gated): build_apply_map should emit a deferred_unvalidated list in the READY/partial_batch path so dropped founder/advisor items are surfaced instead of silently omitted; treat ANY edit to build_apply_map fence semantics as founder-gated, never a 'simplify/clean'.",
+        "BR-1: consume ONLY the fenced apply_map.json that has passed GV-6; refuse to read dlm_classify_v1.py output or .processed.json directly; bridge only MACHINE_VALIDATABLE items plus advisor items present in validated_picks; exclude FOUNDER_FACT and every unvalidated advisor item; hardcode packet status=DRAFT and dispatch_now=false regardless of apply-map status; carry per-packet classification_reason+evidence_hint provenance; and emit an accompanying machine_closed_without_founder manifest for founder eyes.",
+        "Classifier hardening (flag, do not silently edit): guard classify_item so the CLUSTER-DICT-FIX early-return (lines 65-69) never overrides an item that also matches a FOUNDER_FACT pattern; route this DECIDE-routing change through the founder.",
+        "Receipt hygiene: every sandbox verifier/auditor (GV-1, GV-6, DX-4, BR-4, MO-8) stamps emitted receipts with origin=sandbox-advisory, authority=none, and a verdict vocabulary distinct from the promotion gate (CHECK_OK/CHECK_REJECTED, never PASS); GV-1 and DX-4 reconcile against the recorded gate verdict field and report AUDITOR_DISAGREES_WITH_GATE rather than substituting their own PASS.",
+        "DLM pipeline PASS surface: TH-2 golden and any dashboard must not treat DLM stage decision:PASS (incl. apply_map EMPTY->PASS) as authority \u2014 namespace to STAGE_OK or annotate origin so no reader conflates it with a gate PASS.",
+        "MO-8: emitted artifact hardcodes founder_blocked=true / dispatch_now=false independent of predicate scores (lock #7). BR-4: on mismatch report only; live worker index.js stays the subject-of-record and unedited (locks #2/#3); never auto-reconcile Python->JS."
+      ],
+      "flagged_items": [
+        {
+          "id_or_phase": "BR-1",
+          "why": "Highest Author!=Subject risk: bridges DLM-classified items (including machine_closed_without_founder items and possibly mis-clustered founder facts) into the dispatch queue; must consume only the GV-6-passed apply_map.json, exclude FOUNDER_FACT/unvalidated advisor items, and stay DRAFT/dispatch_now=false.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "GV-6",
+          "why": "The one fence hardener \u2014 but only sound if it validates a persisted artifact independently, ignores the self-emitted decision:PASS, keeps the strict picks-or-missing_ids invariant, and ships a rejecting negative fixture.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "GV-1",
+          "why": "Receipt Verifier must not emit a PASS-labeled verdict into the shared receipt bus; stamp origin/authority and use a non-gate verdict vocabulary so a sandbox self-check cannot be read as a live gate PASS.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "DX-4",
+          "why": "Reimplements the promotion gate's success logic and classifies PASS/FAIL; must reconcile against the recorded gate verdict and report disagreement, never substitute its own authoritative PASS.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-2",
+          "why": "Golden snapshot of DLM classifier/pipeline will lock in decision:PASS stage receipts (incl. apply_map EMPTY->PASS); annotate/namespace so the golden never legitimizes a self-report PASS.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "MO-8",
+          "why": "Dispatchability scoring could be misread as send-authorization; emitted artifact must hardcode founder_blocked/dispatch_now=false regardless of scores (lock #7).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "MO-1",
+          "why": "Template compiler consuming BR-1 packets could mint a template whose status default is not DRAFT; require literal DRAFT default plus a lint rejecting any non-DRAFT status slot.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "BR-4",
+          "why": "Node<->Python parity: on mismatch the live worker is the subject-of-record; report only, never auto-reconcile Python->JS or edit index.js (locks #2/#3).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-5",
+          "why": "Signal Factory verifier already asserts author!=subject and score bounds \u2014 directly aligned with this lens; keep the author!=subject assertion as-is.",
+          "label": "PROCEED"
+        },
+        {
+          "id_or_phase": "build_apply_map (DLM fence semantics)",
+          "why": "Any edit that drops the BLOCKED_UNVALIDATED branch, the machine_closed_without_founder field, or flips the partial_batch default hides a working governance capability (anti-downgrade); the fence is a founder-control surface, so changing its semantics is founder-gated.",
+          "label": "ASK_IF_IRREVERSIBLE"
+        },
+        {
+          "id_or_phase": "Phase B3",
+          "why": "Fuses the two brains; only safe if GV-6 (B1) actually gates BR-1's source apply-map and dispatch_now stays false across BR-1/MO-1/MO-8 emissions.",
+          "label": "PROCEED_WITH_PATCH"
+        }
+      ],
+      "lens_action": "PROCEED_WITH_PATCH"
+    },
+    {
+      "lens": "dependency-sequencing",
+      "likely_misread": [
+        "DX-3 'de-pin the desktop audit apps' read as 'delete the hardcoded REPO path' or 'delete the .app' rather than REPLACE the constant with a git-rev-parse/bundle-relative resolver. It is a portability fix, not a removal.",
+        "WI-1/WI-3/WI-6 'wire overlays / kill UNDEFINED_TERM noise' read as license to DELETE the two orphaned overlay JSONs or the 92 *.language_gate_review.json sidecars instead of LOADING/annotating them (violates LOCK 5 append-only).",
+        "Executor regenerates or re-baselines the TH-3 (and TH-1/TH-2) golden AFTER WI-1/WI-3/WI-6 change allowlist behavior 'to make tests green' \u2014 silently erasing the regression guard the golden existed to provide.",
+        "BR-3 (B3) assumed blocked on GV-3 (B0). Grounding shows BR-3's real dependency scripts/chess_pass_cli_v1.py ALREADY EXISTS; GV-3 is a separate library-internal validator. Executor either waits needlessly or couples BR-3 to the library CLI.",
+        "CO-1 treated as 'parallelizable, no dependency' (catalog Section 5 literally says so) and built before WI-3 \u2014 so the Brain Coherence Report deliverable ships full of UNDEFINED_TERM commercial terms (Managed Deterministic Brain, BaaS HOLD).",
+        "BR-4 started in parallel with GV-2 inside B1 before GV-2's validator artifact exists, so the Node<->Python parity test runs against a stub.",
+        "DX-2 'compose the 4 auditors' built without noticing the apps point at the live sina-governance-SSOT clone, so the Governance Console renders the WRONG repo's JSON as if it were sandbox truth.",
+        "CO-4 'TrustField overclaim enforcement' read as permission to wire the block patterns onto live trustfield.ca copy, not just build+prove offline."
+      ],
+      "second_move_risk": [
+        "TH-3 golden regenerated post-WI-1: every later language_gate/dictionary change rides a baseline that already bakes in WI-1's behavior, so a genuine regression later passes silently.",
+        "DX-2 built on pinned apps (REPO=sina-governance-SSOT): the Governance Console and DX-1/DX-6 dashboards render live-SSOT-repo state, not sg-sandbox state \u2014 founder reads the wrong surface as 'live JSON' (B4 exit criterion is met against the wrong repo).",
+        "BR-4 parity vs a GV-2 stub: differential test passes trivially, masking a real Node/Python receipt-validation divergence that only surfaces when a receipt is later trusted for a promotion decision.",
+        "CO-1/CO-2/CO-3 built before WI-3: deliverable scans dirty; executor patches the allowlist ad hoc to clear it, forking WI-3 and creating two competing sources of the commercial vocabulary.",
+        "BR-1 emits DRAFT packets before GV-1 is trusted: unverified packets pile into receipts/p0pgr/outbox/, then MO-1 clusters those exact unverified packets into reusable TPL-* templates \u2014 propagating a bad packet shape into the 'unit of future autonomy'."
+      ],
+      "third_move_consequence": [
+        "CO-4 offline enforcement wired to live trustfield.ca: crosses LOCK 2 (live CF deploy) and LOCK 9, and changes RPAA MSP/PSP self-claim (regulatory) copy on a live venture surface with no founder receipt \u2014 the one genuinely irreversible, legal-liability move in the plan.",
+        "Silent regression baseline reaches a paying surface: a drifted term flows through into the Tier-1 'sell-now' Brain Coherence Report handed to a client, directly undermining the 'deterministic / definition-stable brain' that IS the product claim.",
+        "Pinned-app dashboards drive founder control decisions (what is GREEN/RED, what to unlock) off the wrong repo's state \u2014 a governance-console that misreports which brain is live.",
+        "Unverified TPL-* templates minted by MO-1 from unchecked BR-1 packets become the reusable autonomy unit; when R3/R4/R5 rungs later unlock, real dispatch rides a template that was never receipt-verified \u2014 the exact failure GV-1 was placed first to prevent."
+      ],
+      "patches": [
+        "Add explicit freeze-order edge: B0 must commit AND freeze the TH-1/TH-2/TH-3 golden baselines before ANY WI-1/WI-3/WI-6 merge. Add guard text: 'a golden diff after a wiring change means INVESTIGATE, never re-baseline to pass.' This is why WI-1 belongs in B2, not at catalog Section-5 step 3 \u2014 make that rationale explicit so a sloppy executor does not pull WI-1 forward.",
+        "Move DX-3 (de-pin, S/high) to the FRONT of B2 (or into B0) and add a hard edge DX-3 -> DX-2. Require DX-1/DX-2/DX-6 to resolve repo root via git-rev-parse/bundle-relative path so sandbox dashboards read sg-sandbox, not the pinned sina-governance-SSOT clone. De-pin = swap the constant for a resolver; do NOT delete the .app bundles.",
+        "Annotate BR-3 builds-on as 'scripts/chess_pass_cli_v1.py (EXISTS)' and add 'BR-3 is NOT blocked by GV-3; do not import the library-internal CLI.' Keep GV-3 as an independent B0 validator with no downstream consumer edge.",
+        "Mark BR-4 with a blocking precondition 'requires GV-2 validator artifact present + self-check passing on the local fixture bundle'; forbid starting the parity test until then. Enforce intra-B1 order GV-2 -> BR-4.",
+        "Correct catalog Section 5's 'CO-1 ... no dependency' note: add edge WI-3 -> CO-1/CO-2/CO-3 (gate-cleanliness). Deliverables must scan UNDEFINED_TERM-clean via the WI-3 overlay before any client hand-off.",
+        "Add a B3 exit sub-gate: every BR-1-emitted packet must pass GV-1 receipt-verify AND BR-3 packet-lint before MO-1 is allowed to cluster the outbox into TPL-* templates; dispatch_now / AUTO_DISPATCH_APPROVED / shadow cron stay untouched (LOCK 1).",
+        "Fence CO-4 to offline build + dry-run report artifact only; add explicit line 'wiring to live trustfield.ca is founder-gated (LOCK 2/9), regulatory, and out of sandbox scope' and route that sub-step to ASK_IF_IRREVERSIBLE.",
+        "Add an append-only reminder on WI-1/WI-3/DX-5: consume/annotate the overlay JSONs and the 92 sidecars in place; never delete or rewrite them (LOCK 5)."
+      ],
+      "flagged_items": [
+        {
+          "id_or_phase": "DX-3",
+          "why": "S-effort/high-value portability fix buried in B4; grounded: generate.py hardcodes REPO=/Users/.../sina-governance-SSOT (a different repo than this sg-sandbox worktree). Must precede DX-2 and should move to B0/early-B2 so any task running the apps reads sandbox state.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "DX-2",
+          "why": "Composes the 4 auditors; renders the WRONG repo's JSON until DX-3 de-pins them. Add hard edge DX-3 -> DX-2 within B4.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-1",
+          "why": "Changes effective_structural_allowlist() behavior; must land AFTER TH-3 golden is committed and frozen, else it invalidates the very baseline. Phase order (B2 after B0) is correct \u2014 lock it so it is not pulled forward.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-3",
+          "why": "Defines the commercial vocabulary (Brain Coherence Report, Managed Deterministic Brain) that CO-1/CO-2/CO-3 emit; is a real precedence dependency for deliverable gate-cleanliness, contradicting the catalog's 'CO-1 has no dependency' claim.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-6",
+          "why": "Externalizes six allowlists \u2014 a gate-behavior change; must follow TH-3 golden freeze like WI-1.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "BR-3",
+          "why": "Its real dependency scripts/chess_pass_cli_v1.py already exists; it is NOT blocked by GV-3 (a separate library-internal validator). Disambiguate to prevent needless waiting or wrong coupling.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "BR-4",
+          "why": "Depends on GV-2 output; both in B1. Enforce GV-2-artifact-present precondition so parity is not tested against a stub.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "BR-1",
+          "why": "Correctly ordered after GV-1 (B1<B3), but add the sub-gate that its emitted packets are GV-1/BR-3-verified before MO-1 templatizes them; dispatch stays false (LOCK 1).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-1",
+          "why": "Cheap/high revenue-facing deliverable; safe to build, but not truly dependency-free \u2014 needs WI-3 first for a gate-clean client artifact.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-4",
+          "why": "Only item with regulatory (RPAA MSP/PSP) teeth on a live venture. Offline build/prove is fine; wiring to live trustfield.ca copy is irreversible, crosses LOCK 2/9, and makes a regulatory claim change.",
+          "label": "ASK_IF_IRREVERSIBLE"
+        },
+        {
+          "id_or_phase": "B0",
+          "why": "Correctly locks harnesses/golden baselines before any behavior-changing wiring \u2014 the load-bearing sequencing decision; keep it strictly first.",
+          "label": "PROCEED"
+        },
+        {
+          "id_or_phase": "DX-7",
+          "why": "S-effort/high-value, zero dependencies, buried in B4; optional pull-forward to parallelize but no ordering hazard.",
+          "label": "PROCEED"
+        }
+      ],
+      "lens_action": "PROCEED_WITH_PATCH"
+    },
+    {
+      "lens": "live-surface-safety",
+      "likely_misread": [
+        "TH-1/DX-4 ('exercise the promotion gate' / 'reproduce the gate's success logic'): a sloppy executor invokes gates/promotion_gate.py with --deploy-command + --confirm-each-time (or --autonomous-deploy) and a PASS-shaped fixture to 'prove teeth'. main() calls load_cloudflare_tokens() UNCONDITIONALLY (line 699), which pulls real CF_MAIN_TOKEN/CF_VERIFIER_TOKEN from ~/.sina/secrets, and execute_deploy_flow runs subprocess.run(args.deploy_command, shell=True) (line 538) \u2014 i.e. a real `wrangler deploy`. The catalog frames these as offline harnesses; nothing in the wording stops an agent from driving the real gate binary with deploy flags.",
+        "BR-4/TH-5 ('assert the Python validator and the CF-worker JS agree on identical fixtures' / 'lift the validation functions'): agent 'closes the loop' by curling the LIVE worker https://sina-governance-ssot-advisory.kazemnezhadsina144.workers.dev/run for a ground-truth receipt. That endpoint mints a real GitHub App installation token (index.js lines 523-525) and writes to the RECEIPTS KV namespace (writeReceipt, lines 599-603) \u2014 a credentialed external call + live KV mutation, not an offline parity test.",
+        "CI-1..CI-5 ('claim the empty PR/push gating surface', 'run the gate over a PR's changed files', 'reusable validate-receipt action'): agent copies the env: blocks from the existing scheduled workflows to make a job 'actually run', importing NOETFIELD_SUPABASE_SERVICE_ROLE_KEY (census/auth-probe) or CF_MAIN_TOKEN/CF_VERIFIER_TOKEN (autorun) into a pull_request-triggered job. Catalog says 'report-only' but never says 'no secrets / no pull_request_target', so the secret plumbing reads as boilerplate to keep.",
+        "MO-8 ('commercial-pulse dispatch dry-run', 'emit per-predicate readiness'): 'dry-run' + an empty queue reads as an invitation to populate a realistic test draft with a real ICP email and advance state toward approved_pending_send/sent to 'exercise the loop'. The deferred MCP toolbelt includes send-email / send-broadcast / send-batch-emails \u2014 a live send is one tool call away from a scorer that returns pass=true.",
+        "CO-4 ('drive REGULATORY_COPY_RISK / RPAA MSP/PSP guards as block patterns on website/public surfaces'): 'on website/public surfaces' + the overlay's live repo pointer (/Users/.../TrustField-Technologies @ f0f37c8) reads as 'run it against, or edit, the real trustfield.ca copy'. A PASS from the enforcement can be misread as a compliance sign-off that copy is safe to publish \u2014 a regulatory determination, not a lint result.",
+        "WI-1/WI-3 ('fold overlay classes into the allowlist to kill UNDEFINED_TERM noise'): 'kill the noise' reads as 'allowlist everything in the overlay', including the CONFLICT_PHRASE and REGULATORY_COPY_RISK entries \u2014 silencing the exact RPAA/MSP/PSP overclaim guards CO-4 is supposed to add. Anti-downgrade: making scans quieter is not permission to disarm a fail-closed regulatory guard.",
+        "MO-6 ('replace one unknown metric with a real count'): the script's own note (write_roi_heartbeat_v1.py line 29) says 'Populate from TrustField cost_event ... when available' \u2014 an agent reads 'real' as 'query live Supabase cost_event', turning a local $0 stub into a live-DB read.",
+        "CI-4 ('git-hooks installer sets core.hooksPath .githooks'): reads as 'run install_git_hooks.sh now' \u2014 which activates the currently-inert pre-commit wiring inside this worktree, directly against Lock 8 ('no new pre-commit wiring; ship standalone CLIs')."
+      ],
+      "second_move_risk": [
+        "A gate 'refusal-teeth' harness (TH-1) or deploy-receipt auditor (DX-4) that shells the real promotion_gate.py with deploy flags fires a live `wrangler deploy` against the secondary CF account the moment a fixture happens to satisfy refusal_reasons()/independence checks \u2014 crossing Lock 2 with zero founder confirmation, because load_cloudflare_tokens() already put real tokens in the environment.",
+        "A parity/offline test (BR-4/TH-5) that hits the live worker /run repeatedly mints GitHub App tokens and appends KV receipts under real credentials; the 'latest' KV key is overwritten each call (index.js line 602), corrupting the live advisory receipt surface the promotion gate later fetches via --receipt-url.",
+        "A CI job authored on `on: pull_request` (or pull_request_target) that inherited a secrets env block leaks NOETFIELD_SUPABASE_SERVICE_ROLE_KEY / CF deploy tokens to any fork PR run \u2014 an exfiltration path; separately, a copied `--write-supabase --write-receipt` census invocation (weekly workflow lines 43-48) fires a live Supabase write on every PR instead of report-only (Lock 6).",
+        "MO-8 'closing the loop' populates commercial_pulse_queue_v1.json with a real stranger's email and flips a draft past founder_blocked; the next actor (or an autorun motor keyed to motor_id cf_cron_commercial_pulse_draft_v1) treats approved_pending_send as dispatchable and a send tool gets called (Lock 7).",
+        "CO-4 enforcement run against, or writing into, /Users/.../TrustField-Technologies (a separate live venture repo outside this sandbox worktree) mutates copy in a repo the sandbox has no authority over, or its PASS is pasted into a publish decision \u2014 the offline lint silently becomes a live-site content gate / compliance attestation.",
+        "WI-1 allowlisting an overlay CONFLICT_PHRASE/REGULATORY_COPY_RISK term makes language_gate stop flagging an MSP/PSP self-claim; the next public-copy scan returns green and the overclaim ships \u2014 the wiring meant to 'recover investment' disarms the regulatory guard.",
+        "Any executor that git-commits and pushes this worktree (branch claude/sandbox-build) to shared origin can, if a future PR merges to main, feed the every-30m brain-loop-autorun (Lock 3, sets BRAIN_CI_AUTONOMOUS=1 and can deploy when CF secrets present) \u2014 a push is two moves from a live deploy even though no push-triggered workflow exists today.",
+        "CI-4 setting core.hooksPath activates the pre-commit language gate mid-build; a subsequent commit unexpectedly fail-closes or auto-rewrites staged files, and the agent 'fixes' the block by weakening the gate \u2014 a self-inflicted downgrade of a fail-closed surface."
+      ],
+      "third_move_consequence": [
+        "An unattended live Cloudflare deploy of sourcea-brain-chat-v1 from a test harness = an unverified brain in production with no founder confirmation and no rollback drill receipt \u2014 exactly the autonomous-deploy path the whole D4/promotion-gate trust boundary exists to prevent; reputational + operational exposure on a live venture surface.",
+        "A leaked Supabase service-role key or CF deploy token from a fork-PR CI run is a full credential compromise: attacker can write/delete WORKFLOW_CENSUS rows and deploy arbitrary Workers \u2014 irreversible until keys are rotated, and rotation itself breaks the live census/autorun fleet.",
+        "A single real outbound commercial email (CASL-governed, per the FORBIDDEN_ENTITY_TOKENS + casl_mailing_address/unsubscribe predicates) sent from a 'dry-run' is a binding external contact under Canadian anti-spam law \u2014 unrecallable, and it torches the founder_blocked posture that keeps the commercial loop legally safe.",
+        "A wrong CO-4 PASS used to justify RPAA/MSP/PSP wording on trustfield.ca is a regulatory-liability event for a live fintech-adjacent venture (mis-stating licensed-entity status) \u2014 the one item in the catalog with direct legal teeth; a false green here is materially worse than no check at all.",
+        "Silently allowlisting a regulatory/overclaim term (WI-1) means the guard reports clean forever after; the drift is invisible in receipts and only surfaces when a regulator or partner reads the published claim \u2014 the failure is discovered externally, at the worst possible time.",
+        "Live KV corruption of the advisory 'latest' receipt makes the promotion_gate's --receipt-url fetch either refuse valid deploys or, if the corrupted receipt looks PASS-shaped, weakens the independence proof the gate relies on \u2014 undermining the trust spine Phase B1 is trying to build."
+      ],
+      "patches": [
+        "Gate harnesses (TH-1, DX-4, GV-5): NEVER invoke gates/promotion_gate.py with --deploy-command, --confirm-each-time, --semi-auto-window, or --autonomous-deploy. Import and unit-test the PURE functions only (refusal_reasons(), independence_refusal_reasons(), source_refusal_reasons(), write_deploy_receipt()); if the CLI must run end-to-end, run it with NO deploy flags so it exits at 'APPROVED_DRY_RUN' (return 0, deploy_executed:false). Run under env with CF_MAIN_TOKEN/CF_VERIFIER_TOKEN unset and HOME pointed at a temp dir so cf_tokens.py finds no ~/.sina/secrets. DX-4 must re-implement the success logic in a fresh read-only module, not call the gate.",
+        "Worker parity/replay (BR-4, TH-5): assert only against local captured fixtures under receipts/. Add an explicit rule: do not fetch the live worker URL (sina-governance-ssot-advisory.*.workers.dev) or POST /run; the lifted JS validation functions run offline in Node/pytest. If a golden 'known-good' receipt is needed, use a committed fixture, never a fresh KV read.",
+        "CI-1..CI-5: mirror the shadow-cycle workflow's safe shape \u2014 `permissions: contents: read` only, trigger `on: pull_request` (NEVER pull_request_target, NEVER push, NEVER schedule), and NO `secrets:` / `env:` credential references at all. Jobs invoke scripts in report-only mode (--json, never --write-supabase/--write-receipt/--fail-on-*-that-blocks-merge), post findings as a job summary, and are non-blocking (no auto-merge, Lock 4). Do not copy env blocks from census/auth-probe/autorun workflows. Do not touch brain-loop-autorun-v1.yml (Lock 3) or uncomment any cron (shadow-cycle lines 15-16).",
+        "MO-8: keep commercial_pulse_queue_v1.json queue [] on disk; run the checker only against a SYNTHETIC draft fixture in /tmp or test_fixtures with a fake icp_stranger_id and example.com address. Never advance state past 'idle'/'founder_blocked', never write into the real queue, and NEVER call any send/broadcast MCP tool (send-email, send-batch-emails, send-broadcast, create-broadcast). Assert in the harness that the highest state reached is founder_blocked.",
+        "CO-4: build enforcement + a dry-run REPORT ONLY. Read the overlay index and OVERCLAIM_PATTERNS in-sandbox; do NOT open, cd into, or write to /Users/.../TrustField-Technologies, and do NOT run against or deploy to trustfield.ca. Label every output DRAFT/ADVISORY and add a banner: 'lint result, not a legal/compliance determination; publishing copy is a founder-gated decision.' Founder decides any wiring to the live site.",
+        "WI-1/WI-3: only allowlist classes that are provably non-vocabulary (COMMAND_FRAGMENT, STATUS_LABEL, TRUSTFIELD_LOCAL_TERM, SG_DICTIONARY_TERM). Explicitly EXCLUDE CONFLICT_PHRASE and REGULATORY_COPY_RISK entries \u2014 assert in the guarding test that a known RPAA/MSP/PSP overclaim string still produces an OVERCLAIM/BANNED_SURFACE finding after the overlay is wired. Never add terms to OVERCLAIM_PATTERNS' escape hatch.",
+        "MO-6: populate blocker_count from LOCAL census/receipt JSON files already on disk only; do not open any Supabase connection or read cost_event live. Keep the existing 'no fabrication' contract \u2014 if the count can't be derived from local receipts, keep 'unknown'. Append a new timestamped receipt (existing pattern), never overwrite prior heartbeats (Lock 5).",
+        "CI-4: ship install_git_hooks.sh as a standalone, founder-run script only. Do NOT execute it, do NOT set core.hooksPath in this worktree or in any CI job, and do NOT add a blocking 'hooks-present' PR check (Lock 8). A report-only 'hooks are inert' notice is the most it may do.",
+        "Global: run all Phase B0-B4 work with CF/Supabase secrets absent from the environment and treat any live URL (workers.dev, *.supabase.co, trustfield.ca, api.github.com via the App) as out-of-bounds for automated calls. Do not `git push` this worktree; commits stay local (Lock 9 deploy fence)."
+      ],
+      "flagged_items": [
+        {
+          "id_or_phase": "CO-4",
+          "why": "Only catalog item with direct regulatory-liability teeth on a LIVE venture (trustfield.ca, RPAA/MSP/PSP status). Overlay points at a separate live repo (/Users/.../TrustField-Technologies @ f0f37c8); a PASS can be misread as a compliance sign-off to publish, and enforcement could write into a repo the sandbox has no authority over. Catalog itself flags it \u26a0 and calls live gating a founder-gated deploy. Build+prove offline is safe; touching the live site or attesting compliance is not.",
+          "label": "ASK_IF_IRREVERSIBLE"
+        },
+        {
+          "id_or_phase": "MO-8",
+          "why": "Commercial-pulse dispatch dry-run sits one tool-call away from a live CASL-governed outbound send (send-email/send-broadcast MCP tools are loadable). Safe as a pure scorer against a synthetic draft with send founder_blocked; must never populate the real queue, advance state, or call a send tool (Lock 7).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "Phase B4 CI-1..CI-5",
+          "why": "Claims the empty PR-gating surface. Safe only if jobs are contents:read, on pull_request (never pull_request_target/push/schedule), carry NO secrets, run scripts report-only (--json, no --write-supabase), and never auto-merge. High drift risk from copying the census/auth-probe/autorun env blocks, which would leak Supabase service-role / CF deploy tokens to fork PRs.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-1",
+          "why": "Promotion-gate refusal harness must exercise only the pure refusal functions or run flagless (APPROVED_DRY_RUN). main() unconditionally loads real CF tokens and execute_deploy_flow shells the deploy command, so any run with deploy flags + a PASS-shaped fixture can fire a live `wrangler deploy` (Lock 2). Neuter env (no CF tokens, temp HOME).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "DX-4",
+          "why": "Deploy-receipt auditor must RE-IMPLEMENT the gate's success logic in a read-only module, not invoke promotion_gate.py. Same live-deploy exposure as TH-1 if it drives the real gate binary.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "BR-4",
+          "why": "Node<->Python verifier parity must run against local committed fixtures. Do not curl the live worker /run \u2014 that mints a real GitHub App installation token and overwrites the live 'latest' KV receipt (index.js lines 523-525, 602).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-5",
+          "why": "Offline receipt-replay must feed captured fixtures to the LIFTED JS functions in a scratch module; no calls to the live advisory worker or its KV.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-1",
+          "why": "Wiring overlays to kill UNDEFINED_TERM noise must not allowlist CONFLICT_PHRASE / REGULATORY_COPY_RISK classes \u2014 doing so disarms the very RPAA/MSP/PSP overclaim guard CO-4 depends on. Add a regression assert that a known overclaim still fails after wiring (anti-downgrade).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-3",
+          "why": "NOETFIELD product overlay clears UNDEFINED_TERM backlog but must preserve overclaim/regulatory flagging; same disarm risk as WI-1.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "MO-6",
+          "why": "ROI heartbeat populator must derive blocker_count from local receipts only; the script's own note nudges toward live TrustField cost_event (Supabase) \u2014 a live-DB read that crosses Lock 6. Keep the no-fabrication contract.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CI-4",
+          "why": "Git-hooks installer must stay a standalone founder-run CLI; do not set core.hooksPath in the worktree/CI and do not add a blocking hooks-present check (Lock 8). Reversible, but must not be activated during the build.",
+          "label": "PROCEED_WITH_PATCH"
+        }
+      ],
+      "lens_action": "PROCEED_WITH_PATCH"
+    },
+    {
+      "lens": "anti-theater-drift",
+      "likely_misread": [
+        "TH-1 'assert the gate REFUSES with exit 2': a sloppy executor asserts only returncode==2. In promotion_gate.py exit 2 is returned by 4+ unrelated paths (refusal_reasons non-empty L722, semi-auto window inactive L729, source BLOCKED L740, and the unconditional 'unattended --execute-deploy is disabled' branch L753). A non-PASS fixture run with --execute-deploy returns 2 via L753 EVEN IF the status check at L222 were deleted \u2014 the harness stays green while the refusal teeth are gone.",
+        "WI-1/WI-3 'kill the UNDEFINED_TERM noise' read as 'suppress warnings by dumping every overlay entry into the allowlist'. decide() (L591) only WARNs on UNDEFINED_TERM, so broadening effective_structural_allowlist() removes signal, not errors \u2014 and the same trustfield/sourcea overlay JSONs that CO-4 needs as OVERCLAIM/REGULATORY BLOCK patterns get folded into the ALLOW path, defanging the one idea with regulatory teeth.",
+        "WI-6 'externalize the six hardcoded allowlists to JSON' read as 'delete the Python constants and rely on the JSON'. effective_structural_allowlist() only unions the supplement ON TOP of the hardcoded sets (L179-185) and silently skips it when SUPPLEMENT_PATH.is_file() is False, so deleting the constants shrinks the allowlist to whatever the JSON happens to contain \u2014 a downgrade dressed as a refactor. The module-global _RUNTIME_STRUCTURAL cache (L172,178) also serves stale results to any test that loads before externalization.",
+        "GV-1/B1 exit 'reproduces known-good AND rejects a known-bad' read as 'hand-author one passing fixture and one failing fixture'. Since the only real exec receipt (P0PGR-EXEC-M03) is PARTIAL and missing founder_authorization_ref + evidence_artifacts, there is NO conformant known-good on disk; the tempting shortcut is to relax the verifier (make founder_authorization_ref optional / accept re-narrated per_url markers as evidence) so a synthetic good fixture passes \u2014 which simultaneously makes the real bad receipt pass.",
+        "B0 exit 'all harnesses green on CURRENT behavior; golden baselines committed' read as 'snapshot whatever the code emits today and commit it'. A golden-only harness (TH-2 counts, TH-6 --no-llm snapshot, TH-3 current decisions) is green BY CONSTRUCTION and freezes any existing bug as the baseline; it has no fixture that can ever go red, so it certifies 'locked' without teeth.",
+        "GV-4/WI-4 'print any dangling ref' and MO-2/MO-7 'print hits' read as report-only scripts that always exit 0 \u2014 mirroring the existing audit_* motors the kit table flags as 'always exit 0, surface never gate'. A linter that cannot fail is decoration.",
+        "DX-4 'reproduces the gate's success logic' read as 're-implement deploy_success = exit0 and identity_ok and smoke_ok and post_promote_ok in the dashboard', forking a second copy of the trust rule that drifts from gates/promotion_gate.py L448.",
+        "GV-6 'assert every ADVISOR/FOUNDER_FACT id is in picks or missing_ids' read as validating only the partial_batch=False path; under the DEFAULT partial_batch=True there is no missing_ids key and unvalidated advisor items are silently dropped (L58-68), so a validator tested only on the non-default branch passes while the real leak is unguarded."
+      ],
+      "second_move_risk": [
+        "After TH-1 lands as a green 'refusal teeth' harness, the next hand on promotion_gate.py (e.g., GV-5 gate-profile linter or a later tuning) can weaken REQUIRED_STATUS or the L222 status check and the suite stays green because it only pins the overloaded exit code, not the specific reason string \u2014 the load-bearing deploy boundary loses teeth with a passing test as cover.",
+        "After WI-1 broadens the allowlist to clear UNDEFINED_TERM noise, TH-3's regression harness (built on only 4 fixtures in language_gate/test_files/) can't see the change: none of clean/violations/tombstone/cold_session exercise the 165 overlay terms, so WI-1 can allowlist arbitrarily and TH-3 stays green \u2014 the 'regression guard' guards nothing over the exact edit it was meant to catch.",
+        "After GV-1 is tuned to pass a fabricated known-good, the verifier is never run against the real P0PGR-EXEC-M03 receipt, so when a future real execution emits the same shape (PARTIAL, round timestamp, no founder_authorization_ref, re-narrated markers instead of stored evidence_artifacts) it is ACCEPTED \u2014 the adversarial spine the whole B1 phase exists to build is inverted into a rubber stamp.",
+        "After WI-6 deletes the Python allowlist constants, WI-1's overlay merge and any language_gate scan silently depend on a JSON that can fail to load (is_file() False -> skipped), so a later move on a fresh checkout or a moved file path shrinks the effective allowlist, re-flagging previously-clean surfaces and generating FAIL/ WARN noise attributed to unrelated content.",
+        "After MO-6 populates one 'unknown' ROI metric and DX-6/DX-8 render 'from live JSON', the dashboards present a mostly-stub surface (write_roi_heartbeat still emits 'unknown', brain bundle_sha256=null, governance_stale_pointer_queue empty) as if complete \u2014 an empty sink renders as '0 issues / all clear' rather than 'nothing populated this'.",
+        "After DX-4 re-implements the gate success logic, a change to promotion_gate.py's invariant set two moves later leaves the auditor asserting PASS on a deploy the real gate would BLOCK \u2014 a divergence that specifically hides a regression in the trust boundary."
+      ],
+      "third_move_consequence": [
+        "A defanged CO-4 (trustfield overlay wired as allowlist by WI-1 instead of block patterns) lets a real REGULATORY_COPY_RISK / RPAA MSP-PSP self-claim reach the live trustfield.ca surface uncaught \u2014 the M03 receipt shows the site already carries 'venture in formation / does not hold funds/settle / not legal advice' disclaimers whose absence is exactly what CO-4 must enforce; a false 'no overclaim' PASS becomes a regulatory-liability exposure for a live venture, not just a sandbox blemish.",
+        "A GV-1 verifier trained to accept fabricated good receipts means the founder's only guard against agent self-report theater is dead precisely when Phase-2/R-ladder execution starts emitting real receipts \u2014 the founder-control invariant (never trust a PASS without evidence) is silently voided while the scoreboard still reads TRUST-SPINE COMPLETE.",
+        "Golden-only B0 harnesses committed as 'the board is locked' give false confidence for the entire downstream sequence (BR-1 bridge, MO motors) to build on behavior that was never correctness-checked, only snapshotted \u2014 a latent DLM or language_gate misclassification propagates into every DRAFT packet the bridge emits, and the 'green baseline' is cited as proof it's safe.",
+        "Dashboards (DX-1/DX-6/DX-8) rendering stale/empty sinks as current state become the founder's decision surface; a founder reading 'governance_stale_pointer_queue: 0' as 'no stale laws' rather than 'the sweep never ran' makes a governance call on absence-of-signal \u2014 theater at the exact layer meant to restore founder oversight.",
+        "Linters that only print and exit 0 (GV-4/WI-4/MO-2/MO-7) let dangling registry refs and dead motors accumulate silently; two phases later the registry cross-consistency the CI jobs (CI-1..CI-5) are supposed to enforce is already rotten, so the 'PR gating surface' is claimed as covered while passing garbage."
+      ],
+      "patches": [
+        "TH-1: assert on the SPECIFIC refusal cause, not the exit code alone \u2014 grep stdout for \"receipt status is\" / \"independence receipt is not PASS\" from refusal_reasons()/independence_refusal_reasons(), and REQUIRE a positive control: a fully-conformant PASS receipt fixture must yield 'PROMOTION_GATE: APPROVED_DRY_RUN' exit 0. A harness that only proves refusal (a gate that crashes/refuses-everything trivially passes) is rejected. Do not invoke any deploy flag (--confirm-each-time/--semi-auto/--autonomous) in the test \u2014 keep it dry-run so no lock is touched.",
+        "Every GV-* and TH-5 verifier ships BOTH a positive fixture it accepts and a negative fixture it rejects, and the negative must be produced by MINIMAL MUTATION of a real on-disk artifact (flip one field), not authored from scratch \u2014 this proves the teeth bite on realistic input, not a strawman. Add a 'canary' assertion: the harness must demonstrably go RED (commit the red run output) before being declared green.",
+        "GV-1 specifically: run against the REAL receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json and record its verdict as REJECTED with cited reasons (missing founder_authorization_ref, missing evidence_artifacts, quality_state=PARTIAL not PASS, round :00 timestamp). Forbid relaxing any P0_EXECUTION_RECEIPT_SCHEMA_v1.json required field to make a synthetic good fixture pass; the known-good must be a minimally-mutated conformant receipt. Emit a NEW verdict receipt beside it \u2014 never edit M03 (Lock 5 append-only).",
+        "WI-1/WI-3/CO-4: classify each overlay entry by INTENT before wiring \u2014 allow-terms go to the allowlist, regulatory/overclaim terms go to OVERCLAIM/BLOCK patterns; never blanket-fold trustfield_dictionary_overlay_index_v1.json into effective_structural_allowlist(). Add a fixture with a known RPAA/MSP-PSP self-claim and assert decide() still returns FAIL after WI-1 lands, and a fixture with a legitimately-undefined term that must still WARN \u2014 proving noise was cut without deleting signal.",
+        "WI-6 (and mirror on WI-1): make externalization ADDITIVE-PARITY \u2014 load the JSON, assert the resulting set is byte-identical (==) to the current hardcoded STRUCTURAL/STATUS_LABEL/FRAGMENT/TECH_REFERENCE/CENSUS_VERB/ENTITY sets BEFORE removing any Python constant; keep the constants as the fallback when SUPPLEMENT_PATH is absent; reset the _RUNTIME_STRUCTURAL/_RUNTIME_ENTITY caches in the test. 'Externalize' means reviewable-copy, never delete-the-source-of-truth.",
+        "TH-2/TH-3/TH-6 (and TH-4): a golden snapshot is not sufficient \u2014 each harness must also hand-assert at least one CORRECT expected value (not just 'whatever it emits') and include one deliberately-broken input whose FAIL/WARN classification is asserted, so the suite can distinguish 'unchanged' from 'correct'. For TH-2 add per-item expected class on ~5 hand-labeled items (counts alone hide offsetting misclassifications).",
+        "GV-4/WI-4/MO-2/MO-7: exit NONZERO on any dangling ref / dead motor / stale-law hit (do not follow the audit_* always-exit-0 pattern), and prove teeth by seeding one known-bad ref/pattern, showing RED, then GREEN after removal. MO-7 needs a positive-control surface known to contain a stale-law pattern so a zero-hit result can't be a broken-regex false-clean.",
+        "GV-6: build the negative fixture in the DEFAULT partial_batch=True mode with an unvalidated ADVISOR/FOUNDER_FACT item and assert the validator flags it as silently dropped (present in neither picks, machine_closed, nor deferred) \u2014 do not only test partial_batch=False where missing_ids exists. Assert machine_closed never overlaps picks and status is never a FORM_OFFICIAL auto-submit.",
+        "DX-4: import and call the gate's own success predicate (or assert against its written deploy receipt) rather than re-implementing deploy_success; add the already-recorded FAILED_INVARIANT deploy (receipts/phase0.3-step10a-watched-deploy-receipt.json) as a fixture that MUST classify FAIL \u2014 verify it renders FAIL, not merely appears in the table.",
+        "B4 dashboards (DX-1/DX-6/DX-8) + MO-6: distinguish EMPTY-SINK / STUB / STALE from CLEAN \u2014 render 'unknown'/null/empty-queue fields with an explicit UNPOPULATED or source-mtime freshness badge, never as 0/blank that reads as 'all clear'. Strengthen the B4 exit criterion from 'render from live JSON' to 'render with per-source freshness and empty-vs-clean distinction'."
+      ],
+      "flagged_items": [
+        {
+          "id_or_phase": "TH-1",
+          "why": "Exit code 2 is overloaded across 4+ paths in promotion_gate.py (L722/729/740/753); asserting only returncode==2 lets the status refusal at L222 be deleted with the test still green. Needs reason-string assert + a PASS positive control.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "GV-1",
+          "why": "Only real exec receipt (P0PGR-EXEC-M03) is PARTIAL and missing founder_authorization_ref + evidence_artifacts, so there is no conformant known-good on disk; risk is relaxing the schema to pass a fabricated fixture, which also passes the real bad receipt. Must run against the real receipt and reject it.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-1",
+          "why": "Broadening effective_structural_allowlist() to kill UNDEFINED_TERM noise deletes WARN signal, and folds the trustfield/sourcea overlays into the ALLOW path \u2014 colliding with CO-4's need for them as BLOCK patterns. Needs intent-classification + a still-must-FAIL fixture.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-3",
+          "why": "Same overlay-as-allowlist hazard as WI-1 for the NOETFIELD commercial overlay clearing the UNDEFINED_TERM sidecar backlog; suppressing sidecar warnings can mask terms that should stay flagged. Assert a legitimately-undefined term still WARNs.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-6",
+          "why": "'Externalize' can be misread as deleting the hardcoded allowlist constants; the merge path only unions the supplement on top and silently skips a missing file, so deletion downgrades the gate. Require additive-parity (assert identical set) before removing constants; reset the module cache.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "CO-4",
+          "why": "The one idea with real regulatory teeth; offline build/prove is sandbox-safe but it can be silently defanged by WI-1's allowlist wiring, and OVERCLAIM must stay a hard FAIL in decide(). Needs a rejected RPAA/MSP-PSP self-claim fixture; live copy wiring stays founder-gated (out of scope).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "GV-6",
+          "why": "DLM build_apply_map defaults partial_batch=True, which bypasses the BLOCKED_UNVALIDATED fence and silently drops unvalidated advisor/founder items with no missing_ids key; a validator tested only on partial_batch=False passes while the real leak is unguarded.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "GV-4",
+          "why": "'Print any id present in one registry but missing in another' risks becoming an always-exit-0 surface like the existing audit_* motors; a linter that cannot fail is decoration. Must exit nonzero and prove RED-before-GREEN on a seeded dangling ref.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "WI-4",
+          "why": "Same exit-0 report-only hazard for the retires_trigger_ids reconciler; B2 exit 'reconciler clean' is unfalsifiable unless it can go red. Seed a dangling ref, show red, then clean.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "DX-4",
+          "why": "'Reproduces the gate's success logic' forks a second copy of deploy_success (promotion_gate.py L448) that drifts from the real gate; must call the gate's own predicate and prove it classifies the recorded FAILED_INVARIANT deploy as FAIL.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "Phase B0",
+          "why": "Exit criterion 'all harnesses green on CURRENT behavior' is satisfiable by golden-only snapshots that freeze existing bugs and can never go red; each B0 harness (TH-1..TH-6, GV-3..GV-5, WI-7) must ship a red-capable fixture + at least one hand-asserted correct value.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-2",
+          "why": "Snapshotting classification COUNTS as golden hides offsetting misclassifications and freezes any current classifier bug; add per-item expected class on a few hand-labeled items plus a canary input.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-5",
+          "why": "'Feed captured non-PASS fixtures' proves rejection only; a replay verifier that rejects everything passes. Add a PASS positive control that must be ACCEPTED.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "TH-4",
+          "why": "New eval suites where every authored scenario passes on first write prove nothing; mirror pr-conflict-resolver's harness by including negative scenarios the skill must catch (a measurable lift over a failing baseline).",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "Phase B4",
+          "why": "'Dashboards render from live JSON' lets DX-1/DX-6/DX-8 + MO-6 present stub/empty/stale sources (write_roi_heartbeat 'unknown', bundle_sha256=null, empty governance queue) as CLEAN; require freshness badges and empty-vs-clean distinction so absence-of-signal isn't read as all-clear.",
+          "label": "PROCEED_WITH_PATCH"
+        },
+        {
+          "id_or_phase": "MO-7",
+          "why": "'Print hits' can false-clean on a broken regex (zero hits looks like a clean surface); needs a positive-control surface known to contain a stale-law pattern to prove detection, and nonzero exit on real hits.",
+          "label": "PROCEED_WITH_PATCH"
+        }
+      ],
+      "lens_action": "PROCEED_WITH_PATCH"
+    }
+  ],
+  "synth": {
+    "chess_pass": {
+      "move": "Execute the 50-idea, 5-phase sandbox build plan (B0 harnesses -> B1 negative-proof verifiers -> B2 orphan wiring -> B3 DLM<->P0-PGR bridges + motors -> B4 dashboards + commercial deliverables + report-only CI), all framed as reversible, advisory, in-sandbox work under the 10 locks.",
+      "immediate_goal": "Lock the board with red-capable harnesses and frozen golden baselines, stand up verifiers that each reject a real known-bad, recover orphaned overlay/allowlist investment, fuse the two brains through DRAFT-only bridges, and surface state + one client-receivable deliverable \u2014 with zero live-behavior change and no lock crossed.",
+      "protected_assets": [
+        "The 10 locks (no P0-PGR exec beyond read-only ranking; dispatch_now/AUTO_DISPATCH_APPROVED/shadow-cron stay off; no live CF deploy; brain-loop-autorun-v1.yml untouched; no auto/self-merge; append-only receipts; no live Supabase writes; no outbound sends; no new pre-commit/hooks wiring; deploy fence / never Vercel; deliverables local-only never pushed)",
+        "Founder DECIDE authority / Author!=Subject invariant \u2014 the DLM classifier+cluster stage must not become the sole unchecked arbiter of what never reaches the founder sheet",
+        "The DLM governance fence in build_apply_map: BLOCKED_UNVALIDATED branch, machine_closed_without_founder field, partial_batch default, FORM_OFFICIAL no-auto-submit note",
+        "Regulatory/overclaim guards: CONFLICT_PHRASE, REGULATORY_COPY_RISK, OVERCLAIM_PATTERNS in language_gate (RPAA/MSP/PSP tripwire for trustfield.ca and NOETFIELD copy)",
+        "The hardcoded structural allowlist constants (source-of-truth) that WI-6 externalizes",
+        "Frozen golden baselines (TH-1/TH-2/TH-3) as the regression datum",
+        "Live CF worker index.js + its RECEIPTS KV 'latest' key; live Supabase (cost_event/census); GitHub App installation tokens",
+        "TrustField-Technologies live repo (f0f37c8) and trustfield.ca copy \u2014 a separate not-yet-incorporated venture Noetfield serves but does not own",
+        "GTM sequencing control (UNLOCK v2 fixed name/price/scope; brain-as-a-service STAGED proof gate)"
+      ],
+      "likely_misread": [
+        "Treat the DLM's self-emitted stage decision:PASS (incl. apply_map EMPTY->PASS) as a governance/promotion PASS, and build GV-1/GV-6/DX-1/DX-4/DX-6 to read the .decision field \u2014 surfacing a sandbox self-certification as a real gate PASS",
+        "Wire BR-1 to raw dlm_classify output / {run_id}.processed.json instead of the fenced apply_map.json, bypassing GV-6 and the apply-map fence entirely",
+        "Read 'assert the gate REFUSES with exit 2' as asserting only returncode==2 \u2014 but exit 2 is overloaded across 4+ paths, so the status refusal at L222 could be deleted and the harness stays green; and drive promotion_gate.py with --deploy-command/--confirm-each-time/--autonomous, whose main() unconditionally loads real CF tokens and shells `wrangler deploy`",
+        "Read 'kill UNDEFINED_TERM noise' / 'externalize the six allowlists' / 'clean up' as license to dump overlay entries (incl. CONFLICT_PHRASE/REGULATORY_COPY_RISK) into the allowlist or delete the hardcoded constants \u2014 disarming the regulatory tripwire and downgrading the gate under an anti-downgrade violation",
+        "Read GV-1's 'reproduce known-good AND reject known-bad' as hand-authoring a passing fixture \u2014 there is no conformant known-good on disk (real P0PGR-EXEC-M03 is PARTIAL, missing founder_authorization_ref/evidence_artifacts), so the shortcut is to relax the schema until a synthetic good passes, which also passes the real bad receipt",
+        "Treat golden-only snapshots (TH-2 counts, TH-6, TH-3) as 'the board is locked' \u2014 green by construction, freezing existing bugs as baseline with no fixture that can ever go red; and treat report-only linters (GV-4/WI-4/MO-2/MO-7) as always-exit-0 decoration",
+        "Read CO-4 'block patterns on website/public surfaces' / 'CI on web copy' as license to scan-in-place or rewrite the live trustfield.ca copy or the separate TrustField repo, and read a lint PASS as a regulatory/compliance sign-off to publish",
+        "Read CO-1/CO-2 'deliverable a client receives' / 'storefront' as 'publish it' (push HTML to www/Vercel), and render Tier-3/Tier-4 proof-gated autonomy tiers as AVAILABLE offers",
+        "Read MO-8 'dispatch dry-run' PASS as send-authorization and populate the empty commercial_pulse queue with real ICP-stranger PII to 'test properly'",
+        "Treat the linear B0->B4 list as a strict dependency chain, finishing ~35 plumbing ideas before any revenue deliverable; and re-baseline TH-3 golden AFTER WI-1/WI-3/WI-6 change allowlist behavior 'to make tests green', erasing the regression guard",
+        "Build DX-1/DX-2/DX-6 on the pinned desktop apps (REPO=sina-governance-SSOT) so dashboards render the WRONG repo's JSON as sandbox truth; and interpret machine_closed_without_founder as 'already approved, safe to dispatch'"
+      ],
+      "second_move_risk": [
+        "A genuine FOUNDER_FACT mis-clustered by the classify_item early-return (L65-69 returns before the FOUNDER_FACT loop) lands in machine_closed_without_founder, and BR-1 turns it into a dispatchable DRAFT packet the founder never saw; MO-1 then clusters BR-1's unverified packets into reusable TPL-* templates whose status slot inherits a non-DRAFT default",
+        "A gate 'refusal-teeth' or deploy-auditor harness that shells the real promotion_gate.py with deploy flags fires a live `wrangler deploy` the moment a fixture satisfies refusal/independence checks (Lock 2) \u2014 tokens already loaded by main()",
+        "A BR-4/TH-5 parity test that curls the live worker /run mints a real GitHub App token and overwrites the live 'latest' KV receipt the promotion gate later fetches; or BR-4 vs a GV-2 stub passes trivially, masking a real Node/Python divergence",
+        "A CI job authored on pull_request_target (or that copies census/autorun env blocks) leaks NOETFIELD_SUPABASE_SERVICE_ROLE_KEY / CF deploy tokens to fork PRs, or fires a live --write-supabase census on every PR (Lock 6)",
+        "WI-1/WI-6 allowlisting or deleting a regulatory/overclaim term makes language_gate stop flagging an MSP/PSP self-claim; a later public-copy scan returns green and the overclaim ships \u2014 and because the JSON supplement is silently skipped when the file is absent, deleting the Python constants shrinks the effective allowlist and re-flags previously-clean surfaces",
+        "GV-1 tuned to accept a fabricated good is never run against the real M03; when real R-ladder execution emits the same shape it is ACCEPTED \u2014 the adversarial spine inverts into a rubber stamp",
+        "MO-8 populates the queue with a real stranger's email and advances past founder_blocked; the next actor treats approved_pending_send as dispatchable and a send tool is one call away (Lock 7)",
+        "CO-1/CO-2 shipped local then 'shared' by pushing to the www stack -> a public priced/overclaimed offer goes live before UNLOCK v2; portfolio starves as B0-B3 consume all sessions while R=0 (11.25k visits/24h, 0 non-test leads) stays untouched",
+        "Pinned-app dashboards render sina-governance-SSOT state as 'live JSON', so the founder reads the wrong repo as sandbox truth; DX-4 re-implements deploy_success and drifts from promotion_gate.py, reporting PASS on a deploy the real gate would BLOCK",
+        "Sandbox verdict receipts land in the shared receipts/ bus with no origin marker; a DX-1/DX-6/DX-2 dashboard or a client-facing CO-1 Brain Coherence Report renders a sandbox self-check 'PASS' beside genuine promotion-gate output"
+      ],
+      "third_move_consequence": [
+        "Founder DECIDE authority quietly narrows: the DLM classifier+cluster becomes the sole unchecked arbiter of what never reaches the founder sheet and BR-1 industrializes that bypass into the dispatch queue \u2014 the Author!=Subject breach, even while every artifact stays labeled DRAFT/advisory; a future R3/R4/R5 unlock inherits packets whose founder-bypass provenance is invisible and the first real dispatch closes a decision no human ratified",
+        "An unattended live Cloudflare deploy from a test harness = an unverified brain in production with no founder confirmation and no rollback receipt \u2014 the exact autonomous-deploy path the promotion-gate trust boundary exists to prevent",
+        "A leaked Supabase service-role key or CF deploy token from a fork-PR run is a full credential compromise (write/delete census rows, deploy arbitrary Workers) \u2014 irreversible until rotation, and rotation breaks the live census/autorun fleet",
+        "A wrong CO-4 PASS used to justify RPAA/MSP/PSP wording on live trustfield.ca is a regulatory-liability event (mis-stating licensed-entity status) for a separate entity Noetfield does not own \u2014 the one genuinely irreversible, legally-teethed move; discovered externally at the worst time",
+        "A single real outbound commercial email from a 'dry-run' is a binding CASL-governed external contact \u2014 unrecallable \u2014 and it torches the founder_blocked posture that keeps the commercial loop legally safe",
+        "Golden-only B0 harnesses committed as 'board locked' give false confidence to the whole downstream sequence; a latent DLM/language_gate misclassification propagates into every DRAFT packet BR-1 emits, and the green baseline is cited as proof it's safe",
+        "Dashboards rendering empty/stale sinks as '0 issues / all clear' become the founder's decision surface \u2014 a governance call made on absence-of-signal, theater at the exact layer meant to restore oversight",
+        "CO-1/CO-2 pushed live commits a public name/price/scope the founder never ratified and renders unproven autonomy as available \u2014 advertising/deceptive-claim exposure and loss of GTM sequencing control"
+      ],
+      "patch_before_execution": "GATE-EXEC SAFETY: never invoke promotion_gate.py with --deploy-command/--confirm-each-time/--semi-auto/--autonomous; unit-test the PURE functions (refusal_reasons/independence_refusal_reasons/source_refusal_reasons) or run flagless to APPROVED_DRY_RUN, under env with CF_MAIN_TOKEN/CF_VERIFIER_TOKEN unset and HOME on a temp dir; DX-4 re-implements success logic in a fresh read-only module OR calls the gate's own predicate/receipt, and reconciles against the recorded gate verdict (report AUDITOR_DISAGREES_WITH_GATE, never substitute its own PASS). TH-1 asserts the SPECIFIC refusal cause string plus a PASS positive control, never returncode==2 alone. NEGATIVE-PROOF (every verifier): ship a negative fixture produced by MINIMAL MUTATION of a real on-disk artifact + a committed red-run canary; positive fixture must be a minimally-mutated conformant artifact. GV-1: run against the REAL P0PGR-EXEC-M03 and record REJECTED with cited reasons; forbid relaxing any P0_EXECUTION_RECEIPT_SCHEMA required field; emit a NEW verdict receipt, never edit M03 (Lock 5). GV-6: validate a PERSISTED apply_map.json (never re-call build_apply_map), IGNORE the decision field, build the negative fixture in DEFAULT partial_batch=True with an unvalidated ADVISOR/FOUNDER_FACT item and assert it is flagged as silently dropped; invariants: machine_closed never intersects picks, FORM_OFFICIAL implies status in {READY,EMPTY,BLOCKED_UNVALIDATED} with no submit/dispatch_now field, every ADVISOR/FOUNDER_FACT id in picks or an explicit deferred_unvalidated list; do NOT relax to pass current behavior. BR-1: consume ONLY a GV-6-passed apply_map.json (refuse classify/.processed.json), bridge only MACHINE_VALIDATABLE + validated advisor picks, EXCLUDE FOUNDER_FACT and unvalidated advisor items, hardcode packet status=DRAFT and dispatch_now=false regardless of apply-map status, carry classification_reason+evidence provenance, and emit a machine_closed_without_founder manifest for founder eyes. RECEIPT HYGIENE: every sandbox verifier (GV-1/GV-6/DX-4/BR-4/MO-8) stamps origin=sandbox-advisory, authority=none, verdict vocab CHECK_OK/CHECK_REJECTED (never PASS); TH-2 golden namespaces DLM stage decision:PASS to STAGE_OK. OVERLAY/ALLOWLIST (WI-1/WI-3/WI-6): intent-classify entries \u2014 allow-terms to allowlist, regulatory/overclaim terms to BLOCK; EXCLUDE CONFLICT_PHRASE/REGULATORY_COPY_RISK; externalization is ADDITIVE-PARITY (assert set byte-identical to hardcoded constants before removing any, keep constants as fallback, reset _RUNTIME caches); add a regression assert that a known RPAA/MSP/PSP overclaim still FAILs and a legitimately-undefined term still WARNs; consume/annotate overlays and the 92 sidecars in place, never delete (Lock 5). LINTERS (GV-4/WI-4/MO-2/MO-7): exit NONZERO on any hit, prove RED-before-GREEN on a seeded bad ref; MO-7 needs a positive-control stale-law surface. MO-8: keep queue [] on disk, run only against a synthetic /tmp draft (fake icp id, example.com), assert highest state reached is founder_blocked, never call any send/broadcast tool, output labeled 'readiness score, NOT send authorization'. MO-6: derive blocker_count from LOCAL receipts only, never open Supabase/cost_event, keep no-fabrication ('unknown' if underivable), append never overwrite (Lock 5). CI-1..CI-5: permissions contents:read only, trigger on: pull_request (never pull_request_target/push/schedule), NO secrets/env credential refs, scripts report-only (--json, no --write-*), non-blocking (Lock 4); do not touch brain-loop-autorun-v1.yml or uncomment cron. CI-4 git-hooks: ship standalone founder-run CLI, never set core.hooksPath or add a hooks-present check (Lock 8). CO-4: SPLIT into CO-4a (offline block-pattern engine + dry-run REGULATORY_COPY_RISK report over a CHECKED-IN fixture, banner 'lint result, not a legal/compliance determination') and CO-4b (any live-surface wiring = founder-gated ASK); never open/cd/write TrustField-Technologies or trustfield.ca; author no RPAA/FINTRAC/MSB status assertions. CO-1/CO-2/CO-3 + all DX/CO HTML: write to local out/ with a visible 'DO NOT PUSH \u2014 not for public hosting' banner (Lock 10), never Cloudflare www/Railway/Vercel (Lock 9); render Tier-3/4 as LOCKED/proof-gated; run language_gate over the generated HTML and require clean pass before done; CO-3 hardcode the synthetic fixture path, forbid real token-log ingestion, watermark leak_rate 'SYNTHETIC \u2014 not a guaranteed-savings claim'. DX-3: de-pin = swap the hardcoded REPO constant for a git-rev-parse/bundle-relative resolver (never delete the .app); move to front of B2 with edge DX-3->DX-1/DX-2/DX-6. SEQUENCING: freeze TH-1/TH-2/TH-3 goldens in B0 before any WI-1/WI-3/WI-6 merge (a post-wiring golden diff means INVESTIGATE, never re-baseline); enforce GV-2->BR-4 and GV-1/BR-3->MO-1 order; add WI-3->CO-1/CO-2/CO-3 gate-clean edge; pull CO-1 into a parallel revenue lane after B0. CLASSIFIER + FENCE EDITS ARE FOUNDER-GATED: flag (do not silently edit) the classify_item early-return so a CLUSTER-DICT-FIX match never overrides a FOUNDER_FACT match, and any edit to build_apply_map fence semantics (deferred_unvalidated surfacing, BLOCKED_UNVALIDATED branch, machine_closed field, partial_batch default) routes to the founder. GLOBAL: run all phases with CF/Supabase secrets absent; treat every live URL (workers.dev, *.supabase.co, trustfield.ca, api.github.com App) as out-of-bounds for automated calls; do not git push this worktree (Lock 9).",
+      "verification_after_execution": [
+        "B0: every harness ships a red-capable fixture AND a committed red-run canary output before being declared green; TH-1 greps the specific refusal-cause string and passes a conformant PASS receipt to APPROVED_DRY_RUN exit 0; TH-2/TH-3/TH-6/TH-4 each hand-assert >=1 correct expected value and one deliberately-broken input classified FAIL/WARN; goldens committed then frozen",
+        "B1: each verifier reproduces a minimally-mutated known-good AND rejects a real minimally-mutated known-bad, exiting nonzero on violation; GV-1 verdict on real M03 is CHECK_REJECTED with cited missing fields; GV-6 negative fixture is built in partial_batch=True and flagged; BR-4 runs against local committed fixtures (no live worker/KV) and only after GV-2 artifact self-checks; DX-4 classifies the recorded FAILED_INVARIANT deploy (phase0.3-step10a receipt) as FAIL",
+        "B2: reconciler/linters can go RED on a seeded dangling ref then clean; a known RPAA/MSP/PSP overclaim still FAILs decide() and a legitimately-undefined term still WARNs after WI-1/WI-3 wire; externalized allowlist set asserts == hardcoded constants; overlays + 92 sidecars untouched on disk; dashboards resolve repo root to sg-sandbox not the pinned clone",
+        "B3: a DLM->packet DRAFT flows through BR-3 lint clean; BR-1 refuses non-apply_map sources, excludes FOUNDER_FACT, and every emitted packet carries status=DRAFT + dispatch_now=false; MO-1 only clusters GV-1/BR-3-verified packets and lints reject any non-DRAFT status slot; MO-8 highest state is founder_blocked with no send tool invoked; grep confirms dispatch_now/AUTO_DISPATCH_APPROVED/shadow-cron unchanged; sandbox receipts carry origin=sandbox-advisory",
+        "B4: dashboards render from live JSON with per-source freshness badges and an explicit UNPOPULATED/empty-vs-clean distinction (no null/empty shown as all-clear); every CO/DX HTML written to local out/ carries the DO-NOT-PUSH banner and passes language_gate; Tier-3/4 render LOCKED; CI jobs pass locally report-only with contents:read, on: pull_request, no secrets; CO-4a emits a dry-run report over a fixture with the not-a-legal-determination banner and CO-4b remains unbuilt pending founder",
+        "Cross-cutting: `git status`/no-push confirmed, no CF/Supabase call in logs, receipts/ append-only (no artifact deleted or overwritten), and a diff review confirms build_apply_map / classify_item / index.js / brain-loop-autorun-v1.yml are byte-unchanged"
+      ],
+      "action": "PROCEED_WITH_PATCH"
+    },
+    "per_phase": [
+      {
+        "phase": "B0 \u2014 LOCK THE BOARD (harnesses + cheap validators; no behavior change)",
+        "action": "PROCEED_WITH_PATCH",
+        "patches": [
+          "TH-1: assert the SPECIFIC refusal-cause string from refusal_reasons()/independence_refusal_reasons(), never returncode==2 alone (exit 2 is overloaded across 4+ paths); add a conformant-PASS positive control that must reach APPROVED_DRY_RUN exit 0; run flagless with CF tokens unset and HOME on a temp dir \u2014 never pass --deploy-command/--confirm-each-time/--semi-auto/--autonomous (Lock 2).",
+          "Every B0 harness must ship a red-capable fixture and a committed red-run canary; a golden-only snapshot (green by construction) is rejected. TH-2 adds per-item expected class on ~5 hand-labeled items and namespaces DLM stage decision:PASS to STAGE_OK; TH-3/TH-6 hand-assert >=1 correct value + one deliberately-broken input; TH-4 includes negative scenarios the skill must catch (measurable lift over a failing baseline).",
+          "GV-4/WI-7/GV-5 linters exit NONZERO on any hit and prove RED-before-GREEN on a seeded bad ref \u2014 do not follow the audit_* always-exit-0 pattern.",
+          "GV-3 stays an independent library-internal validator with no downstream consumer edge; BR-3 is NOT blocked by it.",
+          "Freeze-order edge: commit AND freeze TH-1/TH-2/TH-3 goldens before ANY WI-1/WI-3/WI-6 merge; a post-wiring golden diff means INVESTIGATE, never re-baseline to pass. Optionally pull DX-3 and CO-1 groundwork forward from B4."
+        ]
+      },
+      {
+        "phase": "B1 \u2014 TRUST SPINE (verifiers, each proven by a rejected bad fixture)",
+        "action": "PROCEED_WITH_PATCH",
+        "patches": [
+          "Negative-proof rule (Phase-B1 exit): each verifier reproduces a known-good AND rejects a known-bad, where the negative is a MINIMAL MUTATION of a real on-disk artifact (flip one field) and the positive is a minimally-mutated conformant artifact \u2014 no strawman authored from scratch.",
+          "GV-1: run against the REAL receipts/p0pgr/P0PGR-EXEC-M03 and record CHECK_REJECTED citing missing founder_authorization_ref, missing evidence_artifacts, quality_state=PARTIAL, round :00 timestamp; forbid relaxing any required schema field to pass a synthetic good; emit a NEW verdict receipt beside it, never edit M03 (Lock 5); stamp origin=sandbox-advisory/authority=none and reconcile against the recorded gate verdict (report AUDITOR_DISAGREES_WITH_GATE, never emit its own PASS).",
+          "GV-6: validate a PERSISTED apply_map.json (never re-call build_apply_map), IGNORE the self-emitted decision field, build the negative fixture in DEFAULT partial_batch=True with an unvalidated ADVISOR/FOUNDER_FACT item and assert it is flagged as silently dropped; invariants \u2014 machine_closed never intersects picks; FORM_OFFICIAL implies status in {READY,EMPTY,BLOCKED_UNVALIDATED} with no submit/auto_submit/dispatch_now field; every ADVISOR/FOUNDER_FACT id in picks or an explicit deferred_unvalidated list; do NOT relax to pass current behavior.",
+          "BR-4: enforce GV-2-artifact-present precondition (GV-2 -> BR-4); run the lifted JS validation functions against LOCAL committed fixtures only \u2014 never curl the live worker /run (mints a real GitHub App token + overwrites live 'latest' KV) and never auto-reconcile Python->JS; index.js stays the subject-of-record and unedited (Locks 2/3).",
+          "DX-4: re-implement gate success logic in a fresh read-only module OR call the gate's own predicate/written receipt \u2014 never invoke promotion_gate.py with deploy flags; add the recorded FAILED_INVARIANT deploy (phase0.3-step10a receipt) as a fixture that MUST classify FAIL.",
+          "TH-5: feed captured fixtures to the lifted JS functions offline; add a PASS positive control that must be ACCEPTED (a replay verifier that rejects everything passes trivially)."
+        ]
+      },
+      {
+        "phase": "B2 \u2014 RECOVER ORPHANED INVESTMENT (wiring)",
+        "action": "PROCEED_WITH_PATCH",
+        "patches": [
+          "WI-1/WI-3: intent-classify each overlay entry before wiring \u2014 allow-terms to the allowlist, regulatory/overclaim terms stay BLOCK; EXPLICITLY EXCLUDE CONFLICT_PHRASE and REGULATORY_COPY_RISK; add a regression assert that a known RPAA/MSP/PSP overclaim still returns FAIL and a legitimately-undefined term still WARNs after wiring (anti-downgrade). Never add to OVERCLAIM_PATTERNS' escape hatch.",
+          "WI-6: externalization is ADDITIVE-PARITY \u2014 load the JSON and assert the resulting set is byte-identical (==) to the hardcoded STRUCTURAL/STATUS_LABEL/FRAGMENT/TECH_REFERENCE/CENSUS_VERB/ENTITY sets BEFORE removing any Python constant; keep constants as the fallback when SUPPLEMENT_PATH is absent; reset _RUNTIME_STRUCTURAL/_RUNTIME_ENTITY caches in the test. 'Externalize' = reviewable-copy, never delete-the-source-of-truth.",
+          "DX-3: de-pin = swap the hardcoded REPO=/Users/.../sina-governance-SSOT constant for a git-rev-parse/bundle-relative resolver so sandbox dashboards read sg-sandbox; do NOT delete the .app bundles. Move DX-3 to the FRONT of B2 with edges DX-3 -> DX-1/DX-2/DX-6.",
+          "WI-4: reconciler must exit NONZERO on a dangling retires_trigger_ids ref; prove RED on a seeded ref, then clean \u2014 'reconciler clean' is unfalsifiable unless it can go red.",
+          "Append-only reminder: consume/annotate the two orphaned overlay JSONs and the 92 *.language_gate_review.json sidecars in place; never delete or rewrite them (Lock 5). Enforce that WI-1/WI-3/WI-6 land only AFTER the B0 golden freeze."
+        ]
+      },
+      {
+        "phase": "B3 \u2014 FUSE THE BRAINS + CLOSE LOOPS (bridges + motors)",
+        "action": "PROCEED_WITH_PATCH",
+        "patches": [
+          "BR-1: consume ONLY a GV-6-passed apply_map.json (refuse dlm_classify output / .processed.json); bridge only MACHINE_VALIDATABLE items plus advisor items present in validated_picks; EXCLUDE FOUNDER_FACT and every unvalidated advisor item; hardcode packet status=DRAFT and dispatch_now=false regardless of apply-map status; carry classification_reason+evidence provenance; emit an accompanying machine_closed_without_founder manifest for founder eyes.",
+          "B3 exit sub-gate: every BR-1-emitted packet must pass GV-1 receipt-verify AND BR-3 packet-lint BEFORE MO-1 is allowed to cluster the outbox into TPL-* templates; MO-1 requires a literal DRAFT default and a lint rejecting any non-DRAFT status slot. dispatch_now / AUTO_DISPATCH_APPROVED / shadow cron stay untouched (Lock 1).",
+          "MO-8: keep commercial_pulse_queue_v1.json queue [] on disk; run only against a SYNTHETIC draft (fake icp_stranger_id, example.com); hardcode founder_blocked=true / dispatch_now=false independent of predicate scores; assert highest state reached is founder_blocked; NEVER call any send/broadcast/batch-email tool; label output 'readiness score, NOT send authorization' (Lock 7).",
+          "MO-6: derive blocker_count from LOCAL census/receipt JSON only; do NOT open Supabase or read cost_event live; keep the no-fabrication contract ('unknown' if underivable); append a new timestamped receipt, never overwrite prior heartbeats (Lock 5/6).",
+          "MO-2/MO-7: exit NONZERO on a dead-motor / stale-law hit; MO-7 needs a positive-control surface known to contain a stale-law pattern so a zero-hit result can't be a broken-regex false-clean.",
+          "Receipt hygiene across BR-1/MO-1/MO-8: stamp origin=sandbox-advisory, authority=none, verdict vocab CHECK_OK/CHECK_REJECTED (never PASS). FOUNDER-GATED (do not silently edit): the classify_item early-return (L65-69) so a CLUSTER-DICT-FIX match never overrides a FOUNDER_FACT match, and any build_apply_map fence-semantics change (deferred_unvalidated surfacing) \u2014 route both to the founder."
+        ]
+      },
+      {
+        "phase": "B4 \u2014 SURFACE + SELL + GUARD (dashboards + commercial + CI)",
+        "action": "PROCEED_WITH_PATCH",
+        "patches": [
+          "CO-4: SPLIT \u2014 CO-4a is offline (block-pattern engine + dry-run REGULATORY_COPY_RISK report over a CHECKED-IN fixture copy of web text, banner 'lint result, not a legal/compliance determination; publishing is founder-gated') = PROCEED_WITH_PATCH; CO-4b is any wiring to a live surface = ASK_IF_IRREVERSIBLE and out of sandbox scope. Never open/cd/scan-in-place/write the TrustField-Technologies repo (f0f37c8) or trustfield.ca; author no RPAA/FINTRAC/MSB status assertions (Locks 2/9).",
+          "CI-1..CI-5: permissions contents:read only; trigger on: pull_request (NEVER pull_request_target/push/schedule); NO secrets:/env: credential references (do not copy census/auth-probe/autorun env blocks); scripts run report-only (--json, never --write-supabase/--write-receipt/--fail-on-block-merge); post findings as a job summary; non-blocking, no auto-merge (Lock 4); do not touch brain-loop-autorun-v1.yml (Lock 3) or uncomment any cron. CI-4 ships install_git_hooks.sh as a standalone founder-run CLI \u2014 do NOT set core.hooksPath or add a blocking hooks-present check (Lock 8).",
+          "Lock-10 on every CO/DX HTML: write to a local out/ path with a visible 'DO NOT PUSH \u2014 not for public hosting' banner; touch no Cloudflare www / Railway / deploy command; never Vercel (Lock 9). CO-2/CO-1 render Tier-3/Tier-4 as LOCKED/proof-gated (brain-as-a-service STAGED gate), never available, and must pass language_gate over the generated HTML before 'done' (dogfood the overclaim guard).",
+          "CO-3: hardcode the synthetic fixture path; forbid ingesting real founder/client token logs; watermark every leak_rate 'SYNTHETIC \u2014 not a guaranteed-savings claim; customer receipt required' (SSOT rule 4).",
+          "DX-1/DX-2/DX-6/DX-8 + MO-6: distinguish EMPTY-SINK/STUB/STALE from CLEAN \u2014 render 'unknown'/null/empty-queue fields with an explicit UNPOPULATED or source-mtime freshness badge, never as 0/blank that reads as all-clear; add hard edge DX-3 -> DX-2 so the console reads sg-sandbox not the pinned SSOT clone. Strengthen the B4 exit criterion to 'render with per-source freshness + empty-vs-clean distinction'.",
+          "Re-sequence for metabolism: pull CO-1 (client-receivable Brain Coherence Report, Tier-1 diagnosis only, no autonomy claim) into a parallel lane after B0; add edge WI-3 -> CO-1/CO-2/CO-3 for gate-cleanliness; gate B4's non-commercial breadth behind >=1 client-receivable deliverable rendered."
+        ]
+      }
+    ],
+    "overall_action": "PROCEED_WITH_PATCH",
+    "plan_upgrades": [
+      "Add an explicit freeze-order edge in B0: commit AND freeze the TH-1/TH-2/TH-3 golden baselines before ANY WI-1/WI-3/WI-6 merge, with guard text 'a golden diff after a wiring change means INVESTIGATE, never re-baseline to pass.' This is why WI-1/WI-3/WI-6 belong in B2, not pulled forward \u2014 make that rationale explicit.",
+      "Split CO-4 into CO-4a (offline block-pattern engine + dry-run report over a checked-in fixture; PROCEED_WITH_PATCH) and CO-4b (any live trustfield.ca / TrustField-repo wiring; ASK_IF_IRREVERSIBLE, out of sandbox scope). Route CO-4b to the founder; forbid the agent authoring RPAA/FINTRAC/MSB status assertions.",
+      "Move DX-3 (de-pin desktop apps, S/high) to the front of B2 (or B0) and add hard edges DX-3 -> DX-1/DX-2/DX-6; require repo-root resolution via git-rev-parse/bundle-relative path. De-pin = swap the REPO constant for a resolver, never delete the .app bundles.",
+      "Pull CO-1 into a parallel revenue lane starting after B0 (correct catalog \u00a75's 'CO-1 has no dependency' \u2014 it depends on WI-3 for gate-cleanliness); gate B4's dashboard/CI breadth behind at least one client-receivable deliverable rendered, so the R=0 metabolism target is not starved behind ~35 plumbing ideas.",
+      "Add a B1 exit sub-gate: every verifier ships a negative fixture built by MINIMAL MUTATION of a real on-disk artifact plus a committed red-run canary; GV-1 specifically must run against and REJECT the real P0PGR-EXEC-M03; positive known-good must be a minimally-mutated conformant artifact (no schema relaxation).",
+      "Add a B3 exit sub-gate: every BR-1 packet must pass GV-1 receipt-verify AND BR-3 packet-lint before MO-1 clusters the outbox into TPL-* templates; BR-1 consumes only a GV-6-passed apply_map and hardcodes status=DRAFT/dispatch_now=false; dispatch_now/AUTO_DISPATCH_APPROVED/shadow cron stay untouched.",
+      "Reframe GV-6 to validate a PERSISTED apply_map.json, ignore the self-emitted decision:PASS, test in the DEFAULT partial_batch=True path, and add a deferred_unvalidated invariant; classify any build_apply_map fence-semantics edit (and the classify_item early-return fix) as founder-gated, never a 'simplify/clean'.",
+      "Enforce intra-B1 order GV-2 -> BR-4 with a 'GV-2 artifact present + self-checking' precondition; add an explicit rule that BR-4/TH-5 run against local committed fixtures only and never fetch the live worker URL or POST /run.",
+      "Add a receipt-origin-stamping requirement across all sandbox verifiers/auditors (origin=sandbox-advisory, authority=none, verdict vocab CHECK_OK/CHECK_REJECTED, never PASS) and namespace DLM stage decision:PASS to STAGE_OK in the TH-2 golden, so no reader conflates a sandbox self-check with a promotion-gate PASS.",
+      "Harden all gate-touching harnesses (TH-1/DX-4/GV-5) to the pure-function / read-only-module pattern with CF/Supabase secrets absent from the environment; add a global rule treating every live URL (workers.dev, *.supabase.co, trustfield.ca, api.github.com App) as out-of-bounds for automated calls and forbidding git push of the worktree.",
+      "Strengthen the B0 exit criterion from 'all harnesses green on current behavior' to 'each harness ships a red-capable fixture + >=1 hand-asserted correct value', and the B4 exit from 'render from live JSON' to 'render with per-source freshness badges and an explicit empty-vs-clean distinction.'",
+      "Add an append-only clause to WI-1/WI-3/DX-5: consume/annotate the two overlay JSONs and the 92 language_gate_review sidecars in place; overlay entries are intent-classified (allow vs BLOCK) so CONFLICT_PHRASE/REGULATORY_COPY_RISK never enter the allowlist; add a pre/post OVERCLAIM_PATTERN findings diff to the TH-3 golden."
+    ],
+    "residuals": [
+      "DLM classify_item early-return (L65-69) can mis-route a genuine FOUNDER_FACT into CLUSTER-DICT-FIX before the FOUNDER_FACT loop; the fix is founder-gated, so until the founder rules, BR-1's FOUNDER_FACT exclusion is the only mitigation and the mis-clustering path stays documented-but-open.",
+      "build_apply_map fence-gap: under the default READY/partial_batch=True path, dropped founder/advisor items are surfaced nowhere; the additive deferred_unvalidated fix is founder-gated, so GV-6 detects and flags the leak but does not close it this phase.",
+      "No conformant known-good execution receipt exists on disk (M03 is PARTIAL); GV-1's positive proof necessarily rests on a minimally-mutated synthetic artifact, so positive-side confidence is one mutation removed from real data until a real conformant receipt is emitted.",
+      "Two-move push latency: local commits on claude/sandbox-build that later merge to main could feed the every-30m brain-loop-autorun; mitigated only by no-push discipline (Lock 9) \u2014 the latent path is not structurally severed within the sandbox.",
+      "Dashboard freshness: if the empty-vs-clean/freshness-badge patch is under-implemented, DX-1/DX-6/DX-8 can still render stub/empty sinks as all-clear; residual until the badges are verified rendering on a deliberately-empty source.",
+      "Shared receipts/ bus: even with origin stamping, sandbox verdict receipts co-locate with real gate receipts; a downstream consumer that ignores the origin field could still conflate them \u2014 hygiene depends on every reader honoring the marker.",
+      "CO-4a lint PASS could still be socially misread as a compliance sign-off despite the banner; the regulatory determination remains a founder-only decision and no offline artifact removes that residual interpretation risk."
+    ]
+  }
+}

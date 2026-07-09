@@ -1,0 +1,59 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. DX-1 is a read-only status dashboard renderer over on-disk P0-PGR receipts; its proof is a data-driven test that (a) asserts the rendered queue order equals the real receipt order and flips when the input order is mutated, and (b) asserts an empty attestation field renders UNPOPULATED (not a clean 0) while a measured safety-invariant 0 renders CLEAN. Never a bare governance PASS.",
+  "catalog_item": "DX-1", "phase": "B4 - dashboards (read-only status surface)",
+  "title": "P0-PGR read-only status dashboard (ranked queue + gate/rung states + R1-R5 ladder)",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "receipts/p0pgr/phase1_scorecard_v1.json",
+      "receipts/p0pgr/phase2_scorecard_v1.json",
+      "receipts/p0pgr/phase2_queue_v1.json",
+      "p0-pgr/P0_PGR_CLOUD_ACTIVATION_LADDER_v1.md"
+    ],
+    "modified": false,
+    "note": "renders a self-contained, theme-aware, brand-neutral static HTML status snapshot from the four sources; all sources read-only."
+  },
+  "what_it_proves": [
+    "the dashboard renders the Phase-2 ranked queue in the EXACT receipt order (M03 > M05 > M04 > M02 > M06 > M07 > M01 > M09), read from phase2_queue_v1.json.ranked_queue, plus held items (M08 HOLD_CLOUD_UNSAFE, M10 SELF)",
+    "the R1-R5 cloud-activation ladder is parsed from the ladder markdown: R1 DONE+current, R2 BUILT, R3/R4/R5 LOCKED (founder-unlock rungs); autonomy rungs R4/R5 render LOCKED / proof-gated, never 'available'",
+    "FRESHNESS: each source carries a badge; with a render time past the 2026-07-08 receipt timestamps the sources flag STALE (not silently FRESH); the timestamp-less ladder markdown flags NO TIMESTAMP",
+    "EMPTY-SINK vs CLEAN discrimination: packets_confirmed_accepted_by_founder = 0 renders UNPOPULATED (attestation gap, not a clean 0), while p0_leakage_count = 0 renders CLEAN (a measured, good zero)",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH - not for public hosting' banner; no autonomy or guaranteed-outcome claim",
+    "RED-CAPABLE (data-driven, no strawman): swapping the top two moves in the queue input flips the rendered row order; populating the attestation field flips UNPOPULATED -> POPULATED; the canary asserts the empty field reads CLEAN and correctly fires"
+  ],
+  "chess_patches_applied": [
+    "positive fixture is the REAL rendered dashboard built from the four live on-disk receipts, not an authored strawman",
+    "negative/discrimination fixtures are minimal in-memory mutations of that real input (swap two queue rows; set founder-confirmation to 10); the badge/order logic is never relaxed to pass",
+    "freshness uses the render time vs the receipt timestamps; determinism preserved by injecting 'now' in tests",
+    "verdict vocab CHECK_OK, origin=sandbox-advisory / authority=none; never a bare governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (all four sources read-only; every write confined to catalog/builds/DX-1)",
+    "Lock 10 dashboard (generated HTML to local out/ only, visible DO-NOT-PUSH banner, autonomy rungs LOCKED, no outcome claim)",
+    "EMPTY-SINK / STUB / STALE rendered with explicit UNPOPULATED / STALE / NO TIMESTAMP badges, never as clean 0/blank",
+    "no live call (no network/CF/Supabase/sends/deploy); no git write commands; worktree not pushed",
+    "did not read/stage/depend on other lanes' untracked drops (graph-out/, receipts/l0-*, scripts/*repo_graph*)"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/DX-1/dx1_p0pgr_status_dashboard.py",
+    "template": "catalog/builds/DX-1/dashboard_template.html",
+    "generated_dashboard": "catalog/builds/DX-1/out/p0pgr_status_dashboard.html",
+    "test": "catalog/builds/DX-1/test_dx1_p0pgr_status_dashboard.py",
+    "red_run_canary": "catalog/builds/DX-1/redrun-canary.txt",
+    "results": {
+      "self_runner": "10/10 green exit 0",
+      "pytest": "10 passed",
+      "rendered_queue_order": "M03 > M05 > M04 > M02 > M06 > M07 > M01 > M09 (matches phase2_queue_v1.json)",
+      "founder_confirmation_field": "packets_confirmed_accepted_by_founder=0 -> UNPOPULATED (not clean)",
+      "safety_invariant_field": "p0_leakage_count=0 -> CLEAN",
+      "source_freshness": "all 3 JSON receipts STALE at render time; ladder md NO TIMESTAMP",
+      "red_run_canary": "FIRED (asserting the empty attestation field reads CLEAN raised AssertionError, exit 1)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside DX-1 == 0)"
+    }
+  },
+  "exit_gate_B4": "DX-1 done - read-only P0-PGR status dashboard renders the real ranked queue, gate/rung states, and R1-R5 ladder; flags stale/empty/stub fields explicitly (UNPOPULATED/STALE, never a clean 0); data-driven test + red canary have teeth.",
+  "next_action": "wire the same renderer to a scheduled read of the receipts for a refreshed snapshot; consider a diff view flagging queue-order changes between two receipt generations."
+}

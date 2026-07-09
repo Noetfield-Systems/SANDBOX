@@ -1,0 +1,6 @@
+overclaim-injected html -> gate_decision: FAIL / verdict: CHECK_REJECTED
+blockers: [('OVERCLAIM', '100% guaranteed')]
+EXPECTED -> RED-CANARY FIRED: injected "100% guaranteed outcome" into the rendered DLM founder
+sheet made the language_gate FAIL (verdict CHECK_REJECTED); a deliberately-wrong assertion that
+the mutant still verdicts CHECK_OK raised AssertionError. The dogfood has teeth: the same gate
+that clears the clean sheet REJECTS the overclaim mutant (not green-by-construction).

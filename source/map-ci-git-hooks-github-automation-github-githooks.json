@@ -1,0 +1,104 @@
+{
+  "subsystem": "CI + git hooks + GitHub automation (.github/ + .githooks/)",
+  "what_it_is": "The repo's automation control plane: five GitHub Actions workflows (all cron-scheduled or manual dispatch), one local pre-commit language gate, a Copilot instruction file, and a governance PR template. Workflows run governance/verifier scripts on a timer and upload receipts as run artifacts; the pre-commit hook runs the language gate on staged prose/receipt files. Notably, NOTHING is enforced automatically on push or pull_request via Actions \u2014 the PR-time gating surface is entirely empty.",
+  "current_state": {
+    "status": "partial",
+    "note": "5 live workflows but zero run on push/PR (all cron + workflow_dispatch). brain-loop-autorun (every 30m) is LIVE and can deploy to Cloudflare when CF_* secrets are set (BRAIN_CI_AUTONOMOUS=1) \u2014 do not touch. p0pgr-shadow-cycle is scaffolded+locked: dispatch-only, cron commented pending FOUNDER-UNLOCK-R3-CRON-SHADOW receipt, shadow=compile/lint/route with zero execution. census/staleness/auth-probe are live scheduled. The pre-commit hook exists but is INERT here: core.hooksPath is unset and no installer wires it. PR template + copilot forbidden-marker rules are documented but unenforced by any CI."
+  },
+  "key_assets": [
+    {
+      "path": ".github/workflows/brain-loop-autorun-v1.yml",
+      "kind": "worker",
+      "purpose": "Every-30-min autorun; checks out SourceA, installs wrangler, runs scripts/brain_loop_autorun_v1.sh; deploys to Cloudflare when CF_MAIN_TOKEN+CF_VERIFIER_TOKEN present (BRAIN_CI_AUTONOMOUS=1). LIVE-DEPLOY BOUNDARY \u2014 do not modify."
+    },
+    {
+      "path": ".github/workflows/p0pgr-shadow-cycle-v1.yml",
+      "kind": "worker",
+      "purpose": "Rung R2 shadow cycle. workflow_dispatch only; cron intentionally commented pending R3 founder receipt. Runs Phase-0 tests, evidence reader, p0pgr_cycle_v1 in shadow mode, then an INDEPENDENT jsonschema receipt validation. LOCKED P0-PGR execution boundary."
+    },
+    {
+      "path": ".github/workflows/sg-auth-surface-probe-v1.yml",
+      "kind": "worker",
+      "purpose": "Every-6h auth surface probe via scripts/verify_auth_surfaces_e2e_v1.py; exits 1 on FAIL, optional --fail-on-warn strict gate. The only workflow that actually fails/blocks on a status."
+    },
+    {
+      "path": ".github/workflows/workflow-census-weekly-v1.yml",
+      "kind": "worker",
+      "purpose": "Weekly (Mon 08:00) WORKFLOW_CENSUS_v1: idempotent Supabase migration + census write (--write-supabase), continue-on-error, uploads census receipt."
+    },
+    {
+      "path": ".github/workflows/agent-read-staleness-weekly-v1.yml",
+      "kind": "worker",
+      "purpose": "Weekly (Mon 09:00) agent-read staleness inspect via run_agent_read_governance_cycle_v1.sh; uploads staleness receipt + governance_stale_pointer_queue_v1.json."
+    },
+    {
+      "path": ".githooks/pre-commit",
+      "kind": "gate",
+      "purpose": "Local pre-commit language gate: runs language_gate/language_gate_pipeline_v1.py on staged .md/.mdc/.txt/.json (skips language_gate/receipts/ + node_modules). Present but not wired (core.hooksPath unset)."
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "kind": "doc",
+      "purpose": "Governance PR template: required lane declaration, motor_id_or_human_gate, task cell, receipt_id proof, and two non-duplication checkboxes. Machine-parseable fields, but no CI parses/enforces them."
+    },
+    {
+      "path": ".github/copilot-instructions.md",
+      "kind": "doc",
+      "purpose": "Agent/Copilot rules: repo-local changes, receipts immutable, canonical repo identity, and forbidden active-config marker 'kazemnezhadsina144-dot'. Unenforced by CI."
+    }
+  ],
+  "extension_points": [
+    "No push/pull_request-triggered workflow exists \u2014 the entire PR/push CI gating surface is open and unclaimed",
+    ".githooks/pre-commit shells out to language_gate/language_gate_pipeline_v1.py <file> --surface auto \u2014 same gate can be mirrored into a PR job so it runs even when the hook isn't installed",
+    "PR template fields (lane, motor_id_or_human_gate, receipt_id, two non-duplication checkboxes) are structured and greppable \u2014 ready for a template-linter job",
+    "p0pgr-shadow-cycle's 'Independent receipt validation' step (Draft202012Validator vs P0_PROMPT_LOOP_STATE_SCHEMA_v1.json) is a reusable pattern; other workflows upload receipts with NO schema validation",
+    "Every workflow ends with actions/upload-artifact over receipts/*.json globs \u2014 a central pre-upload receipt-validation hook point",
+    "copilot-instructions forbidden marker 'kazemnezhadsina144-dot' is a single greppable string \u2014 trivially gate-able",
+    "workflow_dispatch inputs (packet, strict_warn, traffic_visits_24h) are the existing parameterization surface for new dispatch entry points",
+    "core.hooksPath is unset + no installer script \u2014 an install/verify step is a clean plug-in"
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Add a pull_request-triggered 'pr-governance-lint' workflow that parses .github/pull_request_template.md fields on the PR body: fail if lane is unset/not in the allowed enum, if receipt_id is blank while autorun/done is claimed, or if the two non-duplication checkboxes are unchecked. Closes the gap where the template exists but zero CI enforces it.",
+      "builds_on": ".github/pull_request_template.md + .github/copilot-instructions.md (no existing push/PR workflow)",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a pull_request 'language-gate-ci' job that reuses the exact pre-commit logic \u2014 run language_gate/language_gate_pipeline_v1.py --surface auto over changed .md/.mdc/.txt/.json \u2014 so the gate is enforced in the cloud even for contributors who never installed the hook (currently inert since core.hooksPath is unset).",
+      "builds_on": ".githooks/pre-commit + language_gate/language_gate_pipeline_v1.py",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a reusable composite action .github/actions/validate-receipt that generalizes p0pgr-shadow-cycle's 'independent receipt validation' step (jsonschema Draft202012 vs a schema), then add a non-blocking validation step before the upload-artifact in the census, staleness, and auth-probe workflows \u2014 which currently upload receipts with no schema check.",
+      "builds_on": "p0pgr-shadow-cycle-v1.yml independent-validation step + upload-artifact receipt globs across all 4 workflows",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a tiny 'forbidden-marker' PR grep gate that fails if 'kazemnezhadsina144-dot' appears in staged/changed active config or executable paths, directly enforcing the copilot-instructions rule that is today documentation-only.",
+      "builds_on": ".github/copilot-instructions.md line 6 (forbidden active-config marker)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a scripts/install_git_hooks.sh helper (sets core.hooksPath=.githooks) plus a PR 'hooks-present' check that asserts .githooks/pre-commit exists and is executable \u2014 fixing the inert-hook state where core.hooksPath is unset and nothing wires the gate.",
+      "builds_on": ".githooks/pre-commit + unset core.hooksPath (no installer exists)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a pull_request dry-run smoke job that runs scripts/workflow_census_v1.py --json WITHOUT --write-supabase/--write-receipt and runs the auth probe in report-only mode, so census/probe script regressions are caught on PR without any Supabase write or deploy. (Wiring the P0-PGR shadow cycle itself onto PR would instead be phase-unsafe \u2014 it invokes the locked P0-PGR pipeline \u2014 so it is deliberately excluded.)",
+      "builds_on": "workflow-census-weekly-v1.yml + sg-auth-surface-probe-v1.yml (their scripts already support --json / report-only flags)",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

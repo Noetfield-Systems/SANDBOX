@@ -1,0 +1,22 @@
+MO-5 RED-RUN CANARY  (deliberately-wrong assertion — MUST fail)
+
+Assertion under test (intentionally false):
+    lint_outbox(real outbox).verdict == "CHECK_REJECTED"
+
+Ground truth: the 10 real outbox packets all lint clean, so the batch verdict is
+CHECK_OK (10/10 clean, 0 violations). Asserting CHECK_REJECTED is a lie the linter
+must refuse to confirm.
+
+Command:
+    python3 -c "<import mo5; s=lint_outbox(DEFAULT_OUTBOX); assert s['verdict']=='CHECK_REJECTED'>"
+
+Observed:
+    exit=1
+    AssertionError: CANARY: real outbox is CHECK_OK (10/10 clean) -> asserting CHECK_REJECTED must fail
+    (the "NO CANARY" line never printed)
+
+RED-CANARY FIRED as expected. Reading of the true verdict is load-bearing: the batch
+gate reports the outbox's ACTUAL state (CHECK_OK here), and a wrong claim about it
+fails loudly. Paired positive control: dropping the required `fallback_route` key from
+one packet in a temp copy flips exactly that packet to REPAIR_CANDIDATE and the batch
+to CHECK_REJECTED (exit 1) — so a green CHECK_OK cannot be a broken-linter false-clean.

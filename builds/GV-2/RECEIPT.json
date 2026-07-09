@@ -1,0 +1,58 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox validator. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. Executes the knowledge-bundle spec + reproduces the specs' canonical hashing rules offline (D4).",
+  "catalog_item": "GV-2", "phase": "B1 — TRUST SPINE",
+  "title": "Executable knowledge-bundle spec + three-hash validator (offline D4)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "verifier/knowledge-bundle-spec-v0.1.md",
+      "verifier/brain-worker-code-spec-v0.1.md",
+      "verifier/brain-config-artifact-descriptor-schema-v0.1.json",
+      "proposals/step4-submitted-knowledge-bundle/knowledge-bundle.json",
+      "receipts/step4-submitted-knowledge-bundle-receipt.json"
+    ],
+    "modified": false,
+    "note": "grounds on the REAL on-disk bundle+descriptor pair; a byte-identical copy is kept at fixture/ for local self-check; verdicts written to scratch verdicts/, subject shas verified unchanged"
+  },
+  "what_it_proves": [
+    "REAL bundle+descriptor pair (proposals/step4-submitted-knowledge-bundle/knowledge-bundle.json + receipts/step4-submitted-knowledge-bundle-receipt.json) -> CHECK_OK (byte-exact real artifact, no strawman)",
+    "reproduces the specs' canonical hashing rules offline: H1 sha256(bundle bytes)==descriptor.proposed_sha256 (verified afceca7d... on the real artifact), H2 chunk content_sha256==sha256(text), H3 base_sha256 present+valid; plus the brain-worker-code-spec sorted-keys/compact-JSON path->SHA256 map hash",
+    "a MINIMAL MUTATION that stays conformant (edit chunk text, recompute content_sha256 AND proposed_sha256) -> CHECK_OK",
+    "corrupting ONE hex char of proposed_sha256 -> CHECK_REJECTED citing H1; corrupting ONE chunk content_sha256 -> CHECK_REJECTED citing H2",
+    "removing ANY one required top-level or chunk field re-rejects, and blowing the 20,000-char chunk-text size bound rejects -> spec is NEVER relaxed to admit a bundle",
+    "running the validator leaves the real bundle and descriptor byte-identical (shas unchanged); verdict emitted to scratch verdicts/",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; every verdict stamped origin=sandbox-advisory / authority=none / pass_claimed=false"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL on-disk bundle+descriptor and records CHECK_OK from byte-exact bytes (no strawman authored from scratch)",
+    "negative proof is a minimal mutation of the real artifact (flip one hash char / remove one required field / blow one size bound); positive is a minimally-mutated conformant artifact; no schema relaxation",
+    "emits a NEW verdict receipt to scratch, never edits the bundle/descriptor/specs (Lock 5 append-only)",
+    "encodes exactly what the two spec shapes state (original + current SourceA); ambiguities (H2 content-hash target inferred from the artifact; current-shape H2 shape-only) are documented in the tool docstring, not silently assumed",
+    "origin=sandbox-advisory / authority=none; never emits its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (real bundle/descriptor/specs unmodified, verdict to scratch verdicts/, fixture/ is a fresh copy inside the build dir)",
+    "no live call (pure offline D4: no network, no Cloudflare, no promotion gate, no sends)",
+    "wrote only inside catalog/builds/GV-2/",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "validator": "catalog/builds/GV-2/gv2_bundle_validator.py",
+    "test": "catalog/builds/GV-2/test_gv2_bundle_validator.py",
+    "local_fixture_bundle": "catalog/builds/GV-2/fixture/knowledge-bundle.json",
+    "local_fixture_descriptor": "catalog/builds/GV-2/fixture/descriptor.json",
+    "verdict_on_real_bundle": "catalog/builds/GV-2/verdicts/verdict-knowledge-bundle.json",
+    "red_run_canary": "catalog/builds/GV-2/redrun-canary.txt",
+    "results": {
+      "real_pair": "CHECK_OK exit 0",
+      "self_runner": "9/9 green exit 0",
+      "pytest": "9 passed",
+      "red_canary": "fired exit 1 (corrupted proposed_sha256 -> CHECK_REJECTED, not CHECK_OK)",
+      "subject_shas": "unchanged"
+    }
+  },
+  "exit_gate_B1": "GV-2 done (executes bundle spec + reproduces 3 canonical hashes; rejects real-artifact minimal mutations). Prior B1: GV-1 done.",
+  "next_action": "GV-6 (DLM apply-map fence validator) or remaining B1 items (BR-4, DX-4, TH-5)"
+}

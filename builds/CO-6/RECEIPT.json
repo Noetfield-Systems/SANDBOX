@@ -1,0 +1,52 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a MOCK-data lead-intelligence dashboard; its proof is two red-capable teeth: (A) the rendered priority_tag breakdown must equal an independent Counter over the mock rows, and (B) the repo language_gate dogfood over the rendered HTML (CHECK_OK clean, CHECK_REJECTED when an overclaim is injected). Never a bare governance PASS.",
+  "catalog_item": "CO-6", "phase": "B4 — commercial (revenue lane, dashboards)",
+  "title": "Gateway Lead-Intelligence Dashboard (MOCK) — priority_tag breakdown renderer + template", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "SG-Canonical-Library/noetfield-library/P10-PRODUCT-LAYERS/SINA_GATEWAY_BLUEPRINT_LOCKED_v1.md",
+      "language_gate/language_gate_core_v1.py"
+    ],
+    "modified": false,
+    "note": "renders a mock priority_tag breakdown dashboard grounded in the gateway blueprint §4 (deterministic priority rule), §5 (gateway_leads schema) and §7 (v1 scope vs DEFERRED); judged by the repo language_gate (scan/decide, surface=public). Sources read-only; all writes confined to catalog/builds/CO-6."
+  },
+  "what_it_proves": [
+    "the dashboard renders the priority_tag breakdown (high / medium / low) over MOCK gateway_leads rows synthesised per blueprint §5 schema; counts observed high=5 medium=4 low=3 over 13 mock rows",
+    "MOCK-ONLY: every row is a fabricated placeholder (contacts are *.invalid), no real lead / no PII; test_no_pii_only_placeholder_contacts enforces it",
+    "EMPTY-SINK guard: a row with null priority_tag lands in an explicit UNPOPULATED bucket (count=1), excluded from the populated-share denominator — never silently folded into 'low'/0; null contact fields render an UNPOPULATED badge",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH — not for public hosting' banner plus a MOCK-DATA watermark; every computed metric is watermarked 'SYNTHETIC — not a guaranteed claim'",
+    "DEFERRED items (learned/weighted scoring, autonomous routing) render LOCKED / proof-gated, never 'available'; the dashboard makes no autonomy or guaranteed-outcome claim",
+    "TOOTH A (data-driven) — the rendered breakdown equals an INDEPENDENT Counter over the mock rows; mutating one row's priority_tag (high->low) moves the independent count and breaks the assertion, so it discriminates real vs mutated input",
+    "TOOTH B (dogfood) — the REAL rendered dashboard does NOT FAIL the language_gate (public surface) -> CHECK_OK (decision=WARN on undefined title-case terms only, no OVERCLAIM/BANNED_REGISTER)",
+    "NEGATIVE — a MINIMAL single-field mutation of that same on-disk artifact ('not a guaranteed claim' -> '100% guaranteed certified') makes the gate FAIL on OVERCLAIM -> CHECK_REJECTED; reversing the injection reproduces the clean artifact byte-for-byte (gate never relaxed)",
+    "the dogfood uses scan/decide directly, writing NO receipt into the tracked language_gate/receipts dir"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (sources + language_gate read-only; all writes confined to catalog/builds/CO-6; no rm/edit/overwrite of any tracked file)",
+    "Lock 10 commercial (generated HTML to local out/ only, visible DO-NOT-PUSH banner + MOCK-DATA watermark, DEFERRED tiers LOCKED, no autonomy/outcome claim, no CF/Railway/Vercel path)",
+    "no live call (no network/CF/Supabase/sends/deploy; gate run in-process with no receipt write; HOME=temp)",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/CO-6/co6_lead_intel_report.py",
+    "template": "catalog/builds/CO-6/report_template.html",
+    "mock_data": "catalog/builds/CO-6/mock_leads.json",
+    "generated_dashboard": "catalog/builds/CO-6/out/gateway_lead_intel.html",
+    "test": "catalog/builds/CO-6/test_co6_lead_intel_report.py",
+    "red_run_canary": "catalog/builds/CO-6/redrun-canary.txt",
+    "results": {
+      "breakdown": "high=5 medium=4 low=3 unpopulated=1 (of 13 mock rows)",
+      "clean_dashboard_gate": "WARN (undefined-term only) -> verdict CHECK_OK, exit 0",
+      "overclaim_injected_gate": "FAIL (OVERCLAIM: '100% guaranteed', 'certified') -> verdict CHECK_REJECTED",
+      "self_runner": "10/10 green exit 0",
+      "pytest": "10 passed",
+      "red_run_canary": "FIRED (deliberately-wrong assertion high==99 vs real high=5 raised AssertionError)",
+      "pollution_outside_build_dir": "none (git status --porcelain tracked changes outside CO-6 == 0)"
+    }
+  },
+  "exit_gate_B4": "CO-6 done — mock gateway lead-intel dashboard renders the priority_tag breakdown, counts match the mock rows (data-driven tooth), dogfoods clean through the language_gate, and rejects an injected overclaim by minimal mutation.",
+  "next_action": "wire the same renderer to a live-but-read-only gateway_leads view once real rows exist (RLS read policy); keep learned scoring LOCKED until data supports thresholds (§4, §7)."
+}

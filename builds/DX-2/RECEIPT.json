@@ -1,0 +1,60 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox build. The deliverable is a read-only desktop console that composes four auditors from embedded snapshots; its proof is the repo language_gate dogfood (CHECK_OK when the console does not FAIL, CHECK_REJECTED when an overclaim is injected) plus a receipt-write guard. Never a bare governance PASS.",
+  "catalog_item": "DX-2", "phase": "B4 — dashboards/deliverable (desktop console lane)",
+  "title": "Unified Governance Console — composes the 4 desktop auditors into one parent HTML page",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "desktop-app/Receipt-Ledger-Auditor.app/Contents/Resources/generate.py",
+      "desktop-app/Registry-Motor-Validator.app/Contents/Resources/generate.py",
+      "desktop-app/Staleness-Gate-Auditor.app/Contents/Resources/generate.py",
+      "desktop-app/PR-Conflict-Resolver-Report.app/Contents/Resources/report.html",
+      "language_gate/language_gate_core_v1.py"
+    ],
+    "modified": false,
+    "note": "Composes the 4 desktop auditors (3 DX-3 de-pinned generators + the static PR-Conflict-Resolver report) into one parent console via READ-ONLY embedded snapshots. Sources read-only; generators are NOT executed (see receipt-safety)."
+  },
+  "receipt_safety": "The Registry / Motor Validator's underlying audit_automation_surface_v1.py writes a receipt into the repo's tracked receipts/ dir on every run (confirmed: scripts/audit_automation_surface_v1.py line 104-105 writes RECEIPTS/<id>.json). Running the generators live would mutate a tracked directory and is a live repo call. So the console composes embedded snapshots (auditor_snapshots.json) instead of running anything. build() writes exactly one file, into the local out/ dir. A test asserts no file appears in either language_gate/receipts or sina-governance-SSOT/receipts across a build.",
+  "what_it_proves": [
+    "the parent console renders one section for each of the 4 auditors (receipt_ledger, registry_motor, staleness_gate, pr_conflict) — test asserts all four titles + card markers render and exactly 4 cards exist",
+    "building the console writes NO receipt into any tracked receipts/ dir (before/after snapshot of language_gate/receipts and sina-governance-SSOT/receipts is unchanged)",
+    "Lock 10: the generated HTML is written only to a local out/ path and carries a visible 'DO NOT PUSH — not for public hosting' banner",
+    "Tier-3 and Tier-4 autonomy tiers render LOCKED / proof-gated, never 'available'; no autonomy or guaranteed-outcome claim is made",
+    "EMPTY-SINK / STALE distinguished from CLEAN: the pr_conflict snapshot's null stats render an explicit UNPOPULATED badge plus a STALE freshness badge, never a green 0/blank",
+    "synthetic snapshot metrics carry the watermark 'SYNTHETIC — not a guaranteed claim'",
+    "theme-aware (light/dark via prefers-color-scheme + data-theme), brand-neutral, self-contained (inline CSS, no external assets/CDN)",
+    "POSITIVE — the REAL rendered console does NOT FAIL the language_gate (public surface) -> CHECK_OK (decision=WARN on undefined title-case terms only, no OVERCLAIM/BANNED_REGISTER)",
+    "NEGATIVE — a MINIMAL MUTATION of that same on-disk artifact (flip 'read-only view' -> '100% guaranteed certified autonomous') makes the gate FAIL on OVERCLAIM -> CHECK_REJECTED",
+    "minimality: reversing the single injection reproduces the clean artifact byte-for-byte (no strawman, no schema relaxation); same gate, opposite verdicts",
+    "the dogfood uses scan/decide directly, writing NO receipt into the tracked language_gate/receipts dir"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (sources + generators + language_gate read-only; generators NOT executed; all writes confined to catalog/builds/DX-2)",
+    "Lock 10 commercial/dashboard (generated HTML to local out/ only, visible DO-NOT-PUSH banner, tiers 3/4 LOCKED, synthetic watermark, no autonomy/outcome claim)",
+    "no live call (no network/CF/Supabase/sends; no generator subprocess against the real repo; gate run in-process with no receipt write)",
+    "multi-agent isolation (touched nothing outside catalog/builds/DX-2; did not read/stage other lanes' untracked drops)",
+    "worktree not pushed; no git write commands"
+  ],
+  "evidence": {
+    "renderer": "catalog/builds/DX-2/dx2_governance_console.py",
+    "template": "catalog/builds/DX-2/console_template.html",
+    "snapshots": "catalog/builds/DX-2/auditor_snapshots.json",
+    "generated_console": "catalog/builds/DX-2/out/governance_console.html",
+    "test": "catalog/builds/DX-2/test_dx2_governance_console.py",
+    "red_run_canary": "catalog/builds/DX-2/redrun-canary.txt",
+    "results": {
+      "clean_console_gate": "WARN (undefined-term only) -> verdict CHECK_OK, exit 0",
+      "overclaim_injected_gate": "FAIL (OVERCLAIM: '100% guaranteed', 'certified') -> verdict CHECK_REJECTED",
+      "self_runner": "11/11 green exit 0",
+      "pytest": "11 passed",
+      "red_run_canary": "FIRED (asserting CHECK_OK on the overclaim mutant raised AssertionError, exit 0 for the canary wrapper)",
+      "tracked_receipt_write_on_build": "none (language_gate/receipts and sina-governance-SSOT/receipts unchanged across build)",
+      "pollution_outside_build_dir": "verified zero tracked changes outside catalog/builds/DX-2"
+    }
+  },
+  "exit_gate_B4": "DX-2 done — the Unified Governance Console renders all 4 auditor sections from read-only snapshots, dogfoods clean through the language_gate, rejects an injected overclaim by minimal mutation, and provably writes no receipt into any tracked dir.",
+  "next_action": "if a live view is ever wanted, wire each section to its DX-3 generator behind an operator-triggered, receipt-redirecting wrapper (never auto-run audit_automation_surface_v1.py into the tracked receipts/ dir)."
+}

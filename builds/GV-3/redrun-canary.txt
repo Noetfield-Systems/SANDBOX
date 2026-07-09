@@ -1,0 +1,4 @@
+GV-3 CHESS_PASS: INVALID (bad_pass.json):
+  - $.action: value 'BLOCK' not in allowed ['PROCEED', 'PROCEED_WITH_PATCH', 'ASK_IF_IRREVERSIBLE']
+  - $.action: forbidden label 'BLOCK' (manifest forbidden_action_labels)
+RED-CANARY FIRED: BLOCK-action pass rejected (exit 1) -> validator enforces no-BLOCK + schema.

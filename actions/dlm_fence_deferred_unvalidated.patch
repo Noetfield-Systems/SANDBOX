@@ -1,0 +1,10 @@
+--- a/decision_language_machine_v1/dlm_apply_map_v1.py
++++ b/decision_language_machine_v1/dlm_apply_map_v1.py
+@@ -81,6 +81,7 @@ def build_apply_map(
+         "pick_count": len(picks_out),
+         "picks": picks_out,
+         "machine_closed_without_founder": machine_closed,
++        "deferred_unvalidated": unvalidated,  # accountability: dropped ADVISOR/FOUNDER picks (GV-6 fence fix)
+         "deferred_ids": [p.item.id for p in processed if p.classification == "DEFER"],
+         "note": "Submit map is downstream of validation — never auto-submit FORM_OFFICIAL",
+     }

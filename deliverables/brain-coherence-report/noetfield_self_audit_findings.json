@@ -1,0 +1,93 @@
+{
+  "deliverable": "Brain Coherence Report",
+  "tier": "Tier-1 (diagnosis only)",
+  "client_label": "Noetfield Systems Inc. — self-audit (dogfood)",
+  "engagement_date": "2026-07-09",
+  "scope_note": "Tier-1 diagnosis of Noetfield's own operating brain, run BY the same audit method it sells — grade-its-own-homework. Every observation is backed by an evidence artifact from a real governance session (11 findings). It describes what was observed and makes no autonomy or outcome promise. Build or managed-operation work is a separate, later tier.",
+  "categories": [
+    {
+      "id": "stack_fragmentation",
+      "name": "Stack Fragmentation",
+      "score": 2,
+      "observed": "The operating brain spans 6+ repos and 4 concurrent agent lanes on one shared checkout. The revenue organ's proof (offers sent, replies, leads) lands in external sinks — Telegram, the gateway_leads DB, /ready probes — with no single on-disk source of truth, so the census cannot even see 4 of its own gateway motors.",
+      "evidence": [
+        "4 of 6 census motors flagged dead — prose receipt_globs, proof off-disk (finding MO-2)",
+        "6-repo / 4-agent multi-lane topology on one worktree base",
+        "gateway proof split across Telegram + gateway_leads DB + /ready probes, unconsolidated"
+      ],
+      "recommended_step": "Give each gateway motor one real on-disk receipt path (a census bridge) so the revenue organ has a single visible source of truth and its ROI becomes computable."
+    },
+    {
+      "id": "definition_drift",
+      "name": "Definition Drift",
+      "score": 3,
+      "observed": "A dictionary-first language gate enforces wording (225 terms, fail-closed), which is a real strength — but 15 commercial/product terms were flagged undefined and 7 founder-touchpoint triggers are referenced by the loops yet never defined in the registry.",
+      "evidence": [
+        "15 UNDEFINED_TERM backlog on P9/P10 docs (since cleared by a product overlay)",
+        "7 dangling retires_trigger_ids in the loop registry (finding WI-4)",
+        "225-term dictionary + fail-closed gate already in place"
+      ],
+      "recommended_step": "Ratify the 7 dangling founder triggers (or retire the loop references) so the registry is routing truth again."
+    },
+    {
+      "id": "agent_theater",
+      "name": "Agent Theater",
+      "score": 5,
+      "observed": "The strongest dimension. The system runs on negative-proof: every one of 50 audited units ships a red-capable test that must be able to fail, and the independent verifiers surfaced real defects rather than rubber-stamping. Anti-theater is a lived discipline here, not an aspiration.",
+      "evidence": [
+        "50 of 50 units carry a committed red-run canary that actually fires",
+        "verifiers surfaced 11 real findings — not PASS-theater",
+        "verdict vocabulary is CHECK_OK / CHECK_REJECTED, never a bare PASS"
+      ],
+      "recommended_step": "Keep it — this is the moat. Extend the red-capable gate into report-only CI so the discipline survives handoff."
+    },
+    {
+      "id": "missing_receipts",
+      "name": "Missing Receipts",
+      "score": 2,
+      "observed": "Receipt doctrine is strong on paper but key proofs are missing or unmeasurable: the one real execution receipt is PARTIAL (no founder authorization, no stored evidence), the live Brain's knowledge-bundle hash is null, and the gateway motors emit no on-disk receipt at all.",
+      "evidence": [
+        "M03 execution receipt is not PASS-eligible — missing founder_authorization_ref + evidence (finding GV-1)",
+        "brain_deployment_state bundle_sha256 = null",
+        "4 gateway motors produce zero countable on-disk receipts (finding MO-2)"
+      ],
+      "recommended_step": "Backfill founder_authorization_ref + stored evidence on execution receipts, and wire the gateway census bridge so revenue proof is countable."
+    },
+    {
+      "id": "dead_workflows",
+      "name": "Dead / Broken Workflows",
+      "score": 2,
+      "observed": "Several loops are running-but-invisible or broken at the reference layer: 4 gateway motors are dead to the census, and all 5 repair candidates point at packets that do not exist on disk — the rejection→repair cycle cannot close.",
+      "evidence": [
+        "4 of 6 census motors dead (finding MO-2)",
+        "5 of 5 repair candidates UNRESOLVED_PACKET (finding MO-4)",
+        "governance_stale_pointer_queue empty — a ready sink with nothing fed into it"
+      ],
+      "recommended_step": "Confirm the 4 gateway motors' liveness via their health endpoints, then fix or retire; re-point or retire the 5 orphaned repair candidates."
+    },
+    {
+      "id": "founder_overload",
+      "name": "Founder Overload",
+      "score": 2,
+      "observed": "Governance offloads meaningful work, but 58% of all loops are META (governance-about-governance), dwarfing the 8 loops that produce guard or revenue value — and every irreversible move stays founder-gated behind a growing DECIDE queue.",
+      "evidence": [
+        "META = 22 of 38 loops (57.9%), exceeding GUARD+REVENUE combined (finding MO-3)",
+        "11-item founder DECIDE queue accumulated this session",
+        "sends, deploys, and merges are all founder_blocked"
+      ],
+      "recommended_step": "Reclassify the unclassified loops (much of the 58% is classification debt), then retire or merge the genuinely-META remainder to rebalance effort toward revenue."
+    },
+    {
+      "id": "missing_decision_spine",
+      "name": "Missing Decision Spine",
+      "score": 3,
+      "observed": "A real decision spine exists — an SSOT constitution, a CHESS forecasting machine, and an LLM-free Decision Language Machine — but the DLM's apply-map fence silently drops unvalidated founder items, quietly narrowing founder authority.",
+      "evidence": [
+        "SSOT v6 constitution + CHESS reasoning machine + Decision Language Machine all present (a genuine spine)",
+        "DLM fence leak: 51 unvalidated ADVISOR/FOUNDER items dropped with no accountability (finding GV-6)",
+        "a one-line fix (deferred_unvalidated) is prepared and proven to close the leak"
+      ],
+      "recommended_step": "Apply the prepared one-line fence patch so no founder decision item is ever silently dropped."
+    }
+  ]
+}

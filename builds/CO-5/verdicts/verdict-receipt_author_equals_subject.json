@@ -1,0 +1,11 @@
+{
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_REJECTED",
+  "subject_signal_id": "sig_self_triage_260708",
+  "schema_errors": [],
+  "contract_reasons": [
+    "author == subject ('acme-partner-bot') \u2014 the triage agent must differ from the signal's subject (author\u2260subject independence rule)"
+  ],
+  "subject_receipt": "fixtures/receipt_author_equals_subject.json"
+}

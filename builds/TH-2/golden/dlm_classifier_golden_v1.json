@@ -1,0 +1,16 @@
+{
+  "classification_counts": {
+    "ADVISOR_REVIEW": 49,
+    "DEFER": 11,
+    "FOUNDER_FACT": 2,
+    "MACHINE_VALIDATABLE": 18
+  },
+  "item_count": 80,
+  "cluster_count": 13,
+  "hand_labeled_items": {
+    "11.05": "DEFER",
+    "ENF-01": "ADVISOR_REVIEW",
+    "ENF-04": "MACHINE_VALIDATABLE",
+    "Q-MF-10": "FOUNDER_FACT"
+  }
+}

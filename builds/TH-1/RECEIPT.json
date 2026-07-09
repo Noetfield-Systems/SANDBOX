@@ -1,0 +1,41 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox harness. Does NOT emit or imply D4/promotion PASS. Verdict vocab is CHECK_OK, never PASS.",
+  "catalog_item": "TH-1",
+  "phase": "B0 — LOCK THE BOARD",
+  "title": "Promotion-gate 'refusal teeth' harness",
+  "date": "2026-07-08",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "file": "gates/promotion_gate.py",
+    "modified": false,
+    "author_not_subject": "harness (author) is separate from the gate (subject); gate file unchanged"
+  },
+  "what_it_proves": [
+    "conformant verifier receipt -> APPROVED_DRY_RUN, exit 0 (positive control)",
+    "8 minimal-mutation non-PASS receipts -> PROMOTION_GATE: REFUSED, exit 2, each with its SPECIFIC cause string",
+    "refusal reasons are cause-specific (different faults -> different reason lines), not the overloaded exit code 2",
+    "harness hard-refuses every deploy flag; run under HOME=temp with CF tokens unset -> no live deploy path reachable",
+    "red-run canary fires: asserting a bad receipt is 'approved' fails -> suite is red-capable, not green-by-construction"
+  ],
+  "chess_patches_applied": [
+    "assert specific refusal-cause STRING, never returncode==2 alone (exit 2 overloaded across 4+ paths)",
+    "conformant-PASS positive control reaching APPROVED_DRY_RUN exit 0",
+    "every negative fixture is a minimal mutation (one field) of the conformant receipt",
+    "flagless run, CF tokens unset, HOME on temp dir; never --deploy-command/--confirm-each-time/--semi-auto-window/--autonomous-deploy",
+    "ships a red-capable fixture + committed red-run canary"
+  ],
+  "locks_respected": ["Lock 2 no live CF deploy", "Lock 5 gate not edited/deleted", "no live URL called", "worktree not pushed"],
+  "evidence": {
+    "harness": "catalog/builds/TH-1/test_promotion_gate_refusal_teeth.py",
+    "fixtures": "catalog/builds/TH-1/fixtures/",
+    "red_run_canary": "catalog/builds/TH-1/redrun-canary.txt",
+    "results": { "self_runner": "4/4 green", "pytest": "4 passed in 0.62s" }
+  },
+  "exit_gate_B0": "PARTIAL — TH-1 done (green + red-capable). Remaining B0 items: TH-2, TH-3, TH-4, TH-5, TH-6, GV-3, GV-4, GV-5, WI-7, DX-3.",
+  "next_action": "founder go for TH-3 (language_gate regression harness) or continue B0 sequence"
+}

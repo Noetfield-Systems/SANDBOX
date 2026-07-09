@@ -1,0 +1,77 @@
+{
+  "deliverable": "Brain Coherence Report",
+  "tier": "Tier-1 (diagnosis only)",
+  "client_label": "SAMPLE CLIENT (synthetic)",
+  "engagement_date": "2026-07-08",
+  "scope_note": "Tier-1 diagnosis of the client's current stack. This report describes what was observed. It makes no autonomy or outcome promises. Any build or managed-operation work is a separate, later tier.",
+  "rubric": {
+    "scale": "0-5 coherence score per diagnostic category (higher is more coherent).",
+    "levels": [
+      {"score": 0, "label": "absent", "meaning": "no shared spine observed for this dimension"},
+      {"score": 1, "label": "fragmented", "meaning": "pieces exist but do not connect; frequent contradiction"},
+      {"score": 2, "label": "gaps", "meaning": "partial structure with material blind spots"},
+      {"score": 3, "label": "partial", "meaning": "a spine exists but is inconsistent or unowned"},
+      {"score": 4, "label": "mostly-coherent", "meaning": "coherent with a small number of open edges"},
+      {"score": 5, "label": "coherent", "meaning": "receipt-backed and consistent across the stack"}
+    ],
+    "overall_formula": "overall = rounded mean of the seven category scores"
+  },
+  "categories": [
+    {
+      "id": "stack_fragmentation",
+      "name": "Stack Fragmentation",
+      "score": 1,
+      "observed": "Fourteen tools were named across chat, three note apps, and two task trackers. The same customer record lives in at least four of them with no single source of truth.",
+      "evidence": ["tool inventory export", "two conflicting customer lists (CRM vs spreadsheet)"],
+      "recommended_step": "Name one source of truth per data type and route the rest to it."
+    },
+    {
+      "id": "definition_drift",
+      "name": "Definition Drift",
+      "score": 2,
+      "observed": "The word 'active client' resolves three different ways depending on who is asked. The same question to the assistant returns different answers on different days.",
+      "evidence": ["three written definitions of 'active client'", "two divergent answers to the same prompt"],
+      "recommended_step": "Extract the current working definitions, have the founder ratify them, and lock them as the shared vocabulary."
+    },
+    {
+      "id": "agent_theater",
+      "name": "Agent Theater",
+      "score": 1,
+      "observed": "Two workflows are described as automated but a person re-checks and re-runs each one by hand. The automation reports success while the underlying step is redone manually.",
+      "evidence": ["screen recording of the manual re-run", "success log with no linked output"],
+      "recommended_step": "Retire the labels that claim automation until a step produces a checkable output on its own."
+    },
+    {
+      "id": "missing_receipts",
+      "name": "Missing Receipts",
+      "score": 0,
+      "observed": "Decisions and automated runs leave no stored proof. When a result is questioned there is nothing to inspect after the fact.",
+      "evidence": ["no artifact directory found", "outcomes described only in chat prose"],
+      "recommended_step": "Have each run write a small stored record (inputs, output pointer, timestamp) so results can be checked later."
+    },
+    {
+      "id": "dead_workflows",
+      "name": "Dead Workflows",
+      "score": 2,
+      "observed": "Six documented workflows exist; three have not run this quarter and one points at a tool that was removed. Nobody owns the map, so stale steps are still followed by new hires.",
+      "evidence": ["workflow doc last-modified dates", "one step referencing a decommissioned tool"],
+      "recommended_step": "Mark each workflow live, stale, or retired, and delete the ones that no longer run."
+    },
+    {
+      "id": "founder_overload",
+      "name": "Founder Overload",
+      "score": 1,
+      "observed": "The founder is the routing layer for most decisions and the only person who can resolve a definition conflict. Progress stalls whenever the founder is unavailable.",
+      "evidence": ["calendar showing decision meetings back-to-back", "queue that only the founder can clear"],
+      "recommended_step": "Move the recurring decisions into written rules the team can apply without the founder in the loop."
+    },
+    {
+      "id": "missing_decision_spine",
+      "name": "Missing Decision-Spine",
+      "score": 1,
+      "observed": "There is no single place that says how a decision is made, who approves it, and where it is recorded. Ten competent fragments exist but they do not share a spine.",
+      "evidence": ["no decision log", "approvals happening in three separate channels"],
+      "recommended_step": "Stand up one decision-spine document: the rule, the approver, and the record location for each recurring decision."
+    }
+  ]
+}

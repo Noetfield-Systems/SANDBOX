@@ -1,0 +1,11 @@
+$ python3 redrun_canary.py
+# deliberately-wrong assertion: claims the REAL leaky default apply_map is CHECK_OK; MUST fail.
+
+actual verdict on REAL default map: CHECK_REJECTED
+fence_leaks flagged: 51
+Traceback (most recent call last):
+  File "/private/tmp/claude-501/-Users-sinakazemnezhad-Desktop-Noetfield-Systems/baa6499c-d357-44fc-ae3d-c496a1c1786a/scratchpad/canary.py", line 14, in <module>
+    assert res["verdict"] == "CHECK_OK", \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANARY FIRED: expected(wrong) CHECK_OK but GV-6 correctly said CHECK_REJECTED — the leak IS flagged
+canary-exit=1

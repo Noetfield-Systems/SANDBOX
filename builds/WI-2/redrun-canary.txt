@@ -1,0 +1,4 @@
+real violations_example.md decision: FAIL
+real finding_types: ["ALIAS_RETIRED", "BANNED_REGISTER", "SYNONYM_DRIFT", "UNDEFINED_TERM"]
+EXPECTED -> RED-CANARY FIRED: DELIBERATELY WRONG: violations_example.md is FAIL, not PASS
+Asserting the known-bad file is PASS correctly fails: FAIL is driven by real BANNED_REGISTER content, not stamped. The runner has teeth.

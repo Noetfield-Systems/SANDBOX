@@ -1,0 +1,25 @@
+{
+  "artifact_path": "cloud/workers/sourcea-brain-chat-v1/src/knowledge-bundle.json",
+  "artifact_type": "knowledge_bundle",
+  "author_id": "sandbox",
+  "base_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "base_sha256_note": "No live/base knowledge bundle is present in this governance repo; later verifier/gate steps must compare against live state.",
+  "candidate_path": "proposals/step4-submitted-knowledge-bundle/knowledge-bundle.json",
+  "checks": {
+    "chunk_metadata_present": true,
+    "chunks_non_empty_array": true,
+    "json_parse": true,
+    "required_top_level_keys": true,
+    "root_object": true,
+    "size_bytes": 732
+  },
+  "created_at": "2026-06-30T08:05:00Z",
+  "live_worker_deployed": false,
+  "pass_claimed": false,
+  "proposed_sha256": "afceca7dddfe062bd121d353f9d0a90aacce612da93cf492c252802e3adcf0f1",
+  "receipt_type": "SUBMITTED_KNOWLEDGE_BUNDLE_PROPOSAL",
+  "schema_valid": true,
+  "status": "SUBMITTED",
+  "subject": "live Worker",
+  "validator_runtime": "local_step4_static_validator"
+}

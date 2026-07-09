@@ -1,0 +1,57 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "advisory_only": true,
+  "pass_claimed": false,
+  "note": "Sandbox artifact. Advisory only — this receipt does NOT emit or imply D4 PASS. Nothing here is authority until reconciled into its owning repo.",
+  "artifact": "WHAT WE CAN BUILD HERE — Full Buildable Catalog v1.0",
+  "compiled_date": "2026-07-08",
+  "worktree": {
+    "path": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox",
+    "branch": "claude/sandbox-build",
+    "base_commit": "3f61d41",
+    "isolated": true
+  },
+  "provenance": {
+    "source_workflow_run": "wf_87df5806-0c5",
+    "agents": 13,
+    "composition": "11 subsystem mappers + 1 synthesis + 1 completeness critic",
+    "recovered_from": "~/.claude/projects/...-sandbox-768bcf/.../wf_87df5806-0c5/journal.jsonl",
+    "raw_evidence_dir": "./source/",
+    "critic_merged": true
+  },
+  "contents": {
+    "kit_layers": 11,
+    "categories": 8,
+    "total_ideas": 50,
+    "ideas_per_category": {
+      "A_cross_subsystem_bridges": 4,
+      "B_new_gates_validators": 6,
+      "C_test_eval_harnesses": 6,
+      "D_automation_motors": 8,
+      "E_wiring_externalization": 7,
+      "F_dashboards_dx": 8,
+      "G_pattern_factory_commercial": 6,
+      "H_ci_hooks": 5
+    },
+    "top_picks": 6,
+    "guardrails": 10,
+    "all_ideas_phase_safe": true,
+    "phase_safe_exception_flags": ["CO-4 (offline build/prove is safe; live trustfield.ca gating is founder-gated)"]
+  },
+  "deliverables": [
+    "./FULL_CATALOG.md",
+    "./full-catalog.html",
+    "./RECEIPT.json",
+    "./source/ (13-agent raw evidence)"
+  ],
+  "locks_respected": [
+    "no P0-PGR execution beyond read-only",
+    "no live Cloudflare deploy",
+    "no Supabase writes",
+    "no outbound sends",
+    "no auto-merge",
+    "no artifact deletion",
+    "deliverable is a local self-contained HTML file, not published"
+  ],
+  "next_action": "founder selects an idea by ID (e.g. build GV-1); promotion of any built idea to a real repo follows proposal -> verify -> receipt"
+}

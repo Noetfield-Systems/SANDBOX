@@ -1,0 +1,36 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox verifier. Emits CHECK_OK/CHECK_REJECTED verdicts, never PASS. The tool itself is the trust spine.",
+  "catalog_item": "GV-1", "phase": "B1 — TRUST SPINE",
+  "title": "P0-PGR Execution Receipt Verifier (pipeline stage 11)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": ["p0-pgr/P0_EXECUTION_RECEIPT_SCHEMA_v1.json", "receipts/p0pgr/P0PGR-EXEC-M03-20260708T1330Z.json"],
+    "modified": false,
+    "note": "fills the absent scripts/p0pgr_receipt_verify_v1.py gap; verdicts written to scratch verdicts/, M03 sha verified unchanged"
+  },
+  "what_it_proves": [
+    "REAL M03 -> CHECK_REJECTED citing 3 missing required fields (recorded_at, evidence_artifacts, founder_authorization_ref) + quality_state=PARTIAL + bare-$0 cost + round :00 executed_at + recorded_at absent",
+    "a MINIMAL MUTATION of M03 (add the 3 fields, PASS, accounting_note, non-round ts) -> CHECK_OK",
+    "removing any one required field from the conformant re-rejects -> schema is NEVER relaxed to admit a receipt",
+    "running the verifier leaves M03 byte-identical (sha unchanged); verdict emitted to scratch",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never PASS; reconcile agrees with M03's PARTIAL self-label"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL M03 and records CHECK_REJECTED (no strawman)",
+    "positive proof is a minimally-mutated conformant artifact; no schema relaxation",
+    "emits a NEW verdict receipt beside it, never edits M03 (Lock 5)",
+    "origin=sandbox-advisory / authority=none; reports AUDITOR_DISAGREES_WITH_RECEIPT flag, never its own PASS"
+  ],
+  "locks_respected": ["Lock 5 append-only (M03 unmodified, verdict to scratch)", "no live call", "worktree not pushed"],
+  "evidence": {
+    "verifier": "catalog/builds/GV-1/gv1_receipt_verify.py",
+    "test": "catalog/builds/GV-1/test_gv1_receipt_verify.py",
+    "verdict_on_real_M03": "catalog/builds/GV-1/verdicts/verdict-P0PGR-EXEC-M03-20260708T1330Z.json",
+    "red_run_canary": "catalog/builds/GV-1/redrun-canary.txt",
+    "results": { "real_M03": "CHECK_REJECTED exit 1", "self_runner": "6/6", "pytest": "6 passed", "M03_sha": "unchanged" }
+  },
+  "exit_gate_B1": "STARTED — GV-1 done (rejects real known-bad by minimal mutation). Remaining B1: GV-2, GV-6, BR-4, DX-4, TH-5.",
+  "next_action": "GV-2 (knowledge-bundle 3-hash validator) or GV-6 (DLM apply-map fence validator)"
+}

@@ -1,0 +1,6 @@
+CO-3 RED-RUN CANARY — deliberately-wrong assertions that MUST fire
+==================================================================
+CANARY-1 FIRED (data): canary(data): real leak_rate is 50.0%, not 0.0% -> known leak IS detected
+CANARY-2 FIRED (gate): canary(gate): overclaim mutant verdict is CHECK_REJECTED (gate FAILed on ['OVERCLAIM', 'OVERCLAIM']) -> dogfood has teeth
+
+EXPECTED: both canaries FIRE. If either 'DID NOT FIRE', the proof is green-by-construction and must not be trusted.

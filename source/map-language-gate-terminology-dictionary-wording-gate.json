@@ -1,0 +1,133 @@
+{
+  "subsystem": "language_gate (terminology / dictionary wording gate)",
+  "what_it_is": "A fail-closed wording-authority gate. It builds a canonical plain-English dictionary index from an A-Z doctrine batch, then regex-lints any file for retired aliases, banned register, overclaims, private-only leakage, and undefined Title-Case/ALLCAPS system terms; a deterministic agent pass rewrites to public phrasing and emits a review sidecar. Every scan writes a JSON receipt and returns exit 1 on FAIL (and on WARN when strict), which is what git/Cursor hooks enforce.",
+  "current_state": {
+    "status": "live",
+    "note": "Core engine is operational: `python3 language_gate/language_gate_pipeline_v1.py <file>` runs, dictionary_index.json holds 225 terms + 10 aliases, tool_version is language_gate_rc3_pile_v1, and a full 160-file library scan receipt exists (3 FAIL / 87 WARN / 34 PASS_WITH_REWRITE / 36 PASS). Enforcement is wired outside scope via .cursor/hooks.json (afterFileEdit + preToolUse block) and .githooks/pre-commit installed by scripts/install_language_gate_hooks_v1.sh (confirmed present, not deep-read per scope). Two integration gaps: (1) the two overlay index JSONs are produced but ORPHANED \u2014 no core/pipeline/agent code loads them; (2) no automated test harness exists despite test_files/ fixtures. Only dictionary_rc2_supplement.json is actually merged at load time."
+  },
+  "key_assets": [
+    {
+      "path": "language_gate/language_gate_core_v1.py",
+      "kind": "gate",
+      "purpose": "THE enforcement engine: SURFACES, SURFACE_POLICY toggles, load_dictionary (merges rc2 supplement), scan() (alias/synonym/banned/overclaim/private/undefined findings), decide() (FAIL/WARN/PASS_WITH_REWRITE/PASS), write_receipt(). Holds the big hardcoded allowlists (STATUS_LABEL, CENSUS_VERB, FRAGMENT, TECH_REFERENCE, STRUCTURAL, ENTITY, vendor)."
+    },
+    {
+      "path": "language_gate/language_gate_pipeline_v1.py",
+      "kind": "cli",
+      "purpose": "Orchestrator: infer_surface -> scan -> regex rewrite -> agent plain_english_pass -> write_receipt; exit_code() returns 1 on FAIL and on WARN when strict_undefined. Flags: --surface --write --skip-agent --soft-undefined --json."
+    },
+    {
+      "path": "language_gate/language_gate_agent_rewrite_v1.py",
+      "kind": "script",
+      "purpose": "Deterministic plain-English pass using dictionary public_phrasing + jargon table; write_sidecar() produces the <file>.language_gate_review.json sidecars (agent_review + dictionary_warnings)."
+    },
+    {
+      "path": "language_gate/build_dictionary_index.py",
+      "kind": "script",
+      "purpose": "Parses NOETFIELD_DICTIONARY_BATCH_A-Z_v1.md into dictionary_index.json: terms, alias_map, retired_terms, private_only, code_alias (+ legacy tombstone_map)."
+    },
+    {
+      "path": "language_gate/generate_batch_markdown_v1.py",
+      "kind": "script",
+      "purpose": "Reverse direction \u2014 regenerates the A-Z batch markdown from the index with CANONICAL_PROMOTIONS and SYNONYM_ALIASES, so plain-English canonical wins and old jargon becomes retired aliases."
+    },
+    {
+      "path": "language_gate/dictionary_index.json",
+      "kind": "data",
+      "purpose": "Live compiled dictionary: 225 terms, 10-entry alias_map, 13 retired, 3 private_only, 2 code_alias. Loaded by every scan."
+    },
+    {
+      "path": "language_gate/dictionary_rc2_supplement.json",
+      "kind": "data",
+      "purpose": "The ONE live extension file: 43 gap-fill terms + 48-item structural_allowlist + alias_index, merged in load_dictionary() and effective_structural_allowlist()."
+    },
+    {
+      "path": "language_gate/sourcea_dictionary_overlay_index_v1.json",
+      "kind": "data",
+      "purpose": "127 SourceA overlay entries classed COMMAND_FRAGMENT/FORM_OPTION/STATUS_LABEL/SOURCEA_LOCAL_TERM with cleanup_rules \u2014 produced but NOT consumed by the gate (orphaned)."
+    },
+    {
+      "path": "language_gate/trustfield_dictionary_overlay_index_v1.json",
+      "kind": "data",
+      "purpose": "38 TrustField overlay entries (DRAFT) including CONFLICT_PHRASE and REGULATORY_COPY_RISK classes (e.g. RPAA MSP/PSP self-claim guards) \u2014 produced but NOT consumed by the gate (orphaned)."
+    },
+    {
+      "path": "language_gate/rc2_dry_scan_v1.py",
+      "kind": "script",
+      "purpose": "Read-only harness scanning 5 controlled canon files across surfaces; writes receipts/rc2_dry_scan_report.json (currently all PASS)."
+    },
+    {
+      "path": "language_gate/cold_session_proof_v1.sh",
+      "kind": "script",
+      "purpose": "Proves the gate reads the dictionary from disk (SHA of index+batch) with no chat memory; emits a cold-session proof receipt."
+    },
+    {
+      "path": "language_gate/receipts/SG-Canonical-Library.library_scan.056cec9f66a064c7.details.json",
+      "kind": "data",
+      "purpose": "Aggregate 160-file library scan output (file/surface/decision/findings_count/regex_would_change/agent_would_change) \u2014 shows the schema a library-scan runner emits, but that runner is NOT in language_gate/."
+    },
+    {
+      "path": "language_gate/test_files/",
+      "kind": "test",
+      "purpose": "Fixtures: clean_example.md, violations_example.md, tombstone_only.md, cold_session_doctrine_sample_v1.md \u2014 used manually; no assertion harness runs them."
+    },
+    {
+      "path": "language_gate/README.md",
+      "kind": "doc",
+      "purpose": "Authority chain, surface table, pipeline usage, hook wiring, RC2 fixes, strict-vs-soft undefined policy."
+    }
+  ],
+  "extension_points": [
+    "effective_structural_allowlist() / effective_entity_allowlist() in language_gate_core_v1.py \u2014 the merge point that today only pulls supplement.structural_allowlist; the natural hook to fold in overlay-index entries",
+    "load_dictionary() SUPPLEMENT_PATH merge \u2014 add terms/alias_map/code_alias without editing code (rc2 supplement is the working template)",
+    "SURFACE_POLICY dict (internal/public/website/contract/prompt/receipt) \u2014 per-surface block_* toggles are data-shaped and easy to extend with a new surface or policy flag",
+    "Regex tables SYNONYM_AUTOFIX, BANNED_REGISTER, OVERCLAIM_PATTERNS \u2014 pattern lists that new wording rules plug into",
+    "write_receipt() -> receipts/*.receipt.json and write_sidecar() -> *.language_gate_review.json \u2014 structured outputs any aggregator/dashboard can consume",
+    "infer_surface() path-prefix rules \u2014 where new path->surface mappings register",
+    "The two overlay index JSONs (sourcea/trustfield) \u2014 already built to a stable schema (entries[].term/class/note) but not yet wired into scan()"
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Wire the orphaned overlay indexes into the gate: extend effective_structural_allowlist()/effective_entity_allowlist() to fold overlay entries[] by class (COMMAND_FRAGMENT, FORM_OPTION, STATUS_LABEL, *_LOCAL_TERM -> skip as undefined; keep CONFLICT_PHRASE/REGULATORY_COPY_RISK separate). Kills UNDEFINED_TERM noise the overlays were built to suppress and finally connects 165 produced-but-unused entries.",
+      "builds_on": "sourcea_dictionary_overlay_index_v1.json + trustfield_dictionary_overlay_index_v1.json + effective_structural_allowlist() in language_gate_core_v1.py",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a pytest regression harness (language_gate/test_language_gate_v1.py) that runs the pipeline over test_files/ and asserts expected decisions: violations_example -> FAIL with the exact BANNED/OVERCLAIM findings, clean_example -> PASS, tombstone_only -> autofix. Locks current behavior before anyone touches the allowlists; today nothing guards the gate.",
+      "builds_on": "language_gate/test_files/* fixtures + decide()/run_pipeline()",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build an in-gate read-only library scan runner (language_gate/library_scan_v1.py) that globs a path, calls scan() with write=False, and emits the existing library_scan details.json schema plus a decision rollup. Re-owns the capability that produced the 160-file receipt (whose runner is not in the gate) so the 3 FAIL / 87 WARN can be re-derived and tracked.",
+      "builds_on": "receipts/SG-Canonical-Library.library_scan.*.details.json schema + scan()/decide()",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Promote TrustField overlay REGULATORY_COPY_RISK and CONFLICT_PHRASE entries into surface-scoped overclaim/banned patterns (e.g. block MSP/PSP self-claims on website/public), driven by the overlay JSON instead of the hardcoded OVERCLAIM_PATTERNS list. Turns the DRAFT TrustField overlay into real enforcement for regulated web copy.",
+      "builds_on": "trustfield_dictionary_overlay_index_v1.json entries + OVERCLAIM_PATTERNS/block_private path in scan()",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Externalize the six large hardcoded allowlists (STATUS_LABEL/CENSUS_VERB/FRAGMENT/TECH_REFERENCE/STRUCTURAL/ENTITY) out of language_gate_core_v1.py into a JSON allowlist file loaded like dictionary_rc2_supplement.json, so vocabulary edits stop requiring Python changes and stay reviewable as data.",
+      "builds_on": "effective_structural_allowlist() merge pattern + dictionary_rc2_supplement.json.structural_allowlist",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build a simple static HTML rollup (per founder 'simple web format' rule) that reads receipts/*.receipt.json and *.language_gate_review.json sidecars into one board: decision counts, top undefined terms, open agent_review flags, worst offending files. Gives visibility over gate output with no new enforcement surface.",
+      "builds_on": "write_receipt() receipts/*.receipt.json + write_sidecar() *.language_gate_review.json",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

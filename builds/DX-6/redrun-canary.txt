@@ -1,0 +1,3 @@
+registry motors = 15; rendered motor rows = 15
+EXPECTED -> RED-CANARY FIRED: off-by-one canary: rendered rows must equal registry motors + 1 (got rows=15, n=15); the count is pinned to the real registry, so a bogus count is rejected.
+EXPECTED -> RED-CANARY FIRED: empty-sink canary: an empty census must render clean (0); empty census renders UNPOPULATED, not 0/all-clear.

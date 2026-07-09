@@ -1,0 +1,20 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox linter. CHECK_OK/ISSUES vocab, never PASS.",
+  "catalog_item": "GV-5", "phase": "B0 — LOCK THE BOARD",
+  "title": "Sandbox-registry gate-profile linter", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": { "files": ["data/brain_domain_sandboxes_v1.json", "gates/promotion_gate.py::apply_sandbox_profile"], "modified": false },
+  "what_it_proves": [
+    "each sandbox row has sandbox_id + deploy_root the gate reads; real registry CHECK_OK exit 0",
+    "gate_profile keys constrained to what apply_sandbox_profile reads; unknown key = typo flagged",
+    "seeded row missing deploy_root -> caught (would KeyError the gate); wrong-typed value caught",
+    "red-run canary: missing deploy_root -> exit 1"
+  ],
+  "chess_patches_applied": ["exits nonzero on any issue; RED-before-GREEN via canary", "read-only; append-only respected"],
+  "locks_respected": ["Lock 5 append-only", "no live call", "worktree not pushed"],
+  "evidence": { "linter": "catalog/builds/GV-5/gv5_gate_profile_lint.py", "test": "catalog/builds/GV-5/test_gv5_gate_profile_lint.py",
+    "red_run_canary": "catalog/builds/GV-5/redrun-canary.txt", "results": { "real": "CHECK_OK exit 0", "self_runner": "4/4", "pytest": "4 passed" } },
+  "next_action": "WI-7"
+}

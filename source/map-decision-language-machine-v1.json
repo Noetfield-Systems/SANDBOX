@@ -1,0 +1,134 @@
+{
+  "subsystem": "decision_language_machine_v1",
+  "what_it_is": "A deterministic, LLM-free 8-stage Python pipeline that turns messy decision backlogs (form rows, chat forks, audit findings, agent questions, markdown bullets) into a reduced founder-review sheet plus a validation-gated apply-map. Each stage emits a JSON receipt. Its stated thesis is \"the form is not the product, the machine is the product\" \u2014 it normalizes raw statements, rewrites jargon to plain English, checks terminology against the sibling language_gate dictionary, clusters duplicates, classifies each item into MACHINE_VALIDATABLE / ADVISOR_REVIEW / FOUNDER_FACT / DEFER, and only presents advisor clusters + founder facts to the founder while machine-closing the rest.",
+  "current_state": {
+    "status": "live",
+    "note": "Runs end-to-end via `python3 dlm_v1.py <input>`; 8 committed sample runs exist under output/ and receipts/ (committed Jul 8 2026, commit 4ad2f5c). It is a working v1 but rule-based: clustering (THEME_RULES) and classification (FOUNDER_FACT/DEFER/ADVISOR/MACHINE_EVIDENCE pattern lists) are hardcoded regex tuned to one founder corpus, so it won't generalize to new corpora without editing those lists. Two hard couplings/caveats: (1) dlm_terms_v1.py imports the OUT-OF-SCOPE sibling language_gate/ (language_gate_core_v1.py + dictionary_index.json) for the dictionary check \u2014 that dependency exists on disk and resolves; (2) committed output manifests carry a stale absolute path (/Users/.../Desktop/Noetfield-Systems/...) from an earlier machine, so old artifacts are cosmetically stale though the code recomputes paths correctly at runtime. The apply-map stage is deliberately fenced: it never auto-submits FORM_OFFICIAL and blocks on unvalidated advisor/founder picks unless partial_batch is on."
+  },
+  "key_assets": [
+    {
+      "path": "decision_language_machine_v1/dlm_v1.py",
+      "kind": "cli",
+      "purpose": "argparse entry point; flags --validated-picks, --skip-apply-map, --no-partial-batch, --json; calls run_pipeline"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_pipeline_v1.py",
+      "kind": "script",
+      "purpose": "orchestrates the 8 stages in order, writes a stage receipt per stage plus founder_sheet/processed/apply_map/manifest outputs, returns summary dict"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_core_v1.py",
+      "kind": "schema",
+      "purpose": "canonical dataclasses (DecisionItem, ProcessedItem, Cluster), ItemSource enum, CLASSIFICATIONS + STAGES constants, run-id/receipt/manifest writers (write_stage_receipt, write_run_manifest), OUTPUT_DIR/RECEIPTS_DIR"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_intake_v1.py",
+      "kind": "script",
+      "purpose": "normalizes 4+ input shapes (form open_questions, backlog items/decisions/rows JSON, FORM_OFFICIAL markdown sections, plain markdown bullet lines) into DecisionItem list; load_items() dispatches by suffix/content"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_plain_english_v1.py",
+      "kind": "script",
+      "purpose": "jargon rewrite pass; JARGON_REPLACEMENTS + ACRONYM_EXPAND tables, option simplification, 45-word/320-char truncation"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_terms_v1.py",
+      "kind": "script",
+      "purpose": "term extraction + dictionary check; imports language_gate_core_v1 allowlists/TERM_RE/load_dictionary; emits per-term status DICTIONARY_OK / ALIAS_RETIRED / RETIRED / DICTIONARY_FIX_NEEDED and a fix_needed flag"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_cluster_v1.py",
+      "kind": "script",
+      "purpose": "keyword-scored clustering into 12 hardcoded THEME_RULES buckets (+ CLUSTER-OTHER / CLUSTER-FOUNDER-FACT / CLUSTER-DICT-FIX fallbacks); merges member questions and controls"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_classify_v1.py",
+      "kind": "script",
+      "purpose": "ordered pattern cascade classifying each item into FOUNDER_FACT / DEFER / MACHINE_VALIDATABLE / ADVISOR_REVIEW with a reason + evidence_hint; four regex pattern lists drive it"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_founder_sheet_v1.py",
+      "kind": "script",
+      "purpose": "builds the reduced founder sheet (advisor clusters + founder facts only, machine/deferred as id lists) as JSON and renders markdown via render_founder_sheet_md"
+    },
+    {
+      "path": "decision_language_machine_v1/dlm_apply_map_v1.py",
+      "kind": "gate",
+      "purpose": "validation fence: load_validated_picks parses multiple pick formats; build_apply_map produces READY/EMPTY/BLOCKED_UNVALIDATED, lists machine_closed_without_founder, never auto-submits FORM_OFFICIAL"
+    },
+    {
+      "path": "decision_language_machine_v1/test_fixtures/form_official_80_open_v1.json",
+      "kind": "test",
+      "purpose": "80-item FORM_OFFICIAL open-questions corpus (primary fixture; produces 10 advisor clusters, 38 machine-validatable, 2 founder facts)"
+    },
+    {
+      "path": "decision_language_machine_v1/test_fixtures/messy_backlog_sample_v1.json",
+      "kind": "test",
+      "purpose": "small mixed-source corpus (audit_finding, chat_fork, agent_question, backlog) exercising every intake path"
+    },
+    {
+      "path": "decision_language_machine_v1/receipts/",
+      "kind": "data",
+      "purpose": "per-stage receipt store: {run_id}.{stage}.{scan_id}.receipt.json, one per stage per run (schema decision_language_machine_stage_receipt_v1)"
+    },
+    {
+      "path": "decision_language_machine_v1/output/",
+      "kind": "data",
+      "purpose": "per-run artifacts: {run_id}.manifest.json / .founder_sheet.json+.md / .processed.json / .apply_map.json"
+    }
+  ],
+  "extension_points": [
+    "dlm_plain_english_v1.py: JARGON_REPLACEMENTS list + ACRONYM_EXPAND dict \u2014 add domain jargon/acronym rewrites without touching pipeline wiring",
+    "dlm_cluster_v1.py: THEME_RULES list of (cluster_id, name, keywords) \u2014 append new decision themes; assign_cluster/build_clusters pick them up automatically",
+    "dlm_classify_v1.py: the four pattern lists (FOUNDER_FACT_PATTERNS, MACHINE_EVIDENCE_PATTERNS with hints, DEFER_PATTERNS, ADVISOR_PATTERNS) \u2014 tune routing by editing regex; classify_item cascade is fixed but data-driven",
+    "dlm_intake_v1.py: add a from_<source>() loader and wire it into load_items() suffix/content dispatch to support new input formats (CSV, JSONL, receipt streams)",
+    "dlm_core_v1.py: STAGES tuple + write_stage_receipt() \u2014 insert a new pipeline stage and it inherits receipt/manifest plumbing for free",
+    "dlm_founder_sheet_v1.py: render_founder_sheet_md() is the render seam \u2014 add render_founder_sheet_html() (or other formats) reading the same sheet dict",
+    "dlm_apply_map_v1.py: load_validated_picks() format handlers + SKIP_KEYS \u2014 add new validated-pick input schemas without changing the fence logic",
+    "language_gate/dictionary_index.json (out of scope, read by dlm_terms_v1.py) \u2014 dictionary entries flow directly into DICTIONARY_FIX_NEEDED / ALIAS_RETIRED / RETIRED statuses"
+  ],
+  "buildable_ideas": [
+    {
+      "idea": "Add render_founder_sheet_html() beside render_founder_sheet_md() in dlm_founder_sheet_v1.py and have the pipeline also write output/{run_id}.founder_sheet.html \u2014 a single self-contained page showing advisor clusters, options, founder facts, and the machine/deferred counts. Directly satisfies the founder's standing rule that 'presentation' means a simple HTML page, not a deck.",
+      "builds_on": "dlm_founder_sheet_v1.py (render_founder_sheet_md + build_founder_sheet dict), dlm_pipeline_v1.py sheet-writing block",
+      "effort": "S",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Build dlm_eval_v1.py: a golden-fixture harness that adds an expected_classification (and expected cluster) field per item in the test fixtures, runs the pipeline, and diffs actual vs expected classification counts/labels, emitting an eval receipt. Turns the hardcoded regex classifier into something regression-testable before anyone tunes the pattern lists.",
+      "builds_on": "dlm_classify_v1.py cascade, test_fixtures/*.json, write_stage_receipt in dlm_core_v1.py",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a DICTIONARY_FIX_NEEDED batch emitter stage that aggregates every DICTIONARY_FIX_NEEDED / ALIAS_RETIRED / RETIRED term across all items into output/{run_id}.dictionary_batch.json as a proposal file (proposed canonical entries + source item ids) \u2014 proposal only, never writing to language_gate/dictionary_index.json. The 80-item fixture already surfaces 62 fix-needed items, so this closes the biggest bucket of open work.",
+      "builds_on": "dlm_terms_v1.py check_terms statuses + dictionary_flags, dictionary_fix_needed counts already in the pipeline",
+      "effort": "M",
+      "value": "high",
+      "phase_safe": true
+    },
+    {
+      "idea": "Extend classify_item to record which rule fired (cluster-forced vs which named pattern vs default-defer) and a confidence tier, surfaced in processed.json and flagged on the founder sheet so low-confidence DEFER/ADVISOR items are visibly 'guessed'. Makes the opaque regex cascade auditable and tells the founder where the machine is least sure.",
+      "builds_on": "dlm_classify_v1.py ordered cascade (classification_reason/evidence_hint already exist), dlm_founder_sheet_v1.py rendering",
+      "effort": "M",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Write an apply-map round-trip validator (dlm_verify_apply_map_v1.py) that loads an emitted apply_map.json + the source backlog and asserts the invariants: every ADVISOR_REVIEW/FOUNDER_FACT id is either in picks or missing_ids, machine_closed_without_founder never overlaps picks, and status is never a FORM_OFFICIAL auto-submit \u2014 emitting a verification receipt. Hardens the one governance fence in the whole subsystem.",
+      "builds_on": "dlm_apply_map_v1.py build_apply_map/load_validated_picks + SKIP_KEYS, write_stage_receipt",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    },
+    {
+      "idea": "Add a from_jsonl()/from_csv() intake adapter and wire it into load_items() suffix dispatch so backlogs exported as line-delimited rows (a common form/agent export shape) flow through unchanged. Extends reach without touching any downstream stage.",
+      "builds_on": "dlm_intake_v1.py loader pattern (from_form_open_questions/from_backlog_json) + load_items dispatch",
+      "effort": "S",
+      "value": "med",
+      "phase_safe": true
+    }
+  ]
+}

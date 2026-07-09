@@ -1,0 +1,57 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox re-linter layered on the ground packet linter (scripts/p0pgr_packet_lint_v1.py). Emits CHECK_OK/CHECK_REJECTED, never PASS. Read-only over receipts/p0pgr/repair_candidates and receipts/p0pgr/outbox; mutates no packet, candidate, or receipt.",
+  "catalog_item": "MO-4", "phase": "B3",
+  "title": "Repair-Candidate Re-Linter (re-runs the ground linter against a candidate's referenced packet and diffs reasons before/after)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "ground_linter": "scripts/p0pgr_packet_lint_v1.py",
+    "candidates_dir": "receipts/p0pgr/repair_candidates/ (5 filed candidates)",
+    "packet_corpus": "receipts/p0pgr/outbox/*.json (10 packets, all currently lint-clean)",
+    "modified": false,
+    "note": "re-imports and re-runs the SAME lint_packet the runtime files repair candidates with; no reimplementation, no relaxation"
+  },
+  "finding": {
+    "verdict": "CHECK_REJECTED",
+    "rejected_count": 5,
+    "detail": "All 5 on-disk repair candidates reference packets that no longer exist (their recorded packet_path points at ephemeral pytest temp dirs, and no receipts/p0pgr/outbox/P0PGR-20260708-001.json exists to fall back to). Status=UNRESOLVED_PACKET: the filed repairs cannot be re-verified against a live packet. The 10 outbox corpus packets all re-lint CHECK_OK.",
+    "interpretation": "Repair candidates are being filed against transient packet paths, so no downstream re-linter (this one included) can confirm whether the flagged reasons were ever actually repaired. Reported as a finding, not hidden."
+  },
+  "what_it_proves": [
+    "a REAL outbox packet (P0PGR-20260708-002) re-lints CHECK_OK with zero reasons (positive; no relaxation)",
+    "a MINIMAL MUTATION of that same real packet (one hard_block_allowed_reasons value -> bogus enum) is flagged -> CHECK_REJECTED citing the exact reason (positive control: a zero-hit elsewhere cannot be a broken-regex false-clean)",
+    "a second independent minimal mutation (drop required execution_mode) is also flagged -> CHECK_REJECTED (detector is not tied to one reason)",
+    "repair-candidate diff: a candidate whose packet re-lints clean -> reasons RESOLVED, CHECK_OK (repair confirmed); a candidate whose packet still carries its filed reason -> still_present, CHECK_REJECTED (repair NOT confirmed)",
+    "a candidate whose referenced packet is missing -> UNRESOLVED_PACKET, CHECK_REJECTED (cannot re-verify; surfaced, not swallowed)",
+    "a full run leaves every outbox packet AND repair candidate byte-identical (sha unchanged); tool is strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; exits NONZERO on any CHECK_REJECTED (not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "re-runs the REAL ground linter via importlib against real on-disk packets (no strawman reimplementation of lint rules)",
+    "negative fixture is a MINIMAL MUTATION of a real outbox packet (flip one value / drop one field) done on a temp copy, not a hand-built fake",
+    "positive control (the mutated-packet detector) is asserted green so a clean packet's zero-hit is trustworthy",
+    "origin=sandbox-advisory / authority=none; reports lint violations and unresolved repairs as findings, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 1/2/5/6/7 append-only: no tracked file edited/overwritten/removed; every packet + candidate sha unchanged after a full run",
+    "read-only re-linter (mutations only ever on temp copies; ground linter imported, not modified)",
+    "no live call: no network, no Supabase, no send/dispatch, no deploy",
+    "DRAFT-only posture preserved: tool never writes packets, never sets AUTO_DISPATCH_APPROVED, never touches the queue",
+    "wrote only inside catalog/builds/MO-4/; no git write commands; other lanes' untracked drops left alone"
+  ],
+  "evidence": {
+    "tool": "catalog/builds/MO-4/mo4_repair_relint.py",
+    "test": "catalog/builds/MO-4/test_mo4_repair_relint.py",
+    "red_run_canary": "catalog/builds/MO-4/redrun-canary.txt",
+    "results": {
+      "real_repo_run": "CHECK_REJECTED exit 1 (5 candidates UNRESOLVED_PACKET, 10 outbox packets CHECK_OK)",
+      "self_runner": "9/9 green",
+      "pytest": "9 passed in 0.11s",
+      "red_canary": "FIRED (asserting CHECK_OK on a minimally-mutated real packet fails)",
+      "ground_truth_sha": "unchanged (all outbox packets + repair candidates)"
+    }
+  },
+  "exit_gate_B3": "MO-4 done (re-linter re-runs the ground linter against a repair candidate's referenced packet and diffs reasons; red-capable via minimal mutation of a real outbox packet + positive control; surfaces 5 unresolvable repair candidates as a real finding).",
+  "next_action": "File repair candidates with a durable packet reference (persist the packet or point at receipts/p0pgr/outbox/<packet_id>.json) so filed repairs can be re-verified; then re-run MO-4 to confirm each flagged reason was actually resolved."
+}

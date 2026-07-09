@@ -1,0 +1,58 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "note": "Advisory sandbox batch linter. Emits CHECK_OK/CHECK_REJECTED verdicts, never a bare governance PASS. Read-only over the P0-PGR outbox; reuses the ground per-packet linter unforked. The tool itself is the trust spine.",
+  "catalog_item": "MO-5", "phase": "B3",
+  "title": "Batch Outbox Linter (static, read-only, over receipts/p0pgr/outbox/*.json)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "scripts/p0pgr_packet_lint_v1.py",
+      "receipts/p0pgr/outbox/P0PGR-20260708-002.json .. P0PGR-20260708-011.json (10 packets)"
+    ],
+    "modified": false,
+    "note": "imports the ground per-packet linter unforked and runs its lint_packet() over each of the 10 outbox packets; all files read-only, sha unchanged"
+  },
+  "finding": {
+    "verdict": "CHECK_OK",
+    "packet_count": 10,
+    "clean_count": 10,
+    "violation_count": 0,
+    "interpretation": "All 10 real outbox packets lint clean (ground linter verdict PASS each). The batch gate reports CHECK_OK honestly and exits 0. Unlike the ground linter — which is bound by RUNTIME_CONTINUITY_LAW_v1 to always exit 0 so a malformed packet never freezes the lane — MO-5 exits NONZERO the moment any packet is a REPAIR_CANDIDATE, making it usable as a pre-flight batch gate."
+  },
+  "what_it_proves": [
+    "REAL outbox (10 packets) -> CHECK_OK, exit 0: every packet lints PASS, reported honestly as the true verdict (whole-set positive control, not a stub)",
+    "a MINIMAL MUTATION of ONE real packet (drop the required `fallback_route` key) in a TEMP COPY flips that packet to REPAIR_CANDIDATE and the batch to CHECK_REJECTED, exit 1; the other 9 stay PASS (RED-before-GREEN, seed file cited)",
+    "a SECOND independent minimal mutation (cloud_safe=false on a CLOUD_ONLY packet) also flips the batch -> the gate is not keyed to one lucky field; a broken-regex false-clean would miss at least one",
+    "positive control: an unmutated byte-copy of the real outbox stays CHECK_OK -> the rejection is caused by the mutation, not by copying",
+    "running MO-5 leaves every real outbox packet AND scripts/p0pgr_packet_lint_v1.py byte-identical (sha unchanged); strictly read-only",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS; per-packet lint_verdict is the ground linter's own PASS/REPAIR_CANDIDATE classification, reported verbatim"
+  ],
+  "chess_patches_applied": [
+    "runs against the REAL outbox and records its true verdict (CHECK_OK); no strawman, no manufactured violation",
+    "red-capability proven by MINIMAL MUTATION of a real on-disk packet in a temp copy (no relaxation of the ground linter's rules — the same lint_packet() decides)",
+    "imports the ground linter unforked so a green batch actually exercises the live lint logic, not a re-implementation",
+    "reads packets + ground linter, never writes to either (Lock 5 / read-only); summary printed to stdout, optional --out confined to the build dir",
+    "origin=sandbox-advisory / authority=none; reports the batch verdict as a finding, never its own PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (10 outbox packets + ground linter unmodified, sha unchanged; writes only inside catalog/builds/MO-5/)",
+    "Lock 1/2 no live call (no network, no Supabase, no send/dispatch; pure static read)",
+    "DRAFT-only: no dispatch triggered, queue untouched, no AUTO_DISPATCH_APPROVED",
+    "read-only batch linter; worktree not pushed; touched nothing outside the build dir"
+  ],
+  "evidence": {
+    "linter": "catalog/builds/MO-5/mo5_outbox_lint.py",
+    "test": "catalog/builds/MO-5/test_mo5_outbox_lint.py",
+    "red_run_canary": "catalog/builds/MO-5/redrun-canary.txt",
+    "results": {
+      "real_outbox": "CHECK_OK exit 0 (10/10 clean)",
+      "self_runner": "6/6 green",
+      "pytest": "6 passed",
+      "mutated_temp_outbox": "CHECK_REJECTED exit 1 (1 violation, victim cited)",
+      "ground_truth_sha": "unchanged (10 packets + ground linter)"
+    }
+  },
+  "exit_gate_B3": "MO-5 done (batch outbox linter reuses the ground per-packet linter unforked, reports the real outbox as CHECK_OK honestly, and is red-capable via minimal-mutation of a real packet + a second independent mutation as positive control).",
+  "next_action": "If any future outbox packet lints REPAIR_CANDIDATE, MO-5 exits nonzero and cites the packet+reasons; wire it as a pre-dispatch batch gate over receipts/p0pgr/outbox/."
+}

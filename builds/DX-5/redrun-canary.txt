@@ -1,0 +1,16 @@
+DX-5 red-run canary — deliberately-wrong assertion that MUST fire
+=================================================================
+
+Fixture: SG-Canonical-Library/.../P9-PATTERN-FACTORY/brain-as-a-service.md.language_gate_review.json
+  real    UNDEFINED_TERM = 8
+  mutated UNDEFINED_TERM = 9   (one dictionary_warning injected)
+
+Deliberately-wrong assertion:  assert mutated_count == real_count   # i.e. "adding a warning changes nothing"
+
+Result:
+  EXPECTED -> RED-CANARY FIRED: tally moved: mutated=9 != real=8 (adding a warning MUST change the count)
+  AssertionError raised, process exit 1.
+
+Meaning: the tally discriminates real vs mutated sidecar input. It is NOT green-by-construction /
+blind to its input — mutating the parsed sidecar by exactly one item moves the count by exactly one,
+so the hand-count equality in test_dx5_wording_debt_rollup.py has teeth.

@@ -1,0 +1,46 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox validator. CHECK_OK/INVALID vocab, never PASS.",
+  "catalog_item": "GV-3",
+  "phase": "B0 — LOCK THE BOARD",
+  "title": "In-library CHESS pass validator CLI",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": [
+      "SG-Canonical-Library/noetfield-library/SCHEMAS/chess_pass.schema.json",
+      "SG-Canonical-Library/noetfield-library/CHESS-v2/manifest.json",
+      "SG-Canonical-Library/noetfield-library/EXAMPLES/sample_chess_pass.json"
+    ],
+    "modified": false,
+    "method": "dependency-free schema-driven validation; standalone, no downstream consumer (BR-3 not gated by it)"
+  },
+  "what_it_proves": [
+    "canonical sample CHESS pass validates against the schema -> CHECK_OK exit 0",
+    "our own locked build-plan chess_pass also validates (real generated data)",
+    "action=BLOCK rejected by BOTH the enum and the manifest forbidden_action_labels (no-BLOCK teeth)",
+    "missing-required / extra-field (additionalProperties:false) / wrong-type all rejected",
+    "manifest-check surfaces the dangling TOOLS/ refs"
+  ],
+  "findings_for_founder": {
+    "dangling_manifest_refs": ["TOOLS/chess_pass_cli.py", "TOOLS/README.md"],
+    "note": "manifest lists these but they are absent (the real CLI lives at scripts/chess_pass_cli_v1.py). REPORTED, not fixed — manifest edit is a founder/append-only decision, not a sandbox cleanup."
+  },
+  "chess_patches_applied": [
+    "stays a standalone library-internal validator; nothing downstream depends on it",
+    "exits nonzero on invalid/forbidden/dangling; RED-before-GREEN via canary",
+    "read-only; reports dangling refs, does not edit the manifest (append-only)"
+  ],
+  "locks_respected": ["Lock 5 append-only (library files unmodified)", "no live call", "worktree not pushed"],
+  "evidence": {
+    "validator": "catalog/builds/GV-3/gv3_chess_pass_validate.py",
+    "test": "catalog/builds/GV-3/test_gv3_chess_pass_validate.py",
+    "red_run_canary": "catalog/builds/GV-3/redrun-canary.txt",
+    "results": { "sample": "CHECK_OK exit 0", "manifest_check": "2 dangling refs exit 1", "self_runner": "7/7 green", "pytest": "7 passed" }
+  },
+  "next_action": "DX-3 (de-pin the desktop audit apps)"
+}

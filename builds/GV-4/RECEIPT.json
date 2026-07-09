@@ -1,0 +1,37 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox linter. CHECK_OK/DANGLING vocab, never PASS.",
+  "catalog_item": "GV-4",
+  "phase": "B0 — LOCK THE BOARD",
+  "title": "Registry cross-consistency linter",
+  "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": ["data/github_automation_registry_v1.json", "data/automation_surface_inventory_v1.json"],
+    "modified": false,
+    "method": "read-only; checks referential integrity of motor/agent id references"
+  },
+  "what_it_proves": [
+    "real registries: all references (conflicts_with, allowed_motors, conflict_matrix.motors) resolve to a known motor or agent -> CHECK_OK exit 0",
+    "universe = registry motors + agent_lanes + inventory-declared workflow/mac motor ids (avoids false positives on the curated SG subset)",
+    "seeded dangling ref (one field) is caught and named",
+    "CLI exits 1 on a dangling ref, 0 when clean (RED-before-GREEN, not always-exit-0)"
+  ],
+  "chess_patches_applied": [
+    "linter exits NONZERO on any hit; proves RED-before-GREEN on a seeded bad ref",
+    "read-only; no registry writes; append-only respected",
+    "ships a committed red-run canary"
+  ],
+  "locks_respected": ["Lock 5 append-only (registries unmodified)", "no live call", "worktree not pushed"],
+  "evidence": {
+    "linter": "catalog/builds/GV-4/gv4_registry_xref_lint.py",
+    "test": "catalog/builds/GV-4/test_gv4_registry_xref_lint.py",
+    "red_run_canary": "catalog/builds/GV-4/redrun-canary.txt",
+    "results": { "linter_real": "CHECK_OK exit 0", "self_runner": "4/4 green", "pytest": "4 passed" }
+  },
+  "next_action": "GV-3 (in-library CHESS pass validator CLI)"
+}

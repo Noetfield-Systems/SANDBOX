@@ -1,0 +1,108 @@
+{
+  "_note": "frozen language_gate regression datum \u2014 drift means INVESTIGATE, never re-baseline",
+  "fixtures": {
+    "clean_example.md": {
+      "surface": "internal",
+      "decision": "PASS",
+      "finding_count": 0,
+      "finding_types": [],
+      "findings": []
+    },
+    "violations_example.md": {
+      "surface": "internal",
+      "decision": "FAIL",
+      "finding_count": 8,
+      "finding_types": [
+        "ALIAS_RETIRED",
+        "BANNED_REGISTER",
+        "SYNONYM_DRIFT",
+        "UNDEFINED_TERM"
+      ],
+      "findings": [
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "Motor",
+          "line": 7
+        },
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "model-agnostic",
+          "line": 5
+        },
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "agnostic",
+          "line": 5
+        },
+        {
+          "type": "SYNONYM_DRIFT",
+          "term": "model-agnostic",
+          "line": 5
+        },
+        {
+          "type": "BANNED_REGISTER",
+          "term": "We need",
+          "line": 3
+        },
+        {
+          "type": "BANNED_REGISTER",
+          "term": "revolutionary",
+          "line": 3
+        },
+        {
+          "type": "BANNED_REGISTER",
+          "term": "game-changing",
+          "line": 3
+        },
+        {
+          "type": "UNDEFINED_TERM",
+          "term": "Quantum Reconciliation Layer",
+          "line": 9
+        }
+      ]
+    },
+    "tombstone_only.md": {
+      "surface": "internal",
+      "decision": "PASS_WITH_REWRITE",
+      "finding_count": 5,
+      "finding_types": [
+        "ALIAS_RETIRED",
+        "SYNONYM_DRIFT"
+      ],
+      "findings": [
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "Motor",
+          "line": 3
+        },
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "Motor",
+          "line": 4
+        },
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "model-agnostic",
+          "line": 3
+        },
+        {
+          "type": "ALIAS_RETIRED",
+          "term": "agnostic",
+          "line": 3
+        },
+        {
+          "type": "SYNONYM_DRIFT",
+          "term": "model-agnostic",
+          "line": 3
+        }
+      ]
+    },
+    "cold_session_doctrine_sample_v1.md": {
+      "surface": "internal",
+      "decision": "PASS",
+      "finding_count": 0,
+      "finding_types": [],
+      "findings": []
+    }
+  }
+}

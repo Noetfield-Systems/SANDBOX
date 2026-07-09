@@ -1,0 +1,64 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_REJECTED", "pass_claimed": false,
+  "note": "Advisory sandbox bridge. Injects CHESS forecast findings as extra REPAIR_CANDIDATE-style packet-lint reasons. Emits CHECK_OK/CHECK_REJECTED, never a bare governance PASS. Read-only over the packet; standalone — nothing downstream is BLOCKED by it.",
+  "catalog_item": "BR-3", "phase": "B3",
+  "title": "CHESS -> packet-lint bridge (inject CHESS forecast findings as extra packet-lint reasons)", "date": "2026-07-09",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "ground_tools": [
+      "scripts/chess_pass_cli_v1.py",
+      "scripts/p0pgr_packet_lint_v1.py"
+    ],
+    "fixtures": [
+      "receipts/p0pgr/outbox/P0PGR-20260708-002.json",
+      "receipts/p0pgr/outbox/P0PGR-20260708-007.json",
+      "receipts/p0pgr/outbox/P0PGR-20260708-010.json"
+    ],
+    "modified": false,
+    "note": "linter imported and lint_packet() called; CHESS run as its real CLI over the packet's task+context_summary as raw_move; both ground tools used as-is (no reimplementation). Packet files read-only, sha unchanged."
+  },
+  "finding": {
+    "verdict": "CHECK_REJECTED",
+    "detail": "Real on-disk packet P0PGR-20260708-010 (task text contains 'clean') -> CHESS returns likely_misread + second_move_risk -> bridge injects 2 extra REPAIR_CANDIDATE reasons and flags CHECK_REJECTED. Real packet P0PGR-20260708-007 ('spend') -> CHESS action=ASK_IF_IRREVERSIBLE -> injected via the action branch. Real packet P0PGR-20260708-002 (no risk words) -> CHESS-clean, zero injected reasons, CHECK_OK.",
+    "interpretation": "CHESS forecast risk latent in real dispatch packets is surfaced onto the packet-lint result as extra repair candidates. Reported as a finding, not relaxed away; the bridge blocks nothing (advisory, standalone)."
+  },
+  "what_it_proves": [
+    "REAL plain packet P0PGR-20260708-002 (no CHESS risk words) -> CHECK_OK with ZERO CHESS reasons injected (positive: accepted)",
+    "a MINIMAL MUTATION of that same real packet (append 'clean / simplify / delete' to its task) -> CHECK_REJECTED with CHESS likely_misread reasons injected (RED-before-GREEN: green packet made red by the injected wording)",
+    "REAL packet P0PGR-20260708-010 (naturally says 'clean') is flagged as-is -> CHECK_REJECTED via likely_misread (real artifact, no strawman)",
+    "REAL packet P0PGR-20260708-007 (says 'spend') is flagged via the action=ASK_IF_IRREVERSIBLE branch even with empty likely_misread",
+    "POSITIVE CONTROL: a 'delete/simplify' string MUST make CHESS emit reasons, so a zero-hit on the plain packet cannot be a broken/always-clean detector",
+    "bridge ADDS CHESS reasons on top of the lint result (never drops a base lint reason); reasons == lint_reasons + injected_chess_reasons",
+    "running the bridge leaves the packet file byte-identical (sha unchanged) and never mutates the in-memory packet dict (read-only)",
+    "verdict vocab CHECK_OK/CHECK_REJECTED, never a bare governance PASS (the linter's own PASS/REPAIR_CANDIDATE is preserved verbatim as lint_verdict); detector exits NONZERO on a CHESS hit, 0 when clean"
+  ],
+  "chess_patches_applied": [
+    "runs the REAL chess_pass_cli and REAL lint_packet over REAL packets (no reimplementation, no strawman)",
+    "negative fixture is a minimal mutation of a real packet's task text; positive is the real packet as-is — no invariant relaxation",
+    "reads the packet, never writes to it (Lock 5 / read-only); advisory only, downstream_blocked=false",
+    "origin=sandbox-advisory / authority=none; injects CHESS reasons as a finding, never its own governance PASS"
+  ],
+  "locks_respected": [
+    "Lock 5 append-only (packet fixtures unmodified, sha unchanged)",
+    "no live call (chess/lint run locally over temp input; no network, no Supabase, no send/deploy)",
+    "DRAFT-only posture: bridge is standalone advisory, blocks nothing, sets no dispatch flags",
+    "read-only bridge",
+    "worktree not pushed; wrote only inside catalog/builds/BR-3/"
+  ],
+  "evidence": {
+    "bridge": "catalog/builds/BR-3/br3_chess_packetlint_bridge.py",
+    "test": "catalog/builds/BR-3/test_br3_chess_packetlint_bridge.py",
+    "red_run_canary": "catalog/builds/BR-3/redrun-canary.txt",
+    "results": {
+      "real_clean_packet_010": "CHECK_REJECTED exit 1 (2 chess reasons injected)",
+      "real_spend_packet_007": "CHECK_REJECTED (action=ASK_IF_IRREVERSIBLE branch)",
+      "real_plain_packet_002": "CHECK_OK exit 0 (0 injected)",
+      "self_runner": "9/9 green",
+      "pytest": "9 passed",
+      "packet_sha": "unchanged (all fixtures)"
+    }
+  },
+  "exit_gate_B3": "BR-3 done: CHESS->packet-lint bridge injects real CHESS forecast findings as extra REPAIR_CANDIDATE reasons; RED-before-GREEN via minimal-mutation of a real plain packet + real 'clean'/'spend' packets flagged as-is; positive-control guards against a broken detector.",
+  "next_action": "None required — advisory bridge, standalone. Optionally wire as a non-blocking advisory step alongside the packet linter."
+}

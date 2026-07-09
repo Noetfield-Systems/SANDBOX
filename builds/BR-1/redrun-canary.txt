@@ -1,0 +1,2 @@
+leaky map -> refused=True gv6=CHECK_REJECTED packets=0
+EXPECTED -> RED-CANARY FIRED: BR-1 REFUSES the GV-6-rejected leaky map (0 packets) -> asserting it bridges correctly fails. The founder-authority brake holds.

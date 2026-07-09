@@ -1,0 +1,17 @@
+{
+  "chunks": [
+    {
+      "id": "step4-remote-referee-advisory-truth-layer",
+      "metadata": {
+        "content_sha256": "23d81c031338282d6dee2d39db2df4b16a1b9bd7ef63687e349543ef9e8d3b83",
+        "source_path": "proposals/step4-submitted-knowledge-bundle/knowledge-bundle.json"
+      },
+      "source": "sina-governance-ssot-step4-submitted-proposal",
+      "text": "Step 4 submitted candidate chunk: remote referee advisory truth layer is distinct from final independent verifier authority.",
+      "title": "Remote referee advisory truth layer"
+    }
+  ],
+  "generated_at": "2026-06-30T08:05:00Z",
+  "manifest_sha256": "9fa3ecd664b01b10fdffe1bd1e84372279637b11fe3e3fbaa62f03df274ff3a7",
+  "version": "step4-submitted-v0.1"
+}

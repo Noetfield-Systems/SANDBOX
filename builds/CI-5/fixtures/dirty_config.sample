@@ -1,0 +1,4 @@
+# Sample active-config fixture (DIRTY - contains the forbidden marker)
+repo_identity: Noetfield-Systems/sina-governance-SSOT
+active_endpoint: https://example.invalid/kazemnezhadsina144-dot/hook
+notes: this line embeds the forbidden active-config marker and must be flagged

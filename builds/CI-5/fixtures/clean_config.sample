@@ -1,0 +1,5 @@
+# Sample active-config fixture (CLEAN)
+repo_identity: Noetfield-Systems/sina-governance-SSOT
+mode: report-only
+owner_contact: governance-team
+notes: no forbidden marker anywhere in this file

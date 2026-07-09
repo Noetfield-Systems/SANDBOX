@@ -1,0 +1,2 @@
+RED-CANARY (a) FIRED: drift detection catches a tampered golden -> ['clean_example.md']
+EXPECTED FAILURE -> RED-CANARY (b) FIRED: clean line is PASS, NOT FAIL -> the suite is red-capable, not green-by-construction.

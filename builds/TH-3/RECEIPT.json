@@ -1,0 +1,42 @@
+{
+  "receipt_type": "sandbox_build_advisory",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
+  "note": "Advisory sandbox harness. Does NOT emit or imply gate PASS. Verdict vocab CHECK_OK, never PASS.",
+  "catalog_item": "TH-3",
+  "phase": "B0 — LOCK THE BOARD",
+  "title": "language_gate regression harness",
+  "date": "2026-07-08",
+  "worktree": { "path": "sg-sandbox", "branch": "claude/sandbox-build" },
+  "subject": {
+    "files": ["language_gate/language_gate_core_v1.py (scan, decide)", "language_gate/test_files/*"],
+    "modified": false,
+    "method": "drives pure scan()+decide() — never run_pipeline() (which writes receipts+sidecars); no repo writes"
+  },
+  "what_it_proves": [
+    "frozen golden over the 4 real test_files fixtures: clean_example=PASS(0), violations_example=FAIL(8), tombstone_only=PASS_WITH_REWRITE(5), cold_session=PASS(0)",
+    "hand-asserted known values per fixture (not golden-only)",
+    "synthetic red-capable guards: overclaim->FAIL(OVERCLAIM) on public, banned-register->FAIL(BANNED_REGISTER), clean line->PASS",
+    "anti-downgrade guard: a real overclaim still FAILs on public (the regression the WI-1/WI-3/WI-6 wiring must never break)",
+    "decide() invariant: any hard-type finding (BANNED_REGISTER/OVERCLAIM/BANNED_SURFACE) -> FAIL",
+    "red-run canary fires both ways: drift detection catches a tampered golden; a clean-line-asserted-FAIL correctly fails"
+  ],
+  "chess_patches_applied": [
+    "frozen golden; drift = INVESTIGATE, never re-baseline (--update-golden is FIRST-freeze only)",
+    "not golden-only: >=1 hand-asserted value per fixture + synthetic guards",
+    "red-capable fixtures + committed red-run canary",
+    "append-only: pure scan/decide, no receipt/sidecar writes, fixtures unmodified",
+    "freeze-order: TH-1 + TH-3 goldens frozen & committed BEFORE any WI-1/WI-3/WI-6 wiring"
+  ],
+  "locks_respected": ["Lock 5 append-only (no writes to test_files/receipts)", "no live call", "worktree not pushed"],
+  "evidence": {
+    "harness": "catalog/builds/TH-3/test_language_gate_regression.py",
+    "frozen_golden": "catalog/builds/TH-3/golden/language_gate_golden_v1.json",
+    "red_run_canary": "catalog/builds/TH-3/redrun-canary.txt",
+    "results": { "self_runner": "5/5 green", "pytest": "5 passed in 0.02s" }
+  },
+  "exit_gate_B0": "PARTIAL — TH-1 + TH-3 done (green + red-capable, goldens frozen). Remaining B0: TH-2, TH-4, TH-5, TH-6, GV-3, GV-4, GV-5, WI-7, DX-3.",
+  "next_action": "continue B0 (TH-2 DLM classifier golden, or GV-3/GV-4 cheap validators, or DX-3 de-pin)"
+}

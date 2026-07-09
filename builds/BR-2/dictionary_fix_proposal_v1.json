@@ -1,0 +1,18 @@
+{
+  "receipt_type": "dictionary_fix_proposal_v1",
+  "kind": "dictionary_fix_proposal",
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "status": "DRAFT",
+  "verdict": "NO_FIX_NEEDED",
+  "pass_claimed": false,
+  "catalog_item": "BR-2",
+  "note": "PROPOSAL only. Candidate dictionary entries for DLM DICTIONARY_FIX_NEEDED terms. This tool NEVER writes language_gate/dictionary_index.json \u2014 a human must author each definition and ratify the add.",
+  "source_fixture": "/Users/sinakazemnezhad/Desktop/Noetfield-Systems/sg-sandbox/decision_language_machine_v1/test_fixtures/form_official_80_open_v1.json",
+  "item_count": 80,
+  "fix_needed_term_count": 0,
+  "candidate_count": 0,
+  "candidate_entries": [],
+  "skipped_already_in_dictionary": [],
+  "dictionary_index_written": false
+}

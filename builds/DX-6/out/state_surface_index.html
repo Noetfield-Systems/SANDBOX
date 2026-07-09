@@ -1,0 +1,160 @@
+<div class="banner">DO NOT PUSH — not for public hosting (onboarding index, read-only advisory snapshot)</div>
+
+<main class="wrap">
+  <header class="head">
+    <h1>State-Surface Index</h1>
+    <p class="sub">Onboarding map of registered motors, agent lanes and the loop census value-class counts. Read-only advisory index of on-disk governance state &mdash; no autonomy or guaranteed-outcome claim.</p>
+    <p class="watermark">SYNTHETIC / ADVISORY &mdash; computed rollups are a read-only snapshot, not a guaranteed claim.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-num" id="motor-count">15</span><span class="stat-lbl">motors</span></div>
+      <div class="stat"><span class="stat-num" id="agent-count">8</span><span class="stat-lbl">agent lanes</span></div>
+      <div class="stat"><span class="stat-num" id="lane-count">9</span><span class="stat-lbl">motor lanes</span></div>
+      <div class="stat"><span class="stat-num" id="loop-count">38</span><span class="stat-lbl">census loops</span></div>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Source freshness</h2>
+    <p class="note">Each input is badged by age against the render date. UNPOPULATED means the source did not carry that field &mdash; never read as 0/clean.</p>
+    <table class="tbl">
+      <thead><tr><th>Source</th><th>Stamp</th><th>Age</th><th>State</th></tr></thead>
+      <tbody><tr><td>automation registry</td><td>2026-07-08T13:11:47Z</td><td>22h</td><td><span class="badge fresh">FRESH</span></td></tr>
+        <tr><td>dispatch scorecard</td><td>2026-07-08T13:32:00Z</td><td>22h</td><td><span class="badge fresh">FRESH</span></td></tr>
+        <tr><td>evidence bundle</td><td>2026-07-08T13:12:00+00:00</td><td>22h</td><td><span class="badge fresh">FRESH</span></td></tr>
+        <tr><td>census file</td><td>workflow-census-20260706T093358Z.json</td><td>3d</td><td><span class="badge stale">STALE</span></td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Loop census &mdash; value-class counts</h2>
+    <p class="note">Audit status <span class="badge red">RED</span> from <code>workflow-census-20260706T093358Z.json</code> (<span class="badge stale">STALE</span>). Flags: 10.</p>
+    <div class="census"><div class="cc guard"><span class="cc-num">5</span><span class="cc-lbl">GUARD</span></div>
+      <div class="cc meta"><span class="cc-num">22</span><span class="cc-lbl">META</span></div>
+      <div class="cc none"><span class="cc-num">8</span><span class="cc-lbl">NONE</span></div>
+      <div class="cc revenue"><span class="cc-num">3</span><span class="cc-lbl">REVENUE</span></div></div>
+    <p class="note">Value-class counts sum to 38, matching declared loop_count 38.</p>
+  </section>
+
+  <section class="card">
+    <h2>Motors <span class="count-chip">15</span></h2>
+    <p class="note">Autonomy fields render <span class="badge locked">LOCKED / proof-gated</span> &mdash; never offered as ready-to-run.</p>
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <thead><tr><th>Motor</th><th>Kind</th><th>Repo</th><th>Lane</th><th>Cadence</th><th>Owns</th><th>Autonomy</th><th>State</th></tr></thead>
+      <tbody><tr data-motor-row="gh_actions_workflow_census_weekly_v1"><td><code>gh_actions_workflow_census_weekly_v1</code></td><td>github_actions</td><td>sina-governance-ssot</td><td>sg_governance</td><td><code>0 8 * * 1</code></td><td>workflow_census, loop_value_class_audit</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="gh_actions_agent_read_staleness_weekly_v1"><td><code>gh_actions_agent_read_staleness_weekly_v1</code></td><td>github_actions</td><td>sina-governance-ssot</td><td>sg_governance</td><td><code>0 9 * * 1</code></td><td>alive_doc_registry, stale_law_pointer_audit</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="gh_actions_sg_auth_surface_probe_v1"><td><code>gh_actions_sg_auth_surface_probe_v1</code></td><td>github_actions</td><td>sina-governance-ssot</td><td>sg_governance</td><td><code>0 */6 * * *</code></td><td>auth_surface_probe, credential_path_audit, redirect_allow_list_lint</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="gh_actions_brain_loop_autorun_v1"><td><code>gh_actions_brain_loop_autorun_v1</code></td><td>github_actions</td><td>sina-governance-ssot</td><td>sourcea_brain_observe_promote</td><td><code>*/30 * * * *</code></td><td>ci_self_heal, ci_parallel_verifier_batch, ci_e2e_matrix_when_tokens</td><td><span class="badge locked" title="only_when_BRAIN_CI_AUTONOMOUS_and_tokens_present">LOCKED / proof-gated</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="mac_launchd_brain_loop_autorun_v1"><td><code>mac_launchd_brain_loop_autorun_v1</code></td><td>mac_launchd</td><td>sina-governance-ssot</td><td>sourcea_brain_observe_promote</td><td><code>1800s</code></td><td>mac_self_heal, mac_parallel_verifier_batch, mac_e2e_matrix_ship_window</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="cf_loop_specialist_tick_v1"><td><code>cf_loop_specialist_tick_v1</code></td><td>cloudflare_cron</td><td>SourceA</td><td>sourcea_loop_specialist</td><td><code>*/15</code></td><td>runtime_plans, work_order_dispatch, desired_state_artifacts</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="cf_auto_runtime_tick_v1"><td><code>cf_auto_runtime_tick_v1</code></td><td>cloudflare_cron</td><td>SourceA</td><td>sourcea_cloud_forge</td><td><code>*/10</code></td><td>cloud_forge_queue, brain_tick_bundled</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="tf_cf_fleet_tick_v1"><td><code>tf_cf_fleet_tick_v1</code></td><td>cloudflare_cron</td><td>TrustField-Technologies</td><td>trustfield_build</td><td><code>*/5 * * * *</code></td><td>tf_cf_fleet_tick, tf_cf_lane_self_heal, tf_cf_lane_critic_circle, tf_cf_lane_deep_research</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="tf_cf_deadman_v1"><td><code>tf_cf_deadman_v1</code></td><td>cloudflare_cron</td><td>TrustField-Technologies</td><td>trustfield_build</td><td><code>*/10 * * * *</code></td><td>tf_cf_deadman</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="tf_cf_verify_recipes_v1"><td><code>tf_cf_verify_recipes_v1</code></td><td>cloudflare_cron</td><td>TrustField-Technologies</td><td>trustfield_build</td><td><code>*/15 * * * *</code></td><td>tf_cf_verify_recipes</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="trustfield_loops_production"><td><code>trustfield_loops_production</code></td><td>cloudflare_cron</td><td>trustfield-loops</td><td>trustfield_capture</td><td><code>0 */6 * * *</code></td><td>trustfield_loops_intake, tf_intake, tf_receipt_chain</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="trustfield_loops_preview"><td><code>trustfield_loops_preview</code></td><td>venture_worker</td><td>trustfield-loops</td><td>trustfield_capture</td><td><code><span class="badge unpop">UNPOPULATED</span></code></td><td><span class="badge unpop">UNPOPULATED</span></td><td><span class="badge locked">LOCKED</span></td><td><span class="badge superseded">SUPERSEDED</span></td></tr>
+        <tr data-motor-row="gh_actions_sourcea_external_verify_v1"><td><code>gh_actions_sourcea_external_verify_v1</code></td><td>github_actions</td><td>SourceA</td><td>sourcea_autorun_l4_verify</td><td><code>0 */6 * * *</code></td><td>autorun_l4_external_verify, determinism_ci_gate</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="gh_actions_noos_factory_autorun_v1"><td><code>gh_actions_noos_factory_autorun_v1</code></td><td>github_actions</td><td>noetfeld-os</td><td>noos_gel_factory</td><td><code>0,10,20,30,40,50 * * * *</code></td><td>noos_gel_factory_tick</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge fresh">ACTIVE</span></td></tr>
+        <tr data-motor-row="p0pgr_shadow_cycle_v1"><td><code>p0pgr_shadow_cycle_v1</code></td><td>mac_launchd</td><td>sina-governance-ssot</td><td>p0pgr</td><td><code>manual_or_daily_shadow</code></td><td>prompt_packet_compile, packet_lint, shadow_route_decision, p0pgr_cycle_receipts</td><td><span class="badge locked">LOCKED</span></td><td><span class="badge">DECLARED</span></td></tr></tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Agent lanes <span class="count-chip">8</span></h2>
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <thead><tr><th>Agent</th><th>Kind</th><th>Repo</th><th>Lane</th><th>Owns</th></tr></thead>
+      <tbody><tr data-agent-row="sg_sssot_cursor"><td><code>sg_sssot_cursor</code></td><td>cursor_agent</td><td>sina-governance-ssot</td><td>sg_governance</td><td>locks, verifier_scripts, registries, mirrors, receipts</td></tr>
+        <tr data-agent-row="sourcea_brain"><td><code>sourcea_brain</code></td><td>cursor_agent</td><td>SourceA</td><td>sourcea_brain</td><td>register_artifacts, bundle_pointers, routing, collision_check</td></tr>
+        <tr data-agent-row="sourcea_worker"><td><code>sourcea_worker</code></td><td>cursor_agent</td><td>SourceA</td><td>sourcea_build</td><td>sourcea_workers, skill_packaging, deploy_scripts</td></tr>
+        <tr data-agent-row="trustfield_worker"><td><code>trustfield_worker</code></td><td>cursor_agent</td><td>TrustField-Technologies</td><td>trustfield_build</td><td>tf_workers, tf_cf_motors, tf_d1, tf_crons, tf_gha_secondary</td></tr>
+        <tr data-agent-row="noos_agent"><td><code>noos_agent</code></td><td>cursor_agent</td><td>noetfeld-os</td><td>noos_doctrine</td><td>gel_runtime, _NOOS_AGENT_docs</td></tr>
+        <tr data-agent-row="noetfield_website_agent"><td><code>noetfield_website_agent</code></td><td>cursor_agent</td><td>Noetfield</td><td>noetfield_website</td><td>www_routes, cloudflare_www_deploy, live_nerve_probe</td></tr>
+        <tr data-agent-row="github_copilot_agent"><td><code>github_copilot_agent</code></td><td>github_copilot</td><td>*</td><td>assist_only</td><td>draft_pr, suggest_patch, explain_diff</td></tr>
+        <tr data-agent-row="github_coding_agent"><td><code>github_coding_agent</code></td><td>github_agent</td><td>*</td><td>assist_only</td><td>issue_triage_draft, pr_draft</td></tr></tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Dispatch scorecard</h2>
+    <p class="note">Mode <span class="badge">PHASE_2_CLOUD_ONLY_ROI_TRACK</span> &middot; updated <span class="badge fresh">FRESH</span></p>
+    <p class="note">Ranked queue:</p><div><span class="lane-chip">M03:86.0</span><span class="lane-chip">M05:74.0</span><span class="lane-chip">M04:73.75</span><span class="lane-chip">M02:58.5</span><span class="lane-chip">M06:58.5</span><span class="lane-chip">M07:58.0</span><span class="lane-chip">M01:54.5</span><span class="lane-chip">M09:50.5</span></div>
+    <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Move</th><th>What</th><th>Quality</th></tr></thead>
+      <tbody><tr><td><code>M10</code></td><td>deterministic ROI re-rank (this ranker run)</td><td><span class="badge fresh">PASS</span></td></tr>
+          <tr><td><code>M03</code></td><td>trustfield.ca live-truth audit — 6 GTM routes, claims diff</td><td><span class="badge stale">PARTIAL</span></td></tr></tbody></table></div>
+    <p class="note">Counters &middot; cloud_executions: 2 &middot; external_sends: 0 &middot; forms_submitted: 0 &middot; deploys: 0 &middot; merges: 0 &middot; authority_changes: 0 &middot; p0_leakage_count: 0 &middot; hard_block_count: 0 &middot; runtime_freeze_count: 0 &middot; estimated_cost_usd: 0.0</p>
+  </section>
+
+  <footer class="foot">
+    <p>This page is a read-only index of the automation registry and receipts as they existed on disk at render time. It is a map for onboarding, not a health verdict. It makes no autonomy promise and no guaranteed-outcome claim; freshness and UNPOPULATED badges mark where a source is stale or did not carry a field.</p>
+    <p class="meta">Rendered 2026-07-09 12:00Z from registry <code>1.1.0</code>. Origin sandbox-advisory / authority none / pass_claimed false.</p>
+  </footer>
+</main>
+
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d21; --muted:#5b6570; --line:#e2e6ea;
+    --accent:#3b6ea5; --banner:#8a3b12; --banner-bg:#fdeede;
+    --guard:#2f6f4f; --meta:#5b6570; --none:#8a6d1f; --revenue:#7a2f6f; --unpop:#8a3b12;
+    --fresh:#2f6f4f; --stale:#8a6d1f; --red:#a12f2f; --locked:#5a4b8a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --card:#1c2024; --ink:#e8ebee; --muted:#9aa5b0; --line:#2c3238;
+      --accent:#7fb0e0; --banner:#ffcf9e; --banner-bg:#3a2413;
+      --guard:#6fd39f; --meta:#9aa5b0; --none:#d6b25a; --revenue:#d68ac8; --unpop:#ffb27f;
+      --fresh:#6fd39f; --stale:#d6b25a; --red:#e88; --locked:#b3a4e0;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14171a; --card:#1c2024; --ink:#e8ebee; --muted:#9aa5b0; --line:#2c3238;
+    --accent:#7fb0e0; --banner:#ffcf9e; --banner-bg:#3a2413;
+    --guard:#6fd39f; --meta:#9aa5b0; --none:#d6b25a; --revenue:#d68ac8; --unpop:#ffb27f;
+    --fresh:#6fd39f; --stale:#d6b25a; --red:#e88; --locked:#b3a4e0;
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d21; --muted:#5b6570; --line:#e2e6ea;
+    --accent:#3b6ea5; --banner:#8a3b12; --banner-bg:#fdeede;
+    --guard:#2f6f4f; --meta:#5b6570; --none:#8a6d1f; --revenue:#7a2f6f; --unpop:#8a3b12;
+    --fresh:#2f6f4f; --stale:#8a6d1f; --red:#a12f2f; --locked:#5a4b8a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .banner{background:var(--banner-bg);color:var(--banner);font-weight:700;text-align:center;padding:8px 12px;letter-spacing:.02em;border-bottom:2px solid var(--banner)}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 60px}
+  .head h1{margin:.2em 0 .1em;font-size:1.9rem}
+  .sub{color:var(--muted);margin:.2em 0}
+  .watermark{color:var(--unpop);font-size:.8rem;font-weight:600;margin:.4em 0 0;letter-spacing:.02em}
+  .stat-row{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 6px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 18px;min-width:96px}
+  .stat-num{display:block;font-size:1.7rem;font-weight:700;color:var(--accent)}
+  .stat-lbl{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+  .card h2{margin:.1em 0 .5em;font-size:1.15rem}
+  .count-chip{display:inline-block;background:var(--accent);color:#fff;border-radius:20px;padding:1px 10px;font-size:.85rem;vertical-align:middle}
+  @media (prefers-color-scheme: dark){.count-chip{color:#12161a}}
+  :root[data-theme="dark"] .count-chip{color:#12161a}
+  .note{color:var(--muted);font-size:.86rem;margin:.2em 0 .8em}
+  .tbl-scroll{overflow-x:auto}
+  .tbl{width:100%;border-collapse:collapse;font-size:.86rem}
+  .tbl th,.tbl td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.04em}
+  .tbl code{font-size:.82em}
+  code{background:rgba(127,127,127,.14);padding:1px 5px;border-radius:5px}
+  .badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:.74rem;font-weight:700;border:1px solid currentColor;letter-spacing:.02em}
+  .badge.fresh{color:var(--fresh)} .badge.stale{color:var(--stale)}
+  .badge.unpop{color:var(--unpop)} .badge.red{color:var(--red)}
+  .badge.locked{color:var(--locked)} .badge.superseded{color:var(--muted)}
+  .census{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0}
+  .cc{border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:110px}
+  .cc-num{font-size:1.6rem;font-weight:700}
+  .cc-lbl{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .cc.guard .cc-num{color:var(--guard)} .cc.meta .cc-num{color:var(--meta)}
+  .cc.none .cc-num{color:var(--none)} .cc.revenue .cc-num{color:var(--revenue)}
+  .cc.unpop{border-style:dashed} .cc.unpop .cc-num{color:var(--unpop);font-size:1.05rem}
+  .lane-chip{display:inline-block;background:rgba(127,127,127,.12);border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin:2px;font-size:.78rem}
+  .foot{color:var(--muted);font-size:.82rem;margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+  .foot .meta{font-size:.76rem;opacity:.85}
+</style>
