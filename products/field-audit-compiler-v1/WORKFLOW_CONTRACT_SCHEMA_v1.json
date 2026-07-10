@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noetfield:field-audit-compiler:workflow-contract:v1",
+  "title": "Workflow Contract Schema v1",
+  "description": "The deterministic compiled contract (T3). Superset of _SPINE_v1.workflow_contract_shape plus explicit authority/allowed/blocked actions + verifier/receipt requirements. Sandbox routing is explicit: authority is const 'none' and blocked_actions must include deploy/merge/delete/send/cron_unlock/canonical_write.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "cluster_id", "session_id", "template_id", "target", "params", "deterministic_checks", "expected_outputs", "verifier_logic", "pattern_expansion_rule", "promotion", "risk_class", "approval_required", "authority", "allowed_actions", "blocked_actions", "verifier_requirements", "receipt_requirements"],
+  "$defs": {
+    "check": {
+      "type": "object", "additionalProperties": false, "required": ["name", "logic", "pass_condition"],
+      "properties": { "name": { "type": "string" }, "logic": { "type": "string" }, "pass_condition": { "type": "string" } }
+    }
+  },
+  "properties": {
+    "id": { "type": "string", "pattern": "^WC-[A-Za-z0-9_-]+$" },
+    "cluster_id": { "type": "string", "pattern": "^IC-[A-Za-z0-9_-]+$" },
+    "session_id": { "type": "string", "pattern": "^AS-[A-Za-z0-9_-]+$" },
+    "template_id": { "type": "string" },
+    "target": {
+      "type": "object", "additionalProperties": false, "required": ["scope_selector"],
+      "properties": {
+        "target_url": { "type": "string" },
+        "target_ref": { "type": "string" },
+        "scope_selector": { "type": "string" }
+      },
+      "anyOf": [{ "required": ["target_url"] }, { "required": ["target_ref"] }]
+    },
+    "params": { "type": "object" },
+    "deterministic_checks": { "type": "array", "items": { "$ref": "#/$defs/check" } },
+    "expected_outputs": { "type": "object" },
+    "verifier_logic": { "type": "string" },
+    "pattern_expansion_rule": { "type": "string" },
+    "promotion": {
+      "type": "object", "additionalProperties": false, "required": ["factory_category", "value_class"],
+      "properties": {
+        "factory_category": { "type": "string", "enum": ["CAT-05-SANDBOX-WORKTREE-EXECUTION", "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "CAT-10-VERTICAL-PROOF-PRODUCTS"] },
+        "value_class": { "type": "string", "enum": ["REVENUE", "GUARD", "META", "NONE"] }
+      }
+    },
+    "risk_class": { "type": "string", "enum": ["read_only", "low_risk_patch", "canonical_change"] },
+    "approval_required": { "type": "boolean" },
+    "authority": { "const": "none" },
+    "allowed_actions": { "type": "array", "items": { "type": "string", "enum": ["inspect", "patch_diff", "test", "compare", "crawl"] } },
+    "blocked_actions": { "type": "array", "items": { "type": "string", "enum": ["deploy", "merge", "delete", "send", "cron_unlock", "canonical_write"] } },
+    "verifier_requirements": {
+      "type": "object", "additionalProperties": false, "required": ["runtime", "recompute_summary"],
+      "properties": {
+        "runtime": { "type": "string", "enum": ["cloudflare_worker"] },
+        "recompute_summary": { "type": "boolean" },
+        "edge_proof_required": { "type": "boolean" },
+        "secondary_account_required": { "type": "boolean" }
+      }
+    },
+    "receipt_requirements": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "authority", "min_verifier_status"],
+      "properties": {
+        "schema": { "type": "string", "const": "field_audit_receipt_v1" },
+        "authority": { "const": "none" },
+        "min_verifier_status": { "type": "string", "enum": ["UNVERIFIED"] }
+      }
+    }
+  }
+}

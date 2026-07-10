@@ -240,7 +240,7 @@ Evidence: `auth_entry_present` → `{ selector, match }`; `auth_route_resolves` 
 **inputs**
 ```json
 { "canonical_copy_source": "SSOT offer registry ref (founder-supplied)",
-  "offer_key": "trust_brief", "scope_selector": "[data-offer], main" }
+  "offer_key": "acme_brief", "scope_selector": "[data-offer], main" }
 ```
 
 **deterministic checks**
@@ -257,7 +257,7 @@ Purely string/hash equality against a **supplied** canonical — no LLM, no sema
 
 **outputs**
 ```json
-{ "offer": { "key": "trust_brief", "rendered": "...", "canonical": "...", "passed": true },
+{ "offer": { "key": "acme_brief", "rendered": "...", "canonical": "...", "passed": true },
   "summary": { "total": 1, "passed": 1, "failed": 0 } }
 ```
 Evidence: `{ selector, expected, actual, match, dom_sha256 }` (`dom_sha256` over the offer subtree).
@@ -307,9 +307,9 @@ Evidence per check: `{ regex, expected, actual, match }`.
 
 **verifier re-derivation**: CF Worker re-fetches the page, re-runs the **same** regexes, re-compares to canonical, recomputes `summary`, FAILs on mismatch.
 
-**pattern_expansion rule**: Fans across **ALL** commercial surfaces where the price/duration is claimed. E2E: `WC-4 → [WC-4, WC-4a, WC-4b(offer_copy_consistency_check)]` over `/ [data-offer='trust-brief']`, `/pricing [data-offer='trust-brief']`, `/partner-access [data-offer='trust-brief']`, spawning a sibling `offer_copy_consistency_check`.
+**pattern_expansion rule**: Fans across **ALL** commercial surfaces where the price/duration is claimed. E2E: `WC-4 → [WC-4, WC-4a, WC-4b(offer_copy_consistency_check)]` over `/ [data-offer='acme-brief']`, `/pricing [data-offer='acme-brief']`, `/partner-access [data-offer='acme-brief']`, spawning a sibling `offer_copy_consistency_check`.
 
-**risk note**: `canonical_change`, `approval_required: true`. Sandbox job is `patch_diff` — stages `sandbox/.../SJ-4/trust-brief-copy.diff`, never applies. Becomes AP-4 (`canonical_change`, `REVENUE`, "Update Acme Brief copy to $12,000 / 8-week", `proposed_patch_ref` set, pending).
+**risk note**: `canonical_change`, `approval_required: true`. Sandbox job is `patch_diff` — stages `sandbox/.../SJ-4/acme-brief-copy.diff`, never applies. Becomes AP-4 (`canonical_change`, `REVENUE`, "Update Acme Brief copy to $12,000 / 8-week", `proposed_patch_ref` set, pending).
 
 ---
 
@@ -484,7 +484,7 @@ Evidence: `{ url, http_status, body_sha256 }` (body hash proves non-empty + pins
 
 Single canonical worked chain from `_SPINE_v1.json.e2e_example` (founder-supplied `{TARGET_URL}`; nothing here fetches a live surface):
 
-- **Founder voice note**: *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar eight-week package copy needs update. Request IDs are not visible. Web chat UI is bad."*
+- **Founder voice note**: *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar six-week package copy needs update. Request IDs are not visible. Web chat UI is bad."*
 - **1 VoiceNote (VN-1) → 1 Transcript (TR-1)** — normalized `twelve thousand dollar → $12,000`, `six week → 8-week`.
 - **6 Observations (OB-1…OB-6)** → **6 IssueClusters (IC-1…IC-6)** → **6 WorkflowContracts (WC-1…WC-6)**:
 

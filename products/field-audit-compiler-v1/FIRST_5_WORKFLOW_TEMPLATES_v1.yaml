@@ -322,7 +322,7 @@ templates:
 # --------------------------------------------------------------------------------------
 # CANONICAL E2E CROSS-REFERENCE (illustrative; NOT a live run — {TARGET_URL} is founder-supplied)
 #   Voice: "Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken.
-#           Acme Brief twelve-thousand-dollar eight-week package copy needs update.
+#           Acme Brief twelve-thousand-dollar six-week package copy needs update.
 #           Request IDs are not visible. Web chat UI is bad."
 #   The first-five templates cover these E2E contracts (see _SPINE_v1.e2e_example):
 #     WC-1 -> cta_route_check           (IC-1, REVENUE)  : cta_present=true, cta_route_resolves=false (404)

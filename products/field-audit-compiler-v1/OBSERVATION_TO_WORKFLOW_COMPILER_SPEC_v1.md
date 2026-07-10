@@ -132,7 +132,7 @@ The canonical example values are the ground truth this function must reproduce (
 
 ### 2.6 Worked Stage-A output (canonical)
 
-From `founder_voice_note` = *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar eight-week package copy needs update. Request IDs are not visible. Web chat UI is bad."* the extractor emits exactly `OB-1..OB-6` as in the spine — reproduced, not re-invented:
+From `founder_voice_note` = *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar six-week package copy needs update. Request IDs are not visible. Web chat UI is bad."* the extractor emits exactly `OB-1..OB-6` as in the spine — reproduced, not re-invented:
 
 | id | raw_span | row | defect_kind | severity_guess | confidence |
 |----|----------|-----|-------------|----------------|------------|
@@ -206,7 +206,7 @@ resolve_scope(obs):
 | `cta_route` | `["a[data-cta='<slug(hint)>']", "/<slug(hint)>"]` → `["a[data-cta='apply-for-program']","/apply-for-program"]` |
 | `legal_footer_link` | `["footer a[href*='<legal-noun>']"]` → `["footer a[href*='cookie']"]` |
 | `auth_entrypoint` | `["a[href*='login']","/login"]` (or `signin`) |
-| `pricing_claim` | `["[data-offer='<slug(offer)>']"]` → `["[data-offer='trust-brief']"]` |
+| `pricing_claim` | `["[data-offer='<slug(offer)>']"]` → `["[data-offer='acme-brief']"]` |
 | `request_id_visibility` | `["main","[data-request-id]"]` |
 | `web_chat_ux` | `["[data-chat]"]` |
 | `broken_link` | `["nav a[href]","footer a[href]"]` |
@@ -337,7 +337,7 @@ function generate_contract(cluster, template, session, n):
 | `cta_route_check` | `a[data-cta], button[data-cta]` |
 | `legal_footer_link_check` | `footer a[href]` |
 | `auth_entrypoint_check` | `a[href*='login'], a[href*='signin']` |
-| `pricing_claim_consistency_check` | `[data-offer='trust-brief']` |
+| `pricing_claim_consistency_check` | `[data-offer='acme-brief']` |
 | `request_id_visibility_check` | `main, [data-request-id]` |
 | `web_chat_ux_check` | `[data-chat]` |
 | `route_health_check` | declared routes / `/**` |

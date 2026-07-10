@@ -161,7 +161,7 @@ Observations are grouped and deduped by `defect_kind` + resolved target scope. I
 
   { "id": "IC-4", "observation_ids": ["OB-4"], "defect_kind": "pricing_claim",
     "label": "Acme Brief $12,000 / 8-week copy stale",
-    "target_refs": ["[data-offer='trust-brief']"], "severity": "high",
+    "target_refs": ["[data-offer='acme-brief']"], "severity": "high",
     "dedup_note": "pricing_claim chosen over offer_copy because the specific claim ($12,000, 8-week) is checkable against canonical; an offer_copy_consistency_check contract is spawned as a sibling in expansion." },
 
   { "id": "IC-5", "observation_ids": ["OB-5"], "defect_kind": "request_id_visibility",
@@ -193,7 +193,7 @@ The spine's **first-five** templates (`route_health_check`, `broken_link_scan`, 
 | WC-1 | IC-1 | `cta_route_check` | `a[data-cta], button[data-cta]` | read_only | false | CAT-10 → REVENUE |
 | WC-2 | IC-2 | `legal_footer_link_check` | `footer a[href]` | read_only | false | CAT-09 → GUARD |
 | WC-3 | IC-3 | `auth_entrypoint_check` | `a[href*='login'], a[href*='signin']` | read_only | false | CAT-10 → REVENUE |
-| WC-4 | IC-4 | `pricing_claim_consistency_check` | `[data-offer='trust-brief']` | **canonical_change** | **true** | CAT-10 → REVENUE |
+| WC-4 | IC-4 | `pricing_claim_consistency_check` | `[data-offer='acme-brief']` | **canonical_change** | **true** | CAT-10 → REVENUE |
 | WC-5 | IC-5 | `request_id_visibility_check` | `main, [data-request-id]` | low_risk_patch | true | CAT-09 → GUARD |
 | WC-6 | IC-6 | `web_chat_ux_check` | `[data-chat]` | low_risk_patch | true | CAT-09 → META |
 
@@ -227,7 +227,7 @@ Note the honest `expected_outputs`: the founder *said the copy is stale*, so the
 {
   "id": "WC-4", "cluster_id": "IC-4", "session_id": "AS-2026-07-09-fieldaudit",
   "template_id": "pricing_claim_consistency_check",
-  "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='trust-brief']" },
+  "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='acme-brief']" },
   "params": { "canonical_copy_source": "{SSOT_PRICING_REF}", "expected_price": "$12,000", "expected_duration": "8-week" },
   "deterministic_checks": [
     { "name": "price_matches_canonical",    "logic": "regex extract price + equality",    "pass_condition": "extracted_price=='$12,000'" },
@@ -314,7 +314,7 @@ Each contract runs as one `SandboxJob` in `CAT-05-SANDBOX-WORKTREE-EXECUTION` wi
 | SJ-1 | WC-1 | `inspect` | null | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-1` |
 | SJ-2 | WC-2 | `inspect` | null | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-2` |
 | SJ-3 | WC-3 | `inspect` | null | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-3` |
-| SJ-4 | WC-4 | `patch_diff` | `sandbox/.../SJ-4/trust-brief-copy.diff` | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4` |
+| SJ-4 | WC-4 | `patch_diff` | `sandbox/.../SJ-4/acme-brief-copy.diff` | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4` |
 | SJ-5 | WC-5 | `patch_diff` | `sandbox/.../SJ-5/request-id-display.diff` | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-5` |
 | SJ-6 | WC-6 | `patch_diff` | `sandbox/.../SJ-6/chat-input-label.diff` | `field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-6` |
 
@@ -330,7 +330,7 @@ Each contract runs as one `SandboxJob` in `CAT-05-SANDBOX-WORKTREE-EXECUTION` wi
     "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "patch_diff",
     "target": { "target_url": "{TARGET_URL}" }, "inputs": { "expected_price": "$12,000", "expected_duration": "8-week" },
     "status": "done", "output_ref": "sandbox/.../SJ-4/",
-    "diff_ref": "sandbox/.../SJ-4/trust-brief-copy.diff",
+    "diff_ref": "sandbox/.../SJ-4/acme-brief-copy.diff",
     "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4" }
 ]
 ```
@@ -502,7 +502,7 @@ Each receipt becomes one `ApprovalItem`. **Only an approved ApprovalItem authori
 | AP-1 | Fix broken 'Apply for Program' CTA route (404) | null | canonical_change | REVENUE | pending |
 | AP-2 | Point footer Cookie link to /cookie-policy | null | canonical_change | GUARD | pending |
 | AP-3 | Fix Sign-in route 500 | null | canonical_change | REVENUE | pending |
-| AP-4 | Update Acme Brief copy to $12,000 / 8-week | `sandbox/.../SJ-4/trust-brief-copy.diff` | canonical_change | REVENUE | pending |
+| AP-4 | Update Acme Brief copy to $12,000 / 8-week | `sandbox/.../SJ-4/acme-brief-copy.diff` | canonical_change | REVENUE | pending |
 | AP-5 | Render request id on trust/support views | `sandbox/.../SJ-5/request-id-display.diff` | low_risk_patch | GUARD | pending |
 | AP-6 | Add aria-label/placeholder to chat input | `sandbox/.../SJ-6/chat-input-label.diff` | low_risk_patch | META | pending |
 
@@ -519,9 +519,9 @@ Each receipt becomes one `ApprovalItem`. **Only an approved ApprovalItem authori
   { "id": "AP-4", "session_id": "AS-2026-07-09-fieldaudit",
     "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4", "workflow_contract_id": "WC-4",
     "title": "Update Acme Brief copy to $12,000 / 8-week",
-    "proposed_patch_ref": "sandbox/.../SJ-4/trust-brief-copy.diff",
+    "proposed_patch_ref": "sandbox/.../SJ-4/acme-brief-copy.diff",
     "risk_class": "canonical_change", "value_class": "REVENUE",
-    "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='trust-brief']" },
+    "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='acme-brief']" },
     "decision": "pending", "decided_by": null, "decided_at": null,
     "rationale": "Diff prepared in sandbox; canonical copy change needs founder approval." }
 ]
@@ -540,7 +540,7 @@ This is the fan-out that turns a point observation into **surface-wide coverage*
 | WC-1 | `cta_route_check` | fan to ALL CTAs | apply-for-program, book-demo, get-started, contact-sales | WC-1, WC-1a, WC-1b, WC-1c |
 | WC-2 | `legal_footer_link_check` (+ `broken_link_scan`) | fan to ALL required legal footer links + generic broken-link scan over nav+footer | cookie, privacy, terms, `nav a[href]`, `footer a[href]` | WC-2, WC-2a, WC-2b, WC-2c *(broken_link_scan)* |
 | WC-3 | `auth_entrypoint_check` | fan to ALL auth entrypoints | header login, footer login, signup, get-started CTA | WC-3, WC-3a, WC-3b |
-| WC-4 | `pricing_claim_consistency_check` (+ `offer_copy_consistency_check`) | fan pricing/offer copy across ALL commercial surfaces | `/`, `/pricing`, `/partner-access` (each `[data-offer='trust-brief']`) | WC-4, WC-4a, WC-4b *(offer_copy_consistency_check)* |
+| WC-4 | `pricing_claim_consistency_check` (+ `offer_copy_consistency_check`) | fan pricing/offer copy across ALL commercial surfaces | `/`, `/pricing`, `/partner-access` (each `[data-offer='acme-brief']`) | WC-4, WC-4a, WC-4b *(offer_copy_consistency_check)* |
 | WC-5 | `request_id_visibility_check` | fan to ALL views expected to show a request id | `/support`, `/trust`, error states | WC-5, WC-5a |
 | WC-6 | `web_chat_ux_check` | fan to ALL pages mounting the chat component | `/`, `/pricing`, `/support` | WC-6, WC-6a, WC-6b |
 
@@ -558,7 +558,7 @@ This is the fan-out that turns a point observation into **surface-wide coverage*
     "new_contract_ids": ["WC-3", "WC-3a", "WC-3b"] },
   { "from_contract": "WC-4", "template_id": "pricing_claim_consistency_check + offer_copy_consistency_check",
     "rule": "fan pricing/offer copy across ALL commercial surfaces",
-    "expanded_targets": ["/ [data-offer='trust-brief']", "/pricing [data-offer='trust-brief']", "/partner-access [data-offer='trust-brief']"],
+    "expanded_targets": ["/ [data-offer='acme-brief']", "/pricing [data-offer='acme-brief']", "/partner-access [data-offer='acme-brief']"],
     "new_contract_ids": ["WC-4", "WC-4a", "WC-4b(offer_copy_consistency_check)"] },
   { "from_contract": "WC-5", "template_id": "request_id_visibility_check",
     "rule": "fan to ALL views expected to show a request id",

@@ -1,0 +1,16 @@
+{
+  "id": "TR-1",
+  "voice_note_id": "VN-1",
+  "session_id": "AS-2026-07-09-fieldaudit",
+  "text_raw": "apply for pilot link is broken cookie link goes nowhere sign-in is broken trust brief twelve thousand dollar six week package copy needs update request ids are not visible web chat ui is bad",
+  "text_normalized": "apply for pilot link is broken. cookie link goes nowhere. sign-in is broken. trust brief $12,000 8-week package copy needs update. request ids are not visible. web chat ui is bad.",
+  "source_lang": "en",
+  "translated": false,
+  "normalization_ops": [
+    { "op": "number_word_expand", "from": "twelve thousand", "to": "10000" },
+    { "op": "currency_normalize", "from": "twelve thousand dollar", "to": "$12,000" },
+    { "op": "hyphen_join", "from": "six week", "to": "8-week" },
+    { "op": "punctuation_canon", "from": "<utterance>", "to": "<sentence-split>" }
+  ],
+  "confidence": 0.93
+}
