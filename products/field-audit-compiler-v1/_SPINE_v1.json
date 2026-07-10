@@ -1,0 +1,469 @@
+{
+  "$id": "noetfield:field-audit-compiler:spine:v1",
+  "title": "FOUNDER_FIELD_AUDIT_TO_WORKFLOW_COMPILER — Canonical Spine v1",
+  "version": "1.0.0",
+  "locked_at": "2026-07-09",
+  "one_liner": "A deterministic Voice-to-Workflow Compiler: founder SPEAKS defects on a real surface -> observations -> issue clusters -> deterministic WorkflowContracts -> sandbox jobs -> independently verified receipts -> approval-ready patches -> pattern expansion. NOT a chatbot or prompt generator.",
+  "authority_model": {
+    "sina-governance-SSOT": "law / registry / locks. Runs nothing. Owns the templates registry and risk policy this spine must obey.",
+    "sandbox": "authoring & R&D bench. authority=none. CANNOT mint PASS. Every write stays inside sandbox/products/field-audit-compiler-v1/. Sandbox jobs may only inspect / patch-into-a-diff / test / return receipts.",
+    "noetfield-cloud-factory-infra": "verified-execution factory. Thin orchestrators. The independent Cloudflare Worker verifier is the ONLY PASS issuer. Supabase is the ledger.",
+    "cat-05-sandbox-worktree-execution": "a factory WATCHER slot that runs the SandboxJob in an isolated worktree — NOT the whole sandbox.",
+    "cat-09-receipt-trust-audit-layer": "trust / receipt center of gravity; GUARD-class receipts promote here.",
+    "cat-10-vertical-proof-products": "REVENUE-class / vertical-proof receipts promote here.",
+    "execution_rule": "All generated work goes to sandbox FIRST. NO direct deploy, merge, deletion, cron unlock, real send, or canonical-repo mutation from raw voice. Canonical changes require an ApprovalItem or an explicitly-scoped low-risk rule. Sandbox jobs run ONLY against the founder-supplied TARGET_URL/target_ref; never hardcode or fetch a live surface.",
+    "pass_issuance": "verifier_status=PASS is issuable ONLY by the independent CF Worker after it recomputes summary from checks[] and confirms edge + secondary-CF-account proof. Author-emitted sandbox receipts are always authority='none', verifier_status='UNVERIFIED'."
+  },
+  "reads": [
+    "VOICE_TO_OBSERVATION_SCHEMA_v1.json (stage-1 objects: AuditSession, VoiceNote, Transcript, Observation)",
+    "RECEIPT_SCHEMA_FIELD_AUDIT_v1.json (field_audit_receipt_v1 emitted by VerificationRun)"
+  ],
+
+  "objects": {
+    "AuditSession": {
+      "purpose": "One founder audit pass against one target surface. Root of all foreign keys.",
+      "fields": [
+        { "name": "id", "type": "string(AS-*)", "required": true, "note": "Primary key." },
+        { "name": "founder_id", "type": "string", "required": true, "note": "Who is auditing." },
+        { "name": "surface_kind", "type": "enum(website|web_app|dashboard|repo|workflow|other)", "required": true, "note": "Selects eligible templates." },
+        { "name": "target_url", "type": "string|null", "required": false, "note": "Founder-supplied TARGET_URL. One of target_url/target_ref required. Never hardcoded to a live surface." },
+        { "name": "target_ref", "type": "string|null", "required": false, "note": "Git ref / repo path / workflow id for repo/workflow audits." },
+        { "name": "created_at", "type": "date-time", "required": true, "note": "" },
+        { "name": "status", "type": "enum(capturing|transcribing|extracting|clustered|contracted|verifying|awaiting_approval|closed)", "required": true, "note": "Pipeline position." },
+        { "name": "voice_note_ids", "type": "string[]", "required": true, "note": "FK -> VoiceNote.id[]." },
+        { "name": "observation_ids", "type": "string[]", "required": true, "note": "FK -> Observation.id[]." },
+        { "name": "authority", "type": "const(none)", "required": true, "note": "Session never holds execution authority." }
+      ],
+      "relations": { "voice_note_ids": "VoiceNote.id", "observation_ids": "Observation.id" }
+    },
+    "VoiceNote": {
+      "purpose": "One captured spoken utterance (audio reference) in a session.",
+      "fields": [
+        { "name": "id", "type": "string(VN-*)", "required": true, "note": "PK." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "audio_ref", "type": "string", "required": true, "note": "Sandbox-local blob key; never an external URL." },
+        { "name": "duration_ms", "type": "integer", "required": false, "note": "" },
+        { "name": "captured_at", "type": "date-time", "required": true, "note": "" },
+        { "name": "source_lang", "type": "string(BCP-47)", "required": false, "note": "Detected at capture." },
+        { "name": "transcript_id", "type": "string(TR-*)|null", "required": false, "note": "FK -> Transcript.id once transcribed." }
+      ],
+      "relations": { "session_id": "AuditSession.id", "transcript_id": "Transcript.id" }
+    },
+    "Transcript": {
+      "purpose": "Deterministic-normalized text of one VoiceNote (raw + normalized + optional English translation).",
+      "fields": [
+        { "name": "id", "type": "string(TR-*)", "required": true, "note": "PK." },
+        { "name": "voice_note_id", "type": "string(VN-*)", "required": true, "note": "FK -> VoiceNote.id." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "text_raw", "type": "string", "required": true, "note": "Verbatim ASR." },
+        { "name": "text_normalized", "type": "string", "required": true, "note": "Replayable normalization applied." },
+        { "name": "source_lang", "type": "string", "required": true, "note": "" },
+        { "name": "translated", "type": "boolean", "required": true, "note": "" },
+        { "name": "text_translated", "type": "string", "required": false, "note": "English working text when translated=true." },
+        { "name": "normalization_ops", "type": "object[]", "required": false, "note": "Ordered pure transforms {op,from,to}." },
+        { "name": "confidence", "type": "number[0..1]", "required": false, "note": "" }
+      ],
+      "relations": { "voice_note_id": "VoiceNote.id", "session_id": "AuditSession.id" }
+    },
+    "Observation": {
+      "purpose": "One atomic asserted defect sliced from a Transcript; the compiler's structured unit. Unverified/heuristic.",
+      "fields": [
+        { "name": "id", "type": "string(OB-*)", "required": true, "note": "PK." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "transcript_id", "type": "string(TR-*)", "required": true, "note": "FK -> Transcript.id." },
+        { "name": "raw_span", "type": "string", "required": true, "note": "Exact substring of text_normalized/text_translated; provenance anchor." },
+        { "name": "surface_ref", "type": "string", "required": false, "note": "Concrete pointer (route/selector/href/component) or 'unresolved:<hint>'. Never a hardcoded live URL at compile time." },
+        { "name": "target_hint", "type": "string", "required": true, "note": "Founder's words for the element." },
+        { "name": "severity_guess", "type": "enum(blocker|high|medium|low|info)", "required": true, "note": "Heuristic." },
+        { "name": "defect_kind", "type": "enum(broken_link|cta_route|legal_footer_link|auth_entrypoint|offer_copy|pricing_claim|request_id_visibility|web_chat_ux|mobile_responsive|route_health|other)", "required": true, "note": "Selects template_id 1:1." },
+        { "name": "confidence", "type": "number[0..1]", "required": true, "note": "" },
+        { "name": "needs_translation", "type": "boolean", "required": true, "note": "True if span came from non-English transcript." }
+      ],
+      "relations": { "session_id": "AuditSession.id", "transcript_id": "Transcript.id" }
+    },
+    "IssueCluster": {
+      "purpose": "Deduped grouping of Observations that share a defect_kind + resolved target scope; unit that a WorkflowContract is generated from.",
+      "fields": [
+        { "name": "id", "type": "string(IC-*)", "required": true, "note": "PK." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "observation_ids", "type": "string[]", "required": true, "note": "FK -> Observation.id[] merged into this cluster." },
+        { "name": "defect_kind", "type": "enum(same as Observation.defect_kind)", "required": true, "note": "Shared kind; drives template selection." },
+        { "name": "label", "type": "string", "required": true, "note": "Human label, e.g. 'Broken Apply-for-Pilot CTA'." },
+        { "name": "target_refs", "type": "string[]", "required": true, "note": "Resolved surface pointers in scope for this cluster." },
+        { "name": "severity", "type": "enum(blocker|high|medium|low|info)", "required": true, "note": "Max of member severities." },
+        { "name": "dedup_note", "type": "string", "required": false, "note": "Why observations were merged/kept separate." }
+      ],
+      "relations": { "session_id": "AuditSession.id", "observation_ids": "Observation.id" }
+    },
+    "WorkflowContract": {
+      "purpose": "The deterministic compiled contract generated from one IssueCluster. Pure, no-LLM checks a CF Worker can re-derive. This is what makes the system a COMPILER not a chatbot.",
+      "fields": [
+        { "name": "id", "type": "string(WC-*)", "required": true, "note": "PK." },
+        { "name": "cluster_id", "type": "string(IC-*)", "required": true, "note": "FK -> IssueCluster.id." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "template_id", "type": "string", "required": true, "note": "FK -> templates[].id." },
+        { "name": "target", "type": "object", "required": true, "note": "{ target_url|target_ref, scope_selector } — founder-supplied ref + scope selector for the fan-out." },
+        { "name": "params", "type": "object", "required": true, "note": "Template-specific params (e.g. canonical copy source, expected route)." },
+        { "name": "deterministic_checks", "type": "object[]", "required": true, "note": "[{name, logic, pass_condition}] copied/instantiated from the template." },
+        { "name": "expected_outputs", "type": "object", "required": true, "note": "What a passing run looks like." },
+        { "name": "verifier_logic", "type": "string", "required": true, "note": "How the CF Worker re-derives the result." },
+        { "name": "pattern_expansion_rule", "type": "string", "required": true, "note": "How this contract fans across similar routes/components." },
+        { "name": "promotion", "type": "object", "required": true, "note": "{ factory_category, value_class } — where a verified receipt promotes." },
+        { "name": "risk_class", "type": "enum(read_only|low_risk_patch|canonical_change)", "required": true, "note": "read_only never mutates; canonical_change always needs approval." },
+        { "name": "approval_required", "type": "boolean", "required": true, "note": "True unless risk_class=read_only or an explicitly-scoped low-risk rule applies." }
+      ],
+      "relations": { "cluster_id": "IssueCluster.id", "session_id": "AuditSession.id", "template_id": "templates[].id" }
+    },
+    "SandboxJob": {
+      "purpose": "Execution of one WorkflowContract inside the cat-05 watcher worktree. authority=none; inspects / patches-into-a-diff / tests / returns a receipt. Never deploys.",
+      "fields": [
+        { "name": "id", "type": "string(SJ-*)", "required": true, "note": "PK." },
+        { "name": "workflow_contract_id", "type": "string(WC-*)", "required": true, "note": "FK -> WorkflowContract.id." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "category_id", "type": "const(CAT-05-SANDBOX-WORKTREE-EXECUTION)", "required": true, "note": "Runs in the watcher slot." },
+        { "name": "authority", "type": "const(none)", "required": true, "note": "Cannot mint PASS." },
+        { "name": "job_kind", "type": "enum(inspect|patch_diff|test)", "required": true, "note": "Bounded action set." },
+        { "name": "target", "type": "object", "required": true, "note": "Same founder-supplied ref+scope as the contract." },
+        { "name": "inputs", "type": "object", "required": true, "note": "Instantiated params + resolved surface_refs." },
+        { "name": "status", "type": "enum(queued|running|done|error)", "required": true, "note": "" },
+        { "name": "started_at", "type": "date-time", "required": false, "note": "" },
+        { "name": "finished_at", "type": "date-time", "required": false, "note": "" },
+        { "name": "output_ref", "type": "string", "required": false, "note": "Sandbox-local artifact bundle path." },
+        { "name": "diff_ref", "type": "string|null", "required": false, "note": "Path to proposed patch diff (patch_diff jobs only). Never applied here." },
+        { "name": "receipt_id", "type": "string", "required": false, "note": "FK -> Receipt (field_audit_receipt_v1) emitted by the VerificationRun." }
+      ],
+      "relations": { "workflow_contract_id": "WorkflowContract.id", "session_id": "AuditSession.id" }
+    },
+    "VerificationRun": {
+      "purpose": "Runs the deterministic_checks and emits a field_audit_receipt_v1. In sandbox it self-writes UNVERIFIED; the independent CF Worker adjudicates PASS/FAIL/BLOCKED.",
+      "fields": [
+        { "name": "id", "type": "string(VR-*)", "required": true, "note": "PK." },
+        { "name": "sandbox_job_id", "type": "string(SJ-*)", "required": true, "note": "FK -> SandboxJob.id." },
+        { "name": "workflow_contract_id", "type": "string(WC-*)", "required": true, "note": "FK -> WorkflowContract.id." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "verifier_runtime", "type": "enum(sandbox_selfwrite|cloudflare_worker)", "required": true, "note": "Only cloudflare_worker may issue PASS." },
+        { "name": "checked_at", "type": "date-time", "required": true, "note": "" },
+        { "name": "checks", "type": "object[]", "required": true, "note": "[{name,passed,detail,evidence}] — mirrors receipt.checks." },
+        { "name": "summary", "type": "object", "required": true, "note": "{total,passed,failed}; recomputed by verifier." },
+        { "name": "verifier_status", "type": "enum(PASS|FAIL|BLOCKED|UNVERIFIED)", "required": true, "note": "UNVERIFIED for sandbox self-writes." },
+        { "name": "value_class", "type": "enum(REVENUE|GUARD|META|NONE)", "required": true, "note": "From the contract promotion." },
+        { "name": "receipt_id", "type": "string", "required": true, "note": "FK -> Receipt." }
+      ],
+      "relations": { "sandbox_job_id": "SandboxJob.id", "workflow_contract_id": "WorkflowContract.id", "session_id": "AuditSession.id", "receipt_id": "Receipt.schema+session_id" }
+    },
+    "Receipt": {
+      "purpose": "The field_audit_receipt_v1 artifact (see RECEIPT_SCHEMA_FIELD_AUDIT_v1.json). Independently re-derivable by a CF Worker. Sandbox self-writes carry authority='none', verifier_status='UNVERIFIED'.",
+      "fields": [
+        { "name": "schema", "type": "const(field_audit_receipt_v1)", "required": true, "note": "Discriminator." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "workflow_contract_id", "type": "string(WC-*)", "required": true, "note": "FK -> WorkflowContract.id." },
+        { "name": "sandbox_job_id", "type": "string(SJ-*)", "required": true, "note": "FK -> SandboxJob.id." },
+        { "name": "category_id", "type": "enum(CAT-05-...|CAT-09-...|CAT-10-...)", "required": true, "note": "Owning promotion category." },
+        { "name": "checked_at", "type": "date-time", "required": true, "note": "" },
+        { "name": "checks", "type": "object[]", "required": true, "note": "[{name,passed,detail,evidence}]." },
+        { "name": "summary", "type": "object", "required": true, "note": "{total,passed,failed}; verifier recomputes and FAILs on mismatch." },
+        { "name": "value_class", "type": "enum(REVENUE|GUARD|META|NONE)", "required": true, "note": "" },
+        { "name": "verifier_status", "type": "enum(PASS|FAIL|BLOCKED|UNVERIFIED)", "required": true, "note": "PASS only from CF Worker." },
+        { "name": "authority", "type": "const(none)", "required": true, "note": "Sandbox never self-mints PASS." }
+      ],
+      "relations": { "session_id": "AuditSession.id", "workflow_contract_id": "WorkflowContract.id", "sandbox_job_id": "SandboxJob.id" }
+    },
+    "ApprovalItem": {
+      "purpose": "The human gate. A verified (or explicitly-scoped low-risk) result becomes an approval-ready patch. ONLY an approved ApprovalItem authorizes a canonical change — never raw voice.",
+      "fields": [
+        { "name": "id", "type": "string(AP-*)", "required": true, "note": "PK." },
+        { "name": "session_id", "type": "string(AS-*)", "required": true, "note": "FK -> AuditSession.id." },
+        { "name": "receipt_id", "type": "string", "required": true, "note": "FK -> Receipt that justifies this item." },
+        { "name": "workflow_contract_id", "type": "string(WC-*)", "required": true, "note": "FK -> WorkflowContract.id." },
+        { "name": "title", "type": "string", "required": true, "note": "e.g. 'Fix broken Apply-for-Pilot CTA route'." },
+        { "name": "proposed_patch_ref", "type": "string|null", "required": false, "note": "FK -> SandboxJob.diff_ref (the diff to apply on approval)." },
+        { "name": "risk_class", "type": "enum(read_only|low_risk_patch|canonical_change)", "required": true, "note": "" },
+        { "name": "value_class", "type": "enum(REVENUE|GUARD|META|NONE)", "required": true, "note": "" },
+        { "name": "target", "type": "object", "required": true, "note": "Ref+scope the patch touches." },
+        { "name": "decision", "type": "enum(pending|approved|rejected|deferred)", "required": true, "note": "" },
+        { "name": "decided_by", "type": "string|null", "required": false, "note": "" },
+        { "name": "decided_at", "type": "date-time|null", "required": false, "note": "" },
+        { "name": "rationale", "type": "string", "required": false, "note": "" }
+      ],
+      "relations": { "session_id": "AuditSession.id", "receipt_id": "Receipt", "workflow_contract_id": "WorkflowContract.id", "proposed_patch_ref": "SandboxJob.diff_ref" }
+    }
+  },
+
+  "workflow_contract_shape": {
+    "id": "WC-<session>-<n>",
+    "template_id": "one of templates[].id",
+    "target": {
+      "target_url": "founder-supplied TARGET_URL (or null)",
+      "target_ref": "founder-supplied git/workflow ref (or null)",
+      "scope_selector": "CSS/route/glob selector defining the fan-out scope, e.g. 'nav a, footer a' or '/**' or 'button[data-cta]'"
+    },
+    "params": "template-specific object (e.g. { canonical_copy_source, expected_price:'$12,000', expected_duration:'8-week' })",
+    "deterministic_checks": [
+      { "name": "check name", "logic": "PURE no-LLM predicate — HTTP status | DOM/selector presence | regex | hash equality", "pass_condition": "boolean expression over the logic result" }
+    ],
+    "expected_outputs": "{ checks[] all passed, summary{total,passed,failed} } shape a passing run yields",
+    "verifier_logic": "how a CF Worker RE-DERIVES: refetch/re-select/re-regex/re-hash, recompute summary from checks[], FAIL on mismatch; PASS requires edge+secondary-account proof",
+    "pattern_expansion_rule": "deterministic fan-out: enumerate all elements matching scope_selector and instantiate one check per element",
+    "promotion": { "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER | CAT-10-VERTICAL-PROOF-PRODUCTS", "value_class": "REVENUE|GUARD|META|NONE" },
+    "risk_class": "read_only | low_risk_patch | canonical_change",
+    "approval_required": "boolean — false only for read_only or explicitly-scoped low-risk rule"
+  },
+
+  "templates": [
+    {
+      "id": "broken_link_scan",
+      "purpose": "Detect hrefs that resolve to non-2xx/3xx or empty/'#' targets across a scope.",
+      "target_kind": "website|web_app|dashboard",
+      "inputs": { "scope_selector": "a[href]", "ignore": ["mailto:", "tel:"] },
+      "deterministic_checks": [
+        { "name": "href_resolves", "logic": "HTTP GET/HEAD each resolved href", "pass_condition": "status in [200,301,302,308] AND href not in ['', '#', 'javascript:void(0)']" }
+      ],
+      "outputs": { "per_link": "{href, http_status, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches each href, recomputes passed booleans and summary from checks[]; FAIL on any mismatch.",
+      "pattern_expansion": "Fans to ALL nav + footer + in-body links matching scope_selector; one check per unique href.",
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "GUARD"
+    },
+    {
+      "id": "cta_route_check",
+      "purpose": "Verify a primary call-to-action element exists and its route/target resolves to a live 2xx page.",
+      "target_kind": "website|web_app",
+      "inputs": { "cta_selector": "a[data-cta], button[data-cta], a:contains('Apply')", "expected_status": [200] },
+      "deterministic_checks": [
+        { "name": "cta_present", "logic": "DOM selector presence", "pass_condition": "document.querySelector(cta_selector) != null" },
+        { "name": "cta_route_resolves", "logic": "HTTP GET the CTA href/action", "pass_condition": "status == 200 AND href not in ['','#']" }
+      ],
+      "outputs": { "cta": "{selector, href, present, http_status, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-selects the CTA in fetched HTML and re-fetches its href; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans to ALL CTAs (every [data-cta]/primary button) across the surface.",
+      "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS",
+      "value_class": "REVENUE"
+    },
+    {
+      "id": "legal_footer_link_check",
+      "purpose": "Ensure required legal/compliance footer links (Privacy, Terms, Cookie) exist and resolve.",
+      "target_kind": "website|web_app",
+      "inputs": { "required": ["privacy", "terms", "cookie"], "scope_selector": "footer a[href]" },
+      "deterministic_checks": [
+        { "name": "cookie_link_present_and_resolves", "logic": "footer selector match + HTTP GET target", "pass_condition": "link whose text/href matches 'cookie' exists AND status==200 AND href not in ['','#']" }
+      ],
+      "outputs": { "per_required": "{name, found, href, http_status, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-parses footer, matches required names, re-fetches each; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans to ALL required legal links (privacy/terms/cookie/accessibility) in the footer.",
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "GUARD"
+    },
+    {
+      "id": "auth_entrypoint_check",
+      "purpose": "Verify sign-in / sign-up entrypoints exist and their routes return a working auth page (not 4xx/5xx).",
+      "target_kind": "website|web_app|dashboard",
+      "inputs": { "auth_selectors": ["a:contains('Sign in')", "a[href*='login']", "a[href*='signin']"], "expected_status": [200] },
+      "deterministic_checks": [
+        { "name": "auth_entry_present", "logic": "DOM selector presence", "pass_condition": "at least one auth_selector matches" },
+        { "name": "auth_route_resolves", "logic": "HTTP GET the auth href", "pass_condition": "status == 200" }
+      ],
+      "outputs": { "auth": "{selector, href, present, http_status, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-selects auth entrypoint in fetched HTML and re-fetches its route; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans to ALL auth entrypoints (header sign-in, footer sign-in, in-body CTAs to login/signup).",
+      "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS",
+      "value_class": "REVENUE"
+    },
+    {
+      "id": "offer_copy_consistency_check",
+      "purpose": "Verify offer/package copy on the surface matches the canonical SSOT offer text (name, inclusions).",
+      "target_kind": "website|web_app",
+      "inputs": { "canonical_copy_source": "SSOT offer registry ref (founder-supplied)", "offer_key": "trust_brief", "scope_selector": "[data-offer], main" },
+      "deterministic_checks": [
+        { "name": "offer_name_matches_canonical", "logic": "regex/string-equality of rendered offer name vs canonical", "pass_condition": "normalize(rendered) == normalize(canonical.name)" }
+      ],
+      "outputs": { "offer": "{key, rendered, canonical, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches page + canonical source, re-normalizes, re-compares; recomputes summary; FAIL on mismatch. (No LLM — pure string/hash equality against a supplied canonical.)",
+      "pattern_expansion": "Fans across ALL commercial surfaces/pages that reference the offer (home, pricing, product, partner pages).",
+      "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS",
+      "value_class": "REVENUE"
+    },
+    {
+      "id": "pricing_claim_consistency_check",
+      "purpose": "Verify a specific price/duration claim on the surface equals the canonical value (e.g. $12,000 / 8-week).",
+      "target_kind": "website|web_app",
+      "inputs": { "canonical_copy_source": "SSOT pricing registry ref", "expected_price": "$12,000", "expected_duration": "8-week", "scope_selector": "[data-offer], main" },
+      "deterministic_checks": [
+        { "name": "price_matches_canonical", "logic": "regex extract price token, string-equality vs expected_price", "pass_condition": "extracted_price == '$12,000'" },
+        { "name": "duration_matches_canonical", "logic": "regex extract duration token, equality vs expected_duration", "pass_condition": "extracted_duration == '8-week'" }
+      ],
+      "outputs": { "claim": "{expected_price, expected_duration, found_price, found_duration, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches page, re-runs the same regexes, re-compares to canonical; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans across ALL commercial surfaces where the price/duration is claimed.",
+      "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS",
+      "value_class": "REVENUE"
+    },
+    {
+      "id": "request_id_visibility_check",
+      "purpose": "Verify a request/correlation id is rendered to the user on relevant views (support/trust surfaces) so issues are traceable.",
+      "target_kind": "web_app|dashboard",
+      "inputs": { "id_regex": "(req|request|corr)[-_ ]?id[:#]?\\s*[A-Za-z0-9-]{6,}", "scope_selector": "main, [data-request-id]" },
+      "deterministic_checks": [
+        { "name": "request_id_visible", "logic": "regex match against rendered text / attribute presence", "pass_condition": "id_regex matches rendered DOM text OR [data-request-id] attribute is non-empty" }
+      ],
+      "outputs": { "request_id": "{found, sample, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches the view and re-runs the same regex over rendered text/attributes; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans across ALL views expected to show a request id (support pages, error states, receipt/trust views).",
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "GUARD"
+    },
+    {
+      "id": "web_chat_ux_check",
+      "purpose": "Smoke-check the web chat widget: mount node present, input + send control present, ARIA/label sanity. UX signal, not a subjective judgement.",
+      "target_kind": "website|web_app",
+      "inputs": { "widget_selector": "[data-chat], #chat-widget", "required_controls": ["input,textarea", "button[type=submit],[data-chat-send]"] },
+      "deterministic_checks": [
+        { "name": "chat_widget_mounts", "logic": "DOM selector presence", "pass_condition": "widget_selector matches exactly one node" },
+        { "name": "chat_controls_present", "logic": "DOM presence of input + send control", "pass_condition": "each required_controls selector matches >=1 node" },
+        { "name": "chat_input_labeled", "logic": "attribute presence (aria-label/placeholder)", "pass_condition": "input has non-empty aria-label OR placeholder" }
+      ],
+      "outputs": { "widget": "{mounts, controls_present, labeled, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches rendered HTML and re-selects widget + controls + attributes; recomputes summary; FAIL on mismatch.",
+      "pattern_expansion": "Fans across ALL pages that mount the chat widget (or the shared component instance).",
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "META"
+    },
+    {
+      "id": "mobile_responsive_smoke_check",
+      "purpose": "Smoke-check mobile viewport health: viewport meta present, no horizontal overflow, tap targets not sub-min.",
+      "target_kind": "website|web_app",
+      "inputs": { "viewport": "375x812", "min_tap_px": 44 },
+      "deterministic_checks": [
+        { "name": "viewport_meta_present", "logic": "regex on HTML head for <meta name=viewport>", "pass_condition": "meta[name=viewport] with width=device-width present" },
+        { "name": "no_horizontal_overflow", "logic": "headless measure scrollWidth vs innerWidth at 375px", "pass_condition": "document.scrollWidth <= 375 + tolerance" }
+      ],
+      "outputs": { "responsive": "{viewport_meta, overflow_px, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker (or headless render service the Worker calls) re-measures at fixed viewport; recomputes summary; FAIL on mismatch. Heavier than pure HTTP — sequenced after the first five.",
+      "pattern_expansion": "Fans across ALL key routes (home, pricing, product, auth) at the fixed mobile viewport.",
+      "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS",
+      "value_class": "GUARD"
+    },
+    {
+      "id": "route_health_check",
+      "purpose": "Verify a set of key routes return 2xx and are non-empty (baseline liveness of the surface's spine).",
+      "target_kind": "website|web_app|dashboard",
+      "inputs": { "routes": ["/", "/pricing", "/apply-for-program", "/login"], "expected_status": [200] },
+      "deterministic_checks": [
+        { "name": "route_returns_2xx", "logic": "HTTP GET each route", "pass_condition": "status == 200 AND content-length > 0" }
+      ],
+      "outputs": { "per_route": "{route, http_status, bytes, passed}", "summary": "{total,passed,failed}" },
+      "verifier_logic": "CF Worker re-fetches each route, recomputes passed + summary from checks[]; FAIL on mismatch. Mirrors CAT-10 http_200 poller doctrine exactly.",
+      "pattern_expansion": "Fans across ALL discovered/declared key routes (sitemap or nav-derived).",
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "GUARD"
+    }
+  ],
+
+  "first_five_template_ids": [
+    "route_health_check",
+    "broken_link_scan",
+    "cta_route_check",
+    "auth_entrypoint_check",
+    "request_id_visibility_check"
+  ],
+  "first_five_rationale": "Four (WC-1/3/5 seeds) are exercised by the canonical E2E and route_health_check is the baseline poller (broken_link_scan also appears via WC-2 fan-out); all five are purely deterministic with plain HTTP + static-DOM/regex logic a CF Worker already re-derives today (route_health mirrors the shipped CAT-10 http_200 poller). offer/pricing consistency need a supplied canonical source, and web_chat_ux + mobile_responsive need rendering — both sequenced after the first five.",
+
+  "e2e_example": {
+    "note": "SINGLE CANONICAL worked chain reused by every downstream file. Illustrative TARGET_URL is founder-supplied and shown as {TARGET_URL}; nothing here fetches a live surface. Compiled from the founder voice note verbatim.",
+    "founder_voice_note": "Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar eight-week package copy needs update. Request IDs are not visible. Web chat UI is bad.",
+    "session": { "id": "AS-2026-07-09-fieldaudit", "founder_id": "founder-1", "surface_kind": "website", "target_url": "{TARGET_URL}", "created_at": "2026-07-09T20:00:00Z", "status": "awaiting_approval", "voice_note_ids": ["VN-1"], "observation_ids": ["OB-1","OB-2","OB-3","OB-4","OB-5","OB-6"], "authority": "none" },
+    "transcript": {
+      "id": "TR-1",
+      "voice_note_id": "VN-1",
+      "session_id": "AS-2026-07-09-fieldaudit",
+      "text_raw": "apply for pilot link is broken cookie link goes nowhere sign-in is broken trust brief twelve thousand dollar six week package copy needs update request ids are not visible web chat ui is bad",
+      "text_normalized": "apply for pilot link is broken. cookie link goes nowhere. sign-in is broken. trust brief $12,000 8-week package copy needs update. request ids are not visible. web chat ui is bad.",
+      "source_lang": "en",
+      "translated": false,
+      "normalization_ops": [
+        { "op": "number_word_expand", "from": "twelve thousand", "to": "10000" },
+        { "op": "currency_normalize", "from": "twelve thousand dollar", "to": "$12,000" },
+        { "op": "hyphen_join", "from": "six week", "to": "8-week" },
+        { "op": "punctuation_canon", "from": "<utterance>", "to": "<sentence-split>" }
+      ],
+      "confidence": 0.93
+    },
+    "observations": [
+      { "id": "OB-1", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "apply for pilot link is broken", "surface_ref": "unresolved:Apply for Program link", "target_hint": "Apply for Program link", "severity_guess": "blocker", "defect_kind": "cta_route", "confidence": 0.9, "needs_translation": false },
+      { "id": "OB-2", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "cookie link goes nowhere", "surface_ref": "unresolved:footer Cookie link", "target_hint": "Cookie link", "severity_guess": "high", "defect_kind": "legal_footer_link", "confidence": 0.88, "needs_translation": false },
+      { "id": "OB-3", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "sign-in is broken", "surface_ref": "unresolved:Sign-in", "target_hint": "Sign-in", "severity_guess": "blocker", "defect_kind": "auth_entrypoint", "confidence": 0.9, "needs_translation": false },
+      { "id": "OB-4", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "trust brief $12,000 8-week package copy needs update", "surface_ref": "unresolved:Acme Brief package copy", "target_hint": "Acme Brief $12,000 8-week package copy", "severity_guess": "high", "defect_kind": "pricing_claim", "confidence": 0.82, "needs_translation": false },
+      { "id": "OB-5", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "request ids are not visible", "surface_ref": "unresolved:request id display", "target_hint": "Request IDs", "severity_guess": "medium", "defect_kind": "request_id_visibility", "confidence": 0.85, "needs_translation": false },
+      { "id": "OB-6", "session_id": "AS-2026-07-09-fieldaudit", "transcript_id": "TR-1", "raw_span": "web chat ui is bad", "surface_ref": "unresolved:web chat widget", "target_hint": "Web chat UI", "severity_guess": "medium", "defect_kind": "web_chat_ux", "confidence": 0.7, "needs_translation": false }
+    ],
+    "issue_clusters": [
+      { "id": "IC-1", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-1"], "defect_kind": "cta_route", "label": "Broken 'Apply for Program' CTA", "target_refs": ["a[data-cta='apply-for-program']", "/apply-for-program"], "severity": "blocker", "dedup_note": "Single CTA observation; will fan to all CTAs via pattern expansion." },
+      { "id": "IC-2", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-2"], "defect_kind": "legal_footer_link", "label": "Footer Cookie link goes nowhere", "target_refs": ["footer a[href*='cookie']"], "severity": "high", "dedup_note": "Grouped under legal_footer_link (more specific than generic broken_link)." },
+      { "id": "IC-3", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-3"], "defect_kind": "auth_entrypoint", "label": "Sign-in broken", "target_refs": ["a[href*='login']", "/login"], "severity": "blocker", "dedup_note": "" },
+      { "id": "IC-4", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-4"], "defect_kind": "pricing_claim", "label": "Acme Brief $12,000 / 8-week copy stale", "target_refs": ["[data-offer='trust-brief']"], "severity": "high", "dedup_note": "pricing_claim chosen over offer_copy because the specific claim ($12,000, 8-week) is checkable against canonical; an offer_copy_consistency_check contract is spawned as a sibling in expansion." },
+      { "id": "IC-5", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-5"], "defect_kind": "request_id_visibility", "label": "Request IDs not visible", "target_refs": ["main", "[data-request-id]"], "severity": "medium", "dedup_note": "" },
+      { "id": "IC-6", "session_id": "AS-2026-07-09-fieldaudit", "observation_ids": ["OB-6"], "defect_kind": "web_chat_ux", "label": "Web chat widget UX poor", "target_refs": ["[data-chat]"], "severity": "medium", "dedup_note": "" }
+    ],
+    "workflow_contracts": [
+      { "id": "WC-1", "cluster_id": "IC-1", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "cta_route_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "a[data-cta], button[data-cta]" }, "params": { "cta_selector": "a[data-cta='apply-for-program']", "expected_status": [200] }, "deterministic_checks": [ { "name": "cta_present", "logic": "DOM selector presence", "pass_condition": "querySelector matches" }, { "name": "cta_route_resolves", "logic": "HTTP GET href", "pass_condition": "status==200 && href not in ['','#']" } ], "expected_outputs": { "cta_present": true, "cta_route_resolves": true }, "verifier_logic": "CF Worker re-selects CTA + re-fetches href; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate cta_route_check for every [data-cta] on the surface", "promotion": { "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS", "value_class": "REVENUE" }, "risk_class": "read_only", "approval_required": false },
+      { "id": "WC-2", "cluster_id": "IC-2", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "legal_footer_link_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "footer a[href]" }, "params": { "required": ["cookie"] }, "deterministic_checks": [ { "name": "cookie_link_present_and_resolves", "logic": "footer match + HTTP GET", "pass_condition": "found && status==200 && href not in ['','#']" } ], "expected_outputs": { "cookie_link_present_and_resolves": true }, "verifier_logic": "CF Worker re-parses footer + re-fetches; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate for privacy/terms/cookie/accessibility footer links", "promotion": { "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "value_class": "GUARD" }, "risk_class": "read_only", "approval_required": false },
+      { "id": "WC-3", "cluster_id": "IC-3", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "auth_entrypoint_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "a[href*='login'], a[href*='signin']" }, "params": { "expected_status": [200] }, "deterministic_checks": [ { "name": "auth_entry_present", "logic": "DOM selector presence", "pass_condition": "at least one auth_selector matches" }, { "name": "auth_route_resolves", "logic": "HTTP GET auth href", "pass_condition": "status==200" } ], "expected_outputs": { "auth_entry_present": true, "auth_route_resolves": true }, "verifier_logic": "CF Worker re-selects + re-fetches auth route; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate for every auth entrypoint (header, footer, in-body)", "promotion": { "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS", "value_class": "REVENUE" }, "risk_class": "read_only", "approval_required": false },
+      { "id": "WC-4", "cluster_id": "IC-4", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "pricing_claim_consistency_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='trust-brief']" }, "params": { "canonical_copy_source": "{SSOT_PRICING_REF}", "expected_price": "$12,000", "expected_duration": "8-week" }, "deterministic_checks": [ { "name": "price_matches_canonical", "logic": "regex extract price + equality", "pass_condition": "extracted_price=='$12,000'" }, { "name": "duration_matches_canonical", "logic": "regex extract duration + equality", "pass_condition": "extracted_duration=='8-week'" } ], "expected_outputs": { "price_matches_canonical": false, "duration_matches_canonical": false, "interpretation": "founder said copy needs update -> canonical mismatch expected until patched" }, "verifier_logic": "CF Worker re-fetches page + canonical, re-runs regexes, re-compares; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate across all commercial surfaces referencing Acme Brief price/duration; spawn sibling offer_copy_consistency_check", "promotion": { "factory_category": "CAT-10-VERTICAL-PROOF-PRODUCTS", "value_class": "REVENUE" }, "risk_class": "canonical_change", "approval_required": true },
+      { "id": "WC-5", "cluster_id": "IC-5", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "request_id_visibility_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "main, [data-request-id]" }, "params": { "id_regex": "(req|request|corr)[-_ ]?id[:#]?\\s*[A-Za-z0-9-]{6,}" }, "deterministic_checks": [ { "name": "request_id_visible", "logic": "regex match on rendered text/attr", "pass_condition": "regex matches OR [data-request-id] non-empty" } ], "expected_outputs": { "request_id_visible": false }, "verifier_logic": "CF Worker re-fetches view + re-runs regex; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate across all views expected to show a request id", "promotion": { "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "value_class": "GUARD" }, "risk_class": "low_risk_patch", "approval_required": true },
+      { "id": "WC-6", "cluster_id": "IC-6", "session_id": "AS-2026-07-09-fieldaudit", "template_id": "web_chat_ux_check", "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-chat]" }, "params": { "widget_selector": "[data-chat]", "required_controls": ["input,textarea", "button[type=submit],[data-chat-send]"] }, "deterministic_checks": [ { "name": "chat_widget_mounts", "logic": "DOM presence", "pass_condition": "exactly one match" }, { "name": "chat_controls_present", "logic": "DOM presence input+send", "pass_condition": "each control selector matches" }, { "name": "chat_input_labeled", "logic": "attr presence", "pass_condition": "aria-label or placeholder non-empty" } ], "expected_outputs": { "chat_widget_mounts": true, "chat_controls_present": true, "chat_input_labeled": false }, "verifier_logic": "CF Worker re-fetches HTML + re-selects widget/controls/attrs; recompute summary; FAIL on mismatch.", "pattern_expansion_rule": "instantiate on every page mounting the chat component", "promotion": { "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "value_class": "META" }, "risk_class": "low_risk_patch", "approval_required": true }
+    ],
+    "sandbox_jobs": [
+      { "id": "SJ-1", "workflow_contract_id": "WC-1", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "inspect", "target": { "target_url": "{TARGET_URL}" }, "inputs": { "cta_selector": "a[data-cta='apply-for-program']" }, "status": "done", "output_ref": "sandbox/.../SJ-1/", "diff_ref": null, "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-1" },
+      { "id": "SJ-2", "workflow_contract_id": "WC-2", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "inspect", "target": { "target_url": "{TARGET_URL}" }, "inputs": { "required": ["cookie"] }, "status": "done", "output_ref": "sandbox/.../SJ-2/", "diff_ref": null, "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-2" },
+      { "id": "SJ-3", "workflow_contract_id": "WC-3", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "inspect", "target": { "target_url": "{TARGET_URL}" }, "inputs": {}, "status": "done", "output_ref": "sandbox/.../SJ-3/", "diff_ref": null, "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-3" },
+      { "id": "SJ-4", "workflow_contract_id": "WC-4", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "patch_diff", "target": { "target_url": "{TARGET_URL}" }, "inputs": { "expected_price": "$12,000", "expected_duration": "8-week" }, "status": "done", "output_ref": "sandbox/.../SJ-4/", "diff_ref": "sandbox/.../SJ-4/trust-brief-copy.diff", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4" },
+      { "id": "SJ-5", "workflow_contract_id": "WC-5", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "patch_diff", "target": { "target_url": "{TARGET_URL}" }, "inputs": {}, "status": "done", "output_ref": "sandbox/.../SJ-5/", "diff_ref": "sandbox/.../SJ-5/request-id-display.diff", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-5" },
+      { "id": "SJ-6", "workflow_contract_id": "WC-6", "session_id": "AS-2026-07-09-fieldaudit", "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION", "authority": "none", "job_kind": "patch_diff", "target": { "target_url": "{TARGET_URL}" }, "inputs": {}, "status": "done", "output_ref": "sandbox/.../SJ-6/", "diff_ref": "sandbox/.../SJ-6/chat-input-label.diff", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-6" }
+    ],
+    "verification_runs": [
+      { "id": "VR-1", "sandbox_job_id": "SJ-1", "workflow_contract_id": "WC-1", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:00Z", "summary": { "total": 2, "passed": 1, "failed": 1 }, "verifier_status": "FAIL", "value_class": "REVENUE", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-1" },
+      { "id": "VR-2", "sandbox_job_id": "SJ-2", "workflow_contract_id": "WC-2", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:10Z", "summary": { "total": 1, "passed": 0, "failed": 1 }, "verifier_status": "FAIL", "value_class": "GUARD", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-2" },
+      { "id": "VR-3", "sandbox_job_id": "SJ-3", "workflow_contract_id": "WC-3", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:20Z", "summary": { "total": 2, "passed": 1, "failed": 1 }, "verifier_status": "FAIL", "value_class": "REVENUE", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-3" },
+      { "id": "VR-4", "sandbox_job_id": "SJ-4", "workflow_contract_id": "WC-4", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:30Z", "summary": { "total": 2, "passed": 0, "failed": 2 }, "verifier_status": "FAIL", "value_class": "REVENUE", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4" },
+      { "id": "VR-5", "sandbox_job_id": "SJ-5", "workflow_contract_id": "WC-5", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:40Z", "summary": { "total": 1, "passed": 0, "failed": 1 }, "verifier_status": "FAIL", "value_class": "GUARD", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-5" },
+      { "id": "VR-6", "sandbox_job_id": "SJ-6", "workflow_contract_id": "WC-6", "session_id": "AS-2026-07-09-fieldaudit", "verifier_runtime": "cloudflare_worker", "checked_at": "2026-07-09T20:05:50Z", "summary": { "total": 3, "passed": 2, "failed": 1 }, "verifier_status": "FAIL", "value_class": "META", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-6" }
+    ],
+    "receipts": [
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-1", "sandbox_job_id": "SJ-1", "category_id": "CAT-10-VERTICAL-PROOF-PRODUCTS", "checked_at": "2026-07-09T20:05:00Z", "checks": [ { "name": "cta_present", "passed": true, "detail": "a[data-cta='apply-for-program'] found", "evidence": { "selector": "a[data-cta='apply-for-program']", "match": true } }, { "name": "cta_route_resolves", "passed": false, "detail": "GET {TARGET_URL}/apply-for-program -> HTTP 404", "evidence": { "url": "{TARGET_URL}/apply-for-program", "http_status": 404 } } ], "summary": { "total": 2, "passed": 1, "failed": 1 }, "value_class": "REVENUE", "verifier_status": "FAIL", "authority": "none" },
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-2", "sandbox_job_id": "SJ-2", "category_id": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "checked_at": "2026-07-09T20:05:10Z", "checks": [ { "name": "cookie_link_present_and_resolves", "passed": false, "detail": "footer Cookie link href='#' -> unresolved", "evidence": { "selector": "footer a[href*='cookie']", "url": "#", "match": false } } ], "summary": { "total": 1, "passed": 0, "failed": 1 }, "value_class": "GUARD", "verifier_status": "FAIL", "authority": "none" },
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-3", "sandbox_job_id": "SJ-3", "category_id": "CAT-10-VERTICAL-PROOF-PRODUCTS", "checked_at": "2026-07-09T20:05:20Z", "checks": [ { "name": "auth_entry_present", "passed": true, "detail": "Sign-in link found", "evidence": { "selector": "a[href*='login']", "match": true } }, { "name": "auth_route_resolves", "passed": false, "detail": "GET {TARGET_URL}/login -> HTTP 500", "evidence": { "url": "{TARGET_URL}/login", "http_status": 500 } } ], "summary": { "total": 2, "passed": 1, "failed": 1 }, "value_class": "REVENUE", "verifier_status": "FAIL", "authority": "none" },
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-4", "sandbox_job_id": "SJ-4", "category_id": "CAT-10-VERTICAL-PROOF-PRODUCTS", "checked_at": "2026-07-09T20:05:30Z", "checks": [ { "name": "price_matches_canonical", "passed": false, "detail": "rendered '$9,000' != canonical '$12,000'", "evidence": { "regex": "\\$[0-9,]+", "expected": "$12,000", "actual": "$9,000", "match": false } }, { "name": "duration_matches_canonical", "passed": false, "detail": "rendered '5-week' != canonical '8-week'", "evidence": { "regex": "[0-9]+-week", "expected": "8-week", "actual": "5-week", "match": false } } ], "summary": { "total": 2, "passed": 0, "failed": 2 }, "value_class": "REVENUE", "verifier_status": "FAIL", "authority": "none" },
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-5", "sandbox_job_id": "SJ-5", "category_id": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "checked_at": "2026-07-09T20:05:40Z", "checks": [ { "name": "request_id_visible", "passed": false, "detail": "no request-id pattern or [data-request-id] in rendered view", "evidence": { "regex": "(req|request|corr)[-_ ]?id", "match": false } } ], "summary": { "total": 1, "passed": 0, "failed": 1 }, "value_class": "GUARD", "verifier_status": "FAIL", "authority": "none" },
+      { "schema": "field_audit_receipt_v1", "session_id": "AS-2026-07-09-fieldaudit", "workflow_contract_id": "WC-6", "sandbox_job_id": "SJ-6", "category_id": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER", "checked_at": "2026-07-09T20:05:50Z", "checks": [ { "name": "chat_widget_mounts", "passed": true, "detail": "[data-chat] present", "evidence": { "selector": "[data-chat]", "match": true } }, { "name": "chat_controls_present", "passed": true, "detail": "input + send present", "evidence": { "match": true } }, { "name": "chat_input_labeled", "passed": false, "detail": "chat input missing aria-label and placeholder", "evidence": { "selector": "[data-chat] input", "match": false } } ], "summary": { "total": 3, "passed": 2, "failed": 1 }, "value_class": "META", "verifier_status": "FAIL", "authority": "none" }
+    ],
+    "approval_items": [
+      { "id": "AP-1", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-1", "workflow_contract_id": "WC-1", "title": "Fix broken 'Apply for Program' CTA route (404)", "proposed_patch_ref": null, "risk_class": "canonical_change", "value_class": "REVENUE", "target": { "target_url": "{TARGET_URL}", "scope_selector": "a[data-cta='apply-for-program']" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Route returns 404; fix requires canonical change -> founder approval." },
+      { "id": "AP-2", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-2", "workflow_contract_id": "WC-2", "title": "Point footer Cookie link to /cookie-policy", "proposed_patch_ref": null, "risk_class": "canonical_change", "value_class": "GUARD", "target": { "target_url": "{TARGET_URL}", "scope_selector": "footer a[href*='cookie']" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Compliance link dead; canonical change." },
+      { "id": "AP-3", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-3", "workflow_contract_id": "WC-3", "title": "Fix Sign-in route 500", "proposed_patch_ref": null, "risk_class": "canonical_change", "value_class": "REVENUE", "target": { "target_url": "{TARGET_URL}", "scope_selector": "a[href*='login']" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Auth entrypoint 500s; blocks signups." },
+      { "id": "AP-4", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-4", "workflow_contract_id": "WC-4", "title": "Update Acme Brief copy to $12,000 / 8-week", "proposed_patch_ref": "sandbox/.../SJ-4/trust-brief-copy.diff", "risk_class": "canonical_change", "value_class": "REVENUE", "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-offer='trust-brief']" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Diff prepared in sandbox; canonical copy change needs founder approval." },
+      { "id": "AP-5", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-5", "workflow_contract_id": "WC-5", "title": "Render request id on trust/support views", "proposed_patch_ref": "sandbox/.../SJ-5/request-id-display.diff", "risk_class": "low_risk_patch", "value_class": "GUARD", "target": { "target_url": "{TARGET_URL}", "scope_selector": "main" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Additive display element; low-risk patch, still queued for approval." },
+      { "id": "AP-6", "session_id": "AS-2026-07-09-fieldaudit", "receipt_id": "field_audit_receipt_v1:AS-2026-07-09-fieldaudit:WC-6", "workflow_contract_id": "WC-6", "title": "Add aria-label/placeholder to chat input", "proposed_patch_ref": "sandbox/.../SJ-6/chat-input-label.diff", "risk_class": "low_risk_patch", "value_class": "META", "target": { "target_url": "{TARGET_URL}", "scope_selector": "[data-chat] input" }, "decision": "pending", "decided_by": null, "decided_at": null, "rationale": "Accessibility label missing; low-risk additive attribute." }
+    ],
+    "pattern_expansion": [
+      { "from_contract": "WC-1", "template_id": "cta_route_check", "rule": "fan to ALL CTAs", "expanded_targets": ["a[data-cta='apply-for-program']", "a[data-cta='book-demo']", "a[data-cta='get-started']", "a[data-cta='contact-sales']"], "new_contract_ids": ["WC-1", "WC-1a", "WC-1b", "WC-1c"] },
+      { "from_contract": "WC-2", "template_id": "legal_footer_link_check", "rule": "fan to ALL required legal footer links + generic broken_link_scan over nav+footer", "expanded_targets": ["footer a[href*='cookie']", "footer a[href*='privacy']", "footer a[href*='terms']", "nav a[href]", "footer a[href]"], "new_contract_ids": ["WC-2", "WC-2a", "WC-2b", "WC-2c(broken_link_scan)"] },
+      { "from_contract": "WC-3", "template_id": "auth_entrypoint_check", "rule": "fan to ALL auth entrypoints", "expanded_targets": ["header a[href*='login']", "footer a[href*='login']", "a[href*='signup']", "a[data-cta='get-started']"], "new_contract_ids": ["WC-3", "WC-3a", "WC-3b"] },
+      { "from_contract": "WC-4", "template_id": "pricing_claim_consistency_check + offer_copy_consistency_check", "rule": "fan pricing/offer copy across ALL commercial surfaces", "expanded_targets": ["/ [data-offer='trust-brief']", "/pricing [data-offer='trust-brief']", "/partner-access [data-offer='trust-brief']"], "new_contract_ids": ["WC-4", "WC-4a", "WC-4b(offer_copy_consistency_check)"] },
+      { "from_contract": "WC-5", "template_id": "request_id_visibility_check", "rule": "fan to ALL views expected to show a request id", "expanded_targets": ["/support", "/trust", "error states"], "new_contract_ids": ["WC-5", "WC-5a"] },
+      { "from_contract": "WC-6", "template_id": "web_chat_ux_check", "rule": "fan to ALL pages mounting the chat component", "expanded_targets": ["/", "/pricing", "/support"], "new_contract_ids": ["WC-6", "WC-6a", "WC-6b"] }
+    ],
+    "chain_summary": "1 voice note -> 1 transcript (normalized: '$12,000','8-week') -> 6 observations -> 6 deduped clusters -> 6 WorkflowContracts (first-five templates seed WC-1/3/5 (WC-2 legal_footer_link_check is covered via broken_link_scan fan-out, sequenced later); WC-4 pricing, WC-6 chat sequenced later) -> 6 cat-05 sandbox jobs (3 inspect, 3 patch_diff) -> 6 verification runs -> 6 field_audit_receipt_v1 (ALL verifier_status=FAIL as expected: surface is genuinely broken) -> 6 pending ApprovalItems -> pattern expansion fans each template across siblings. No PASS self-minted; no canonical mutation; all diffs staged, none applied."
+  },
+
+  "first_build_sequence": [
+    { "step": 1, "what": "Capture PWA: mic -> VoiceNote(audio_ref) + AuditSession(target_url/target_ref).", "why": "Founder must be able to SPEAK against a supplied target; entry point of the compiler.", "sandbox_only": true },
+    { "step": 2, "what": "Transcriber -> Transcript(text_raw, text_normalized, normalization_ops, optional translation).", "why": "Deterministic, replayable normalization is the substrate for extraction; not an LLM chat.", "sandbox_only": true },
+    { "step": 3, "what": "Observation extractor -> Observation[] (raw_span, target_hint, defect_kind, severity_guess).", "why": "Turns prose into atomic, kind-tagged units that map 1:1 to templates.", "sandbox_only": true },
+    { "step": 4, "what": "Clusterer -> IssueCluster[] (group + dedup by defect_kind + resolved target scope).", "why": "Collapses duplicate/overlapping observations into one contract each.", "sandbox_only": true },
+    { "step": 5, "what": "Template selector -> pick templates[].id per cluster (first_five first).", "why": "Deterministic routing from defect_kind to a proven pure-check template.", "sandbox_only": true },
+    { "step": 6, "what": "Contract generator -> WorkflowContract[] (target+scope, deterministic_checks, promotion, risk_class).", "why": "The compile step: emits the deterministic, CF-re-derivable contract.", "sandbox_only": true },
+    { "step": 7, "what": "Sandbox runner in cat-05 watcher -> SandboxJob[] (inspect|patch_diff|test); stage diffs, never apply.", "why": "Bounded execution with authority=none against the founder's TARGET_URL only.", "sandbox_only": true },
+    { "step": 8, "what": "Verifier: sandbox self-writes field_audit_receipt_v1 (UNVERIFIED); independent CF Worker recomputes summary + edge/secondary-account proof to issue PASS/FAIL.", "why": "The ONLY PASS issuer is the independent Worker; mirrors category_cloud_task_receipt_v1 doctrine.", "sandbox_only": false },
+    { "step": 9, "what": "Approval queue -> ApprovalItem[] from receipts + staged diffs.", "why": "Human gate; canonical changes require an approved item, never raw voice.", "sandbox_only": true },
+    { "step": 10, "what": "Pattern expander -> fan each contract across sibling routes/components; enqueue expanded contracts.", "why": "One spoken defect becomes surface-wide coverage deterministically.", "sandbox_only": true }
+  ]
+}

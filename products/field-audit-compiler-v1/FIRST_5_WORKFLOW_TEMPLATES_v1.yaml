@@ -1,0 +1,337 @@
+# FIRST_5_WORKFLOW_TEMPLATES_v1.yaml
+# Part of: FOUNDER_FIELD_AUDIT_TO_WORKFLOW_COMPILER_v1
+# Reads/obeys: _SPINE_v1.json, VOICE_TO_OBSERVATION_SCHEMA_v1.json, RECEIPT_SCHEMA_FIELD_AUDIT_v1.json
+#
+# WHAT THIS FILE IS
+#   Runnable-shaped definitions for the spine's first_five_template_ids. Each template is
+#   the reusable, pure/no-LLM check body that a WorkflowContract instantiates (see
+#   _SPINE_v1.workflow_contract_shape). The deterministic_checks[].logic strings are
+#   executable-in-principle predicates (HTTP GET status, redirect resolution, DOM/selector
+#   query, regex) that a Cloudflare Worker can RE-DERIVE with zero trust in the author.
+#
+# AUTHORITY MODEL (binding; from _SPINE_v1.authority_model)
+#   sina-governance-SSOT : law/registry/locks. Runs nothing. Owns this template registry + risk policy.
+#   /sandbox             : authoring & R&D bench. authority=none. CANNOT mint PASS. Every write stays in
+#                          sandbox/products/field-audit-compiler-v1/. Jobs only inspect / patch-into-a-diff /
+#                          test / return receipts. Sandbox self-writes are verifier_status=UNVERIFIED.
+#   noetfield-cloud-factory-infra : verified-execution factory. The independent CF Worker verifier is the
+#                          ONLY PASS issuer. Supabase is the ledger.
+#   CAT-05-SANDBOX-WORKTREE-EXECUTION : the WATCHER slot that runs the SandboxJob in an isolated worktree.
+#   CAT-09-RECEIPT-TRUST-AUDIT-LAYER  : trust/receipt center of gravity; GUARD/META-class receipts promote here.
+#   CAT-10-VERTICAL-PROOF-PRODUCTS    : REVENUE-class / vertical-proof receipts promote here.
+#
+# EXECUTION RULE (non-negotiable)
+#   All work runs against the founder-supplied target only ({TARGET_URL} / target_ref) — NEVER hardcode or
+#   fetch a live surface (no trustfield.ca). The E2E below is an illustrative worked example, not a live run.
+#   No template performs deploy / merge / delete / cron-unlock / real send / canonical mutation. read_only
+#   templates never write; any patch is staged as a diff (SandboxJob.diff_ref) and gated by an ApprovalItem.
+#
+# VERIFIER DOCTRINE (from RECEIPT_SCHEMA_FIELD_AUDIT_v1)
+#   The CF Worker IGNORES the submitted summary and RECOMPUTES it from checks[]:
+#     total = len(checks); passed = count(passed==true); failed = count(passed==false).
+#   Any mismatch => verifier_status=FAIL. PASS additionally requires edge-execution + secondary-CF-account
+#   proof. The sandbox author can NEVER self-mint PASS. Each deterministic_checks[].name here MUST equal the
+#   corresponding receipt.checks[].name emitted by the VerificationRun.
+
+version: 1
+schema_kind: field_audit_workflow_templates
+spine_ref: "noetfield:field-audit-compiler:spine:v1"
+receipt_schema: field_audit_receipt_v1
+locked_at: "2026-07-09"
+
+# Ordered exactly as _SPINE_v1.first_five_template_ids.
+first_five_template_ids:
+  - route_health_check
+  - broken_link_scan
+  - cta_route_check
+  - auth_entrypoint_check
+  - request_id_visibility_check
+
+# Conventions every template inherits. Referenced as {{convention:*}} inside logic strings.
+conventions:
+  fetch:
+    method: "GET (fall back to HEAD only when the server 405s a GET)"
+    timeout_ms: 10000
+    max_redirects: 5
+    follow_redirects: true
+    user_agent: "noetfield-field-audit/1.0 (+sandbox; authority=none)"
+    note: "Requests are issued ONLY against target.target_url + resolved path. No third-party host is fetched."
+  status_ok: "final_status (after <=5 redirects) in [200, 301, 302, 307, 308]"
+  status_live_page: "final_status == 200"
+  dead_href_tokens: ["", "#", "javascript:void(0)", "javascript:;", "about:blank", null]
+  redirect_resolution: "chase Location headers up to max_redirects; a redirect loop or >5 hops => passed=false, detail='redirect loop/limit'."
+  dom_source: "static server-rendered HTML from the GET body, parsed to a DOM. No JS execution in the first five (render-dependent templates are sequenced AFTER the first five per spine.first_five_rationale)."
+  evidence_required: true   # every check MUST carry receipt-schema evidence{} (http_status/selector/regex/hash/...), never prose.
+  summary_rule: "author writes summary{total,passed,failed}; verifier recomputes from checks[] and FAILs on mismatch."
+  authority: none
+  self_write_status: UNVERIFIED
+
+templates:
+
+  # =====================================================================================
+  # 1) route_health_check  — spine templates[9]. Baseline liveness of the surface spine.
+  #    Mirrors the shipped CAT-10 http_200 poller doctrine exactly (spine verifier_logic).
+  #    E2E: WC (route baseline) over ["/", "/pricing", "/apply-for-program", "/login"] —
+  #         /apply-for-program -> 404 and /login -> 500 on the illustrative broken surface.
+  # =====================================================================================
+  - id: route_health_check
+    version: 1
+    purpose: >-
+      Verify a set of key routes return 2xx and are non-empty (baseline liveness of the
+      surface's spine). This is the first probe run in the canonical E2E and the cheapest
+      deterministic signal; a CF Worker re-derives it with plain HTTP.
+    target_kind: "website|web_app|dashboard"
+    risk_class: read_only
+    approval_required: false
+    params:
+      routes:
+        type: "string[]"
+        default: ["/", "/pricing", "/apply-for-program", "/login"]
+        note: "Founder/nav/sitemap-derived key paths, resolved against target.target_url only."
+      expected_status:
+        type: "integer[]"
+        default: [200]
+      min_bytes:
+        type: integer
+        default: 1
+        note: "content-length (or measured body length) must exceed this to count as non-empty."
+    deterministic_checks:
+      - name: route_returns_2xx
+        logic: "for each route r in params.routes: GET {TARGET_URL}{r} with {{convention:fetch}}; record final_status and body_len"
+        pass_condition: "final_status in params.expected_status AND body_len > params.min_bytes"
+        evidence: { url: "{TARGET_URL}{route}", http_status: "<int>", actual: "bytes=<body_len>" }
+    pass_condition: "ALL enumerated route checks pass (every route in scope returns 200 and body_len > min_bytes)"
+    outputs:
+      per_route: "{route, http_status, bytes, passed}"
+      summary: "{total, passed, failed}"   # total == number of routes enumerated
+    verifier_logic: >-
+      CF Worker re-fetches each route, recomputes passed + summary from checks[]; FAIL on mismatch.
+      Mirrors the CAT-10 http_200 poller doctrine exactly. PASS also requires edge + secondary-CF-account proof.
+    pattern_expansion: >-
+      Fans across ALL discovered/declared key routes (sitemap- or nav-derived): one route_returns_2xx
+      check is instantiated per unique path.
+    factory_category: CAT-09-RECEIPT-TRUST-AUDIT-LAYER
+    value_class: GUARD
+    red_canary:
+      description: "Negative case that MUST fire: a key route is down or empty."
+      scenario: "GET {TARGET_URL}/apply-for-program -> 404 (or /login -> 500, or a 200 with body_len == 0)."
+      expected_check: { name: route_returns_2xx, passed: false }
+      expected_detail: "GET {TARGET_URL}/apply-for-program -> HTTP 404"
+      guards_against: "A verifier that green-lights a surface whose spine routes are dead, or that trusts a 200 with an empty body."
+
+  # =====================================================================================
+  # 2) broken_link_scan  — spine templates[0]. Detect dead hrefs across a scope.
+  #    E2E: appears in pattern_expansion of WC-2 as WC-2c(broken_link_scan) over nav+footer.
+  # =====================================================================================
+  - id: broken_link_scan
+    version: 1
+    purpose: >-
+      Detect hrefs that resolve to non-2xx/3xx or empty/'#' targets across a scope
+      (nav + footer + in-body links). GUARD-class trust check.
+    target_kind: "website|web_app|dashboard"
+    risk_class: read_only
+    approval_required: false
+    params:
+      scope_selector:
+        type: string
+        default: "a[href]"
+        note: "In the E2E fan-out the scope is 'nav a[href], footer a[href]'."
+      ignore:
+        type: "string[]"
+        default: ["mailto:", "tel:", "sms:"]
+        note: "Scheme prefixes excluded from HTTP resolution (not defects)."
+      dedupe:
+        type: boolean
+        default: true
+        note: "One check per UNIQUE resolved href, not per anchor element."
+    deterministic_checks:
+      - name: href_resolves
+        logic: "enumerate document.querySelectorAll(params.scope_selector); for each anchor take @href; drop any startswith(params.ignore); resolve relative hrefs against {TARGET_URL}; GET/HEAD each unique href with {{convention:fetch}} and {{convention:redirect_resolution}}"
+        pass_condition: "href NOT in {{convention:dead_href_tokens}} AND final_status in [200,301,302,307,308]"
+        evidence: { url: "<resolved_href>", http_status: "<int>", selector: "<scope_selector>", match: "<bool>" }
+    pass_condition: "EVERY unique in-scope, non-ignored href resolves (no dead tokens, no non-2xx/3xx)"
+    outputs:
+      per_link: "{href, http_status, passed}"
+      summary: "{total, passed, failed}"   # total == number of unique resolved hrefs checked
+    verifier_logic: >-
+      CF Worker re-parses the fetched HTML, re-enumerates the same scope_selector, re-fetches each unique
+      href, recomputes passed booleans and summary from checks[]; FAIL on any mismatch. PASS also requires
+      edge + secondary-CF-account proof.
+    pattern_expansion: >-
+      Fans to ALL nav + footer + in-body links matching scope_selector; one href_resolves check per unique href.
+    factory_category: CAT-09-RECEIPT-TRUST-AUDIT-LAYER
+    value_class: GUARD
+    red_canary:
+      description: "Negative case that MUST fire: an in-scope link is dead."
+      scenario: "footer a[href='#'] (or an <a> whose href 301->301->... loops past max_redirects, or resolves to HTTP 404)."
+      expected_check: { name: href_resolves, passed: false }
+      expected_detail: "footer link href='#' -> unresolved (dead token)"
+      guards_against: "A scan that counts an href='#' or a redirect-loop link as healthy, or that de-dupes away a broken link."
+
+  # =====================================================================================
+  # 3) cta_route_check  — spine templates[1]. Primary CTA exists AND its route is live 200.
+  #    E2E: WC-1, cluster IC-1 'Broken Apply for Program CTA'. cta_present=true,
+  #         cta_route_resolves=false (GET {TARGET_URL}/apply-for-program -> 404). REVENUE.
+  # =====================================================================================
+  - id: cta_route_check
+    version: 1
+    purpose: >-
+      Verify a primary call-to-action element exists and its route/target resolves to a live
+      2xx page. REVENUE-class: a dead CTA directly blocks a money path.
+    target_kind: "website|web_app"
+    risk_class: read_only
+    approval_required: false
+    params:
+      cta_selector:
+        type: string
+        default: "a[data-cta], button[data-cta]"
+        note: "E2E WC-1 instantiates 'a[data-cta=\\'apply-for-program\\']'."
+      expected_status:
+        type: "integer[]"
+        default: [200]
+      href_attr:
+        type: string
+        default: "href"
+        note: "For button[data-cta] use formaction/data-href fallback resolution."
+    deterministic_checks:
+      - name: cta_present
+        logic: "node = document.querySelector(params.cta_selector)"
+        pass_condition: "node != null"
+        evidence: { selector: "<cta_selector>", match: "<bool>" }
+      - name: cta_route_resolves
+        logic: "href = node.getAttribute(params.href_attr) (or formaction/data-href); resolve against {TARGET_URL}; GET href with {{convention:fetch}}"
+        pass_condition: "href NOT in {{convention:dead_href_tokens}} AND final_status in params.expected_status"
+        evidence: { url: "<resolved_href>", http_status: "<int>" }
+    pass_condition: "cta_present == true AND cta_route_resolves == true"
+    outputs:
+      cta: "{selector, href, present, http_status, passed}"
+      summary: "{total, passed, failed}"   # total == 2 for a single CTA
+    verifier_logic: >-
+      CF Worker re-selects the CTA in fetched HTML and re-fetches its href; recomputes summary; FAIL on
+      mismatch. PASS also requires edge + secondary-CF-account proof.
+    pattern_expansion: >-
+      Fans to ALL CTAs (every [data-cta]/primary button) across the surface. E2E new_contract_ids:
+      WC-1 (apply-for-program), WC-1a (book-demo), WC-1b (get-started), WC-1c (contact-sales).
+    factory_category: CAT-10-VERTICAL-PROOF-PRODUCTS
+    value_class: REVENUE
+    red_canary:
+      description: "Negative case that MUST fire: the CTA is present but its route is dead."
+      scenario: "a[data-cta='apply-for-program'] exists (cta_present=true) but GET {TARGET_URL}/apply-for-program -> 404."
+      expected_check: { name: cta_route_resolves, passed: false }
+      expected_detail: "GET {TARGET_URL}/apply-for-program -> HTTP 404"
+      guards_against: "Treating mere presence of a button as a healthy CTA when the click destination 404s — the canonical E2E defect."
+
+  # =====================================================================================
+  # 4) auth_entrypoint_check  — spine templates[3]. Sign-in/up entrypoint + working route.
+  #    E2E: WC-3, cluster IC-3 'Sign-in broken'. auth_entry_present=true,
+  #         auth_route_resolves=false (GET {TARGET_URL}/login -> 500). REVENUE.
+  # =====================================================================================
+  - id: auth_entrypoint_check
+    version: 1
+    purpose: >-
+      Verify sign-in / sign-up entrypoints exist and their routes return a working auth page
+      (not 4xx/5xx). REVENUE-class: a broken auth entrypoint blocks signups/logins.
+    target_kind: "website|web_app|dashboard"
+    risk_class: read_only
+    approval_required: false
+    params:
+      auth_selectors:
+        type: "string[]"
+        default: ["a[href*='login']", "a[href*='signin']", "a[href*='signup']"]
+        note: "Text-based 'Sign in' matches resolve to these hrefs at parse time (no :contains in CSS engines)."
+      expected_status:
+        type: "integer[]"
+        default: [200]
+    deterministic_checks:
+      - name: auth_entry_present
+        logic: "matches = params.auth_selectors.flatMap(sel => document.querySelectorAll(sel)); first = matches[0]"
+        pass_condition: "matches.length >= 1"
+        evidence: { selector: "<matched_auth_selector>", match: "<bool>" }
+      - name: auth_route_resolves
+        logic: "href = first.getAttribute('href'); resolve against {TARGET_URL}; GET href with {{convention:fetch}}"
+        pass_condition: "final_status in params.expected_status"
+        evidence: { url: "<resolved_href>", http_status: "<int>" }
+    pass_condition: "auth_entry_present == true AND auth_route_resolves == true"
+    outputs:
+      auth: "{selector, href, present, http_status, passed}"
+      summary: "{total, passed, failed}"   # total == 2 for a single entrypoint
+    verifier_logic: >-
+      CF Worker re-selects the auth entrypoint in fetched HTML and re-fetches its route; recomputes summary;
+      FAIL on mismatch. PASS also requires edge + secondary-CF-account proof.
+    pattern_expansion: >-
+      Fans to ALL auth entrypoints (header sign-in, footer sign-in, in-body CTAs to login/signup).
+      E2E new_contract_ids: WC-3, WC-3a, WC-3b.
+    factory_category: CAT-10-VERTICAL-PROOF-PRODUCTS
+    value_class: REVENUE
+    red_canary:
+      description: "Negative case that MUST fire: entrypoint present but the auth route errors."
+      scenario: "a[href*='login'] exists (auth_entry_present=true) but GET {TARGET_URL}/login -> 500."
+      expected_check: { name: auth_route_resolves, passed: false }
+      expected_detail: "GET {TARGET_URL}/login -> HTTP 500"
+      guards_against: "Marking auth healthy because a Sign-in link is visible while the login route 5xxs — the canonical E2E defect."
+
+  # =====================================================================================
+  # 5) request_id_visibility_check  — spine templates[6]. Correlation id rendered to user.
+  #    E2E: WC-5, cluster IC-5 'Request IDs not visible'. request_id_visible=false. GUARD.
+  #    risk_class low_risk_patch: sandbox stages an additive display diff (SJ-5.diff_ref),
+  #    NEVER applied — gated by ApprovalItem AP-5.
+  # =====================================================================================
+  - id: request_id_visibility_check
+    version: 1
+    purpose: >-
+      Verify a request/correlation id is rendered to the user on relevant views (support/trust
+      surfaces) so issues are traceable. GUARD-class trust check.
+    target_kind: "web_app|dashboard"
+    risk_class: low_risk_patch
+    approval_required: true
+    params:
+      id_regex:
+        type: string
+        default: "(req|request|corr)[-_ ]?id[:#]?\\s*[A-Za-z0-9-]{6,}"
+        note: "Same regex the spine template and E2E WC-5 carry; applied to rendered text."
+      scope_selector:
+        type: string
+        default: "main, [data-request-id]"
+      attr_name:
+        type: string
+        default: "data-request-id"
+    deterministic_checks:
+      - name: request_id_visible
+        logic: "text = document.querySelector('main').innerText; attr = document.querySelector('[data-request-id]')?.getAttribute(params.attr_name); m = new RegExp(params.id_regex).test(text)"
+        pass_condition: "m == true OR (attr != null AND attr.trim() != '')"
+        evidence: { regex: "<id_regex>", selector: "<scope_selector>", match: "<bool>" }
+    pass_condition: "request_id_visible == true (regex matches rendered text OR [data-request-id] attribute non-empty)"
+    outputs:
+      request_id: "{found, sample, passed}"
+      summary: "{total, passed, failed}"   # total == 1
+    verifier_logic: >-
+      CF Worker re-fetches the view and re-runs the SAME regex over rendered text/attributes; recomputes
+      summary; FAIL on mismatch. PASS also requires edge + secondary-CF-account proof.
+    pattern_expansion: >-
+      Fans across ALL views expected to show a request id (support pages, error states, receipt/trust views).
+      E2E new_contract_ids: WC-5, WC-5a.
+    factory_category: CAT-09-RECEIPT-TRUST-AUDIT-LAYER
+    value_class: GUARD
+    red_canary:
+      description: "Negative case that MUST fire: no request id anywhere on a view that should show one."
+      scenario: "Rendered support/trust view has no (req|request|corr)-id text match and no non-empty [data-request-id]."
+      expected_check: { name: request_id_visible, passed: false }
+      expected_detail: "no request-id pattern or [data-request-id] in rendered view"
+      guards_against: "Passing a trust surface where users cannot cite a correlation id — and confirms the staged display patch (diff-only, approval-gated) is never auto-applied."
+
+# --------------------------------------------------------------------------------------
+# CANONICAL E2E CROSS-REFERENCE (illustrative; NOT a live run — {TARGET_URL} is founder-supplied)
+#   Voice: "Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken.
+#           Acme Brief twelve-thousand-dollar eight-week package copy needs update.
+#           Request IDs are not visible. Web chat UI is bad."
+#   The first-five templates cover these E2E contracts (see _SPINE_v1.e2e_example):
+#     WC-1 -> cta_route_check           (IC-1, REVENUE)  : cta_present=true, cta_route_resolves=false (404)
+#     WC-3 -> auth_entrypoint_check     (IC-3, REVENUE)  : auth_entry_present=true, auth_route_resolves=false (500)
+#     WC-5 -> request_id_visibility_check (IC-5, GUARD)  : request_id_visible=false
+#     route_health_check baseline over ["/","/pricing","/apply-for-program","/login"] : /apply-for-program 404, /login 500
+#     broken_link_scan fans from WC-2's expansion as WC-2c(broken_link_scan) over nav+footer
+#   Not in the first five (sequenced later per spine.first_five_rationale):
+#     WC-2 legal_footer_link_check, WC-4 pricing_claim_consistency_check, WC-6 web_chat_ux_check
+#   Every receipt in the E2E carries verifier_status=FAIL, authority=none — the surface is genuinely
+#   broken and NO PASS is self-minted; all patch_diff outputs are staged, none applied.
+# --------------------------------------------------------------------------------------

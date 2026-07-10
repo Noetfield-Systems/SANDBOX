@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noetfield:field-audit-compiler:voice-to-observation:v1",
+  "title": "Voice-to-Observation Schema v1",
+  "description": "Canonical schema for the FIRST stage of the FOUNDER_FIELD_AUDIT_TO_WORKFLOW_COMPILER: turning spoken defect reports into structured, deduplicable Observations. An AuditSession holds VoiceNote(s); each VoiceNote is transcribed into a Transcript (raw + normalized + optional translation); the Transcript is compiled into Observation[]. AUTHORITY: this stage runs in /sandbox with authority=none. It only reads voice and emits structured data — it CANNOT deploy, merge, delete, send, or mutate any canonical surface. Downstream (IssueCluster -> WorkflowContract -> SandboxJob -> VerificationRun -> Receipt -> ApprovalItem) is defined in _SPINE_v1.json and RECEIPT_SCHEMA_FIELD_AUDIT_v1.json. Field names here are load-bearing and MUST match those files exactly.",
+  "type": "object",
+  "$defs": {
+    "defect_kind": {
+      "type": "string",
+      "description": "Closed enum grounded 1:1 in the 10 spine templates, plus 'other' for un-routable spans. Each value maps to exactly one template_id via _SPINE_v1.templates[].",
+      "enum": [
+        "broken_link",
+        "cta_route",
+        "legal_footer_link",
+        "auth_entrypoint",
+        "offer_copy",
+        "pricing_claim",
+        "request_id_visibility",
+        "web_chat_ux",
+        "mobile_responsive",
+        "route_health",
+        "other"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["blocker", "high", "medium", "low", "info"]
+    },
+    "surface_kind": {
+      "type": "string",
+      "description": "What kind of surface the founder is auditing. Determines which templates are eligible.",
+      "enum": ["website", "web_app", "dashboard", "repo", "workflow", "other"]
+    },
+    "iso_datetime": { "type": "string", "format": "date-time" }
+  },
+  "properties": {
+    "AuditSession": {
+      "type": "object",
+      "description": "Top-level container for one founder audit pass against one target surface. Foreign keys thread the whole pipeline; the same session_id appears on every downstream object.",
+      "additionalProperties": false,
+      "required": ["id", "founder_id", "surface_kind", "created_at", "status", "voice_note_ids", "observation_ids"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^AS-[A-Za-z0-9_-]+$", "description": "Session id, e.g. AS-2026-07-09-trustfield." },
+        "founder_id": { "type": "string" },
+        "surface_kind": { "$ref": "#/$defs/surface_kind" },
+        "target_url": {
+          "type": "string",
+          "description": "Founder-supplied TARGET_URL for this audit. Sandbox jobs run against THIS ref only. MUST NOT be hardcoded to any live production surface by the compiler; supplied per-session by the founder. Nullable when target_ref (a repo/workflow ref) is used instead."
+        },
+        "target_ref": {
+          "type": "string",
+          "description": "Founder-supplied git ref / repo path / workflow id when surface_kind is repo or workflow. One of target_url or target_ref MUST be present."
+        },
+        "created_at": { "$ref": "#/$defs/iso_datetime" },
+        "status": { "type": "string", "enum": ["capturing", "transcribing", "extracting", "clustered", "contracted", "verifying", "awaiting_approval", "closed"] },
+        "voice_note_ids": { "type": "array", "items": { "type": "string" }, "description": "FK -> VoiceNote.id[]." },
+        "observation_ids": { "type": "array", "items": { "type": "string" }, "description": "FK -> Observation.id[]." },
+        "authority": { "const": "none", "description": "This stage never holds execution authority." }
+      },
+      "anyOf": [
+        { "required": ["target_url"] },
+        { "required": ["target_ref"] }
+      ]
+    },
+    "VoiceNote": {
+      "type": "object",
+      "description": "One captured spoken utterance (audio blob reference) inside a session. Points at exactly one Transcript once transcription completes.",
+      "additionalProperties": false,
+      "required": ["id", "session_id", "audio_ref", "captured_at"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^VN-[A-Za-z0-9_-]+$" },
+        "session_id": { "type": "string", "description": "FK -> AuditSession.id." },
+        "audio_ref": { "type": "string", "description": "Sandbox-local path or blob key for the captured audio. Never a live external URL." },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "captured_at": { "$ref": "#/$defs/iso_datetime" },
+        "source_lang": { "type": "string", "description": "BCP-47 tag detected/declared at capture, e.g. 'en', 'fa'. May be refined on the Transcript." },
+        "transcript_id": { "type": "string", "description": "FK -> Transcript.id (null until transcribed)." }
+      }
+    },
+    "Transcript": {
+      "type": "object",
+      "description": "Deterministic-normalized text of one VoiceNote. text_raw is verbatim ASR output; text_normalized applies stable, replayable normalization (lowercasing of surface tokens, number-word expansion e.g. 'twelve thousand dollar' -> '$12,000', 'eight-week' -> '8-week', punctuation/whitespace canon). If source_lang != 'en', translated=true and text_translated carries the English working text used for extraction.",
+      "additionalProperties": false,
+      "required": ["id", "voice_note_id", "session_id", "text_raw", "text_normalized", "source_lang", "translated"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^TR-[A-Za-z0-9_-]+$" },
+        "voice_note_id": { "type": "string", "description": "FK -> VoiceNote.id." },
+        "session_id": { "type": "string", "description": "FK -> AuditSession.id." },
+        "text_raw": { "type": "string" },
+        "text_normalized": { "type": "string" },
+        "source_lang": { "type": "string" },
+        "translated": { "type": "boolean" },
+        "text_translated": { "type": "string", "description": "English working text when translated=true; MUST equal text_normalized when translated=false or be omitted." },
+        "normalization_ops": {
+          "type": "array",
+          "description": "Ordered, replayable record of the pure transforms applied raw->normalized, so normalization is auditable and deterministic.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["op", "from", "to"],
+            "properties": {
+              "op": { "type": "string", "enum": ["number_word_expand", "currency_normalize", "hyphen_join", "lowercase", "whitespace_canon", "punctuation_canon", "translate"] },
+              "from": { "type": "string" },
+              "to": { "type": "string" }
+            }
+          }
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "ASR/normalization confidence." }
+      }
+    },
+    "Observation": {
+      "type": "object",
+      "description": "One atomic defect the founder asserted, sliced from a Transcript. This is the compiler's structured unit. defect_kind selects the downstream template; target_hint is the founder's phrase for the surface element (resolved to a concrete surface_ref/selector later). Nothing here is verified yet — severity_guess and confidence are heuristic.",
+      "additionalProperties": false,
+      "required": ["id", "session_id", "transcript_id", "raw_span", "target_hint", "severity_guess", "defect_kind", "confidence", "needs_translation"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^OB-[A-Za-z0-9_-]+$" },
+        "session_id": { "type": "string", "description": "FK -> AuditSession.id." },
+        "transcript_id": { "type": "string", "description": "FK -> Transcript.id this span was cut from." },
+        "raw_span": { "type": "string", "description": "The exact substring of text_normalized (or text_translated) that produced this observation. Provenance anchor." },
+        "surface_ref": {
+          "type": "string",
+          "description": "Best-effort concrete pointer into the target surface: a route path, CSS selector, href, or component name. May be a placeholder like 'unresolved:<target_hint>' until the sandbox job resolves it against the founder's TARGET_URL. NEVER a hardcoded live production URL at compile time."
+        },
+        "target_hint": { "type": "string", "description": "Founder's own words for the element, e.g. 'Apply for Program link', 'Cookie link', 'Sign-in'." },
+        "severity_guess": { "$ref": "#/$defs/severity" },
+        "defect_kind": { "$ref": "#/$defs/defect_kind" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "needs_translation": { "type": "boolean", "description": "True when the raw_span originated from a non-English Transcript and relied on text_translated." }
+      }
+    }
+  },
+  "required": ["AuditSession", "VoiceNote", "Transcript", "Observation"],
+  "additionalProperties": false
+}

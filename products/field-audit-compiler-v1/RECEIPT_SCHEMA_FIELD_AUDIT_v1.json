@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noetfield:field-audit-compiler:receipt:v1",
+  "title": "Field Audit Receipt v1",
+  "description": "Receipt emitted by a VerificationRun for one WorkflowContract executed as a SandboxJob. It DELIBERATELY MIRRORS the factory-proven category_cloud_task_receipt_v1 shape ({schema, category_id, checked_at, checks:[{name,passed,detail}], summary:{total,passed,failed}}) so an INDEPENDENT Cloudflare Worker verifier can re-derive it with zero trust in the author. VERIFIER DOCTRINE (identical to cat-09-receipt-trust-audit-layer): the verifier IGNORES the submitted summary and RECOMPUTES it from checks[] (total=len(checks), passed=count(passed==true), failed=count(passed==false)); on ANY mismatch it sets verifier_status=FAIL. PASS additionally requires edge-execution + secondary-CF-account proof at the verifier; the sandbox author can NEVER self-mint PASS. In sandbox, authority is always 'none' and verifier_status of an author-emitted receipt MUST be UNVERIFIED until the Worker rules. checks[].evidence carries stored proof (http_status, body/dom hash, artifact path) not prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "session_id",
+    "workflow_contract_id",
+    "sandbox_job_id",
+    "category_id",
+    "checked_at",
+    "checks",
+    "summary",
+    "value_class",
+    "verifier_status",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "field_audit_receipt_v1",
+      "description": "Fixed discriminator. The verifier rejects any other value."
+    },
+    "session_id": { "type": "string", "pattern": "^AS-[A-Za-z0-9_-]+$", "description": "FK -> AuditSession.id." },
+    "workflow_contract_id": { "type": "string", "pattern": "^WC-[A-Za-z0-9_-]+$", "description": "FK -> WorkflowContract.id whose deterministic_checks this receipt reports." },
+    "sandbox_job_id": { "type": "string", "pattern": "^SJ-[A-Za-z0-9_-]+$", "description": "FK -> SandboxJob.id that produced these checks." },
+    "category_id": {
+      "type": "string",
+      "description": "Factory category that OWNS the promoted receipt-trust (e.g. CAT-09-RECEIPT-TRUST-AUDIT-LAYER for guard/link/receipt checks, CAT-10-VERTICAL-PROOF-PRODUCTS for revenue/vertical-proof checks). Set from the contract's promotion. The independent verifier binds to an EXPECTED_CATEGORY_ID and FAILs on mismatch, exactly as the factory verifiers do.",
+      "enum": [
+        "CAT-05-SANDBOX-WORKTREE-EXECUTION",
+        "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+        "CAT-10-VERTICAL-PROOF-PRODUCTS"
+      ]
+    },
+    "checked_at": { "type": "string", "format": "date-time", "description": "Machine-generated at check time; never hand-typed." },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per deterministic_check declared in the WorkflowContract. Pure/no-LLM outcomes only (HTTP status, DOM/selector presence, regex match, hash equality). The verifier recomputes summary from this array.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "passed", "detail"],
+        "properties": {
+          "name": { "type": "string", "description": "Stable check name; MUST match a deterministic_checks[].name in the contract." },
+          "passed": { "type": "boolean", "description": "Pure boolean outcome. The verifier counts these; it does not re-run the check but re-derives the summary and validates evidence shape." },
+          "detail": { "type": "string", "description": "Human-readable one-liner, e.g. 'GET /apply-for-program -> HTTP 404'." },
+          "evidence": {
+            "type": "object",
+            "description": "Stored proof, not prose. Lets the CF Worker (and a human) independently re-derive the boolean.",
+            "additionalProperties": false,
+            "properties": {
+              "url": { "type": "string" },
+              "http_status": { "type": "integer" },
+              "selector": { "type": "string" },
+              "regex": { "type": "string" },
+              "match": { "type": "boolean" },
+              "body_sha256": { "type": "string" },
+              "dom_sha256": { "type": "string" },
+              "artifact_path": { "type": "string", "description": "Sandbox-local path to the saved response/DOM/diff artifact." },
+              "expected": { "type": "string" },
+              "actual": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed"],
+      "description": "Author-claimed rollup. AUTHORITATIVELY RECOMPUTED by the verifier from checks[]; a mismatch forces verifier_status=FAIL. total MUST equal passed+failed and equal checks.length.",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "value_class": {
+      "type": "string",
+      "description": "Business value lens for this contract's outcome. REVENUE=directly blocks money paths (CTAs, auth, pricing/offer copy). GUARD=protects trust/compliance (broken links, legal footer, request-id visibility, route health). META=tooling/UX signal (web chat UX, responsive smoke). NONE=informational.",
+      "enum": ["REVENUE", "GUARD", "META", "NONE"]
+    },
+    "verifier_status": {
+      "type": "string",
+      "description": "PASS is issuable ONLY by the independent Cloudflare Worker after summary re-derivation + edge/secondary-account proof. FAIL=checks failed or summary mismatch or category/schema mismatch. BLOCKED=verifier could not run (network/policy). UNVERIFIED=author-emitted in sandbox, not yet adjudicated (the ONLY legal value for a sandbox self-write).",
+      "enum": ["PASS", "FAIL", "BLOCKED", "UNVERIFIED"]
+    },
+    "authority": {
+      "const": "none",
+      "description": "Sandbox receipts always carry authority='none'. No PASS may be self-minted here."
+    },
+    "verifier_runtime": { "type": "string", "description": "Set by the Worker on adjudication, e.g. 'cloudflare_worker'. Absent on sandbox self-writes." },
+    "verified_receipt_id": { "type": "string", "description": "Set by the Worker; the id of the independently re-derived receipt." },
+    "recomputed": {
+      "type": "object",
+      "description": "The verifier's own re-derived summary, written back so the mismatch (if any) is visible.",
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" }
+      }
+    },
+    "failures": { "type": "array", "items": { "type": "string" }, "description": "Verifier-appended reasons when verifier_status != PASS." }
+  }
+}
