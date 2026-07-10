@@ -1,0 +1,146 @@
+{
+  "note": "Illustrative first E2E — {TARGET_URL} bound to a local 127.0.0.1 fixture; no live surface, no mutation.",
+  "contract": {
+    "id": "WC-BL",
+    "cluster_id": "IC-BL",
+    "session_id": "AS-2026-07-09-fieldaudit",
+    "template_id": "broken_link_scan",
+    "target": {
+      "scope_selector": "a[href]",
+      "target_url": "{TARGET_URL}"
+    },
+    "params": {
+      "ignore": [
+        "mailto:",
+        "tel:"
+      ]
+    },
+    "deterministic_checks": [
+      {
+        "name": "href_resolves",
+        "logic": "HTTP GET/HEAD each resolved href",
+        "pass_condition": "status in [200,301,302,308] AND href not in ['', '#', 'javascript:void(0)']"
+      }
+    ],
+    "expected_outputs": {
+      "href_resolves": true
+    },
+    "verifier_logic": "CF Worker re-fetches each href, recomputes passed booleans + summary from checks[]; FAIL on any mismatch.",
+    "pattern_expansion_rule": "instantiate one check per unique href across nav+footer+in-body",
+    "promotion": {
+      "factory_category": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+      "value_class": "GUARD"
+    },
+    "risk_class": "read_only",
+    "approval_required": false,
+    "authority": "none",
+    "allowed_actions": [
+      "inspect",
+      "patch_diff",
+      "test"
+    ],
+    "blocked_actions": [
+      "deploy",
+      "merge",
+      "delete",
+      "send",
+      "cron_unlock",
+      "canonical_write"
+    ],
+    "verifier_requirements": {
+      "runtime": "cloudflare_worker",
+      "recompute_summary": true,
+      "edge_proof_required": true,
+      "secondary_account_required": true
+    },
+    "receipt_requirements": {
+      "schema": "field_audit_receipt_v1",
+      "authority": "none",
+      "min_verifier_status": "UNVERIFIED"
+    }
+  },
+  "sandbox_job": {
+    "id": "SJ-BL",
+    "category_id": "CAT-05-SANDBOX-WORKTREE-EXECUTION",
+    "authority": "none",
+    "job_kind": "inspect",
+    "diff_ref": null,
+    "runner": "github_actions",
+    "verifier_target": "{CAT_VERIFIER_URL}"
+  },
+  "receipt": {
+    "schema": "field_audit_receipt_v1",
+    "session_id": "AS-2026-07-09-fieldaudit",
+    "workflow_contract_id": "WC-BL",
+    "sandbox_job_id": "SJ-BL",
+    "category_id": "CAT-09-RECEIPT-TRUST-AUDIT-LAYER",
+    "checked_at": "<generated-at-run-time>",
+    "checks": [
+      {
+        "name": "href_resolves",
+        "passed": true,
+        "detail": "GET /healthy -> HTTP 200",
+        "evidence": {
+          "url": "http://127.0.0.1:49478/healthy",
+          "http_status": 200
+        }
+      },
+      {
+        "name": "href_resolves",
+        "passed": false,
+        "detail": "GET /apply-for-program -> HTTP 404",
+        "evidence": {
+          "url": "http://127.0.0.1:49478/apply-for-program",
+          "http_status": 404
+        }
+      },
+      {
+        "name": "href_resolves",
+        "passed": false,
+        "detail": "href '#' is unresolved (empty/#/void)",
+        "evidence": {
+          "url": "#",
+          "match": false
+        }
+      }
+    ],
+    "summary": {
+      "total": 3,
+      "passed": 1,
+      "failed": 2
+    },
+    "value_class": "GUARD",
+    "verifier_status": "UNVERIFIED",
+    "authority": "none"
+  },
+  "promotion_decision_packet": {
+    "id": "PDP-BL-1",
+    "session_id": "AS-2026-07-09-fieldaudit",
+    "snapshot_id": "SNAP-fixture-2026-07-09",
+    "what_changed": "broken_link_scan found 2 broken links (/apply-for-program 404, footer Cookie #)",
+    "why": "founder: \"Apply for Program link is broken.\"",
+    "affected_routes_files": [
+      "http://127.0.0.1:49478/apply-for-program",
+      "#"
+    ],
+    "before_after_evidence": [
+      {
+        "check": "href_resolves",
+        "before": "GET /apply-for-program -> HTTP 404",
+        "after": "proposed fix staged in sandbox diff (not applied)"
+      },
+      {
+        "check": "href_resolves",
+        "before": "href '#' is unresolved (empty/#/void)",
+        "after": "proposed fix staged in sandbox diff (not applied)"
+      }
+    ],
+    "verifier_result": "UNVERIFIED",
+    "risk_level": "high",
+    "rollback_path": "no change applied — read-only scan; nothing to roll back",
+    "promotion_recommendation": "needs_founder_decision",
+    "decision": "pending",
+    "decided_by": null,
+    "decided_at": null
+  }
+}

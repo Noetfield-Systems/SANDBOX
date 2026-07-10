@@ -360,7 +360,7 @@ Expansion cards render the spine's `pattern_expansion` fan-outs (e.g. WC-1 → `
 
 **E2E instance:** `AP-1…AP-6`, all initially `decision:"pending"`:
 - `AP-1/2/3` `canonical_change`, `proposed_patch_ref:null` (route/500/compliance fixes needing a downstream patch).
-- `AP-4` `canonical_change` with staged `…/SJ-4/trust-brief-copy.diff` (update copy to `$12,000 / 8-week`).
+- `AP-4` `canonical_change` with staged `…/SJ-4/acme-brief-copy.diff` (update copy to `$12,000 / 8-week`).
 - `AP-5` `low_risk_patch` with `…/SJ-5/request-id-display.diff`.
 - `AP-6` `low_risk_patch` with `…/SJ-6/chat-input-label.diff`.
 Every diff is staged, none applied — matching `chain_summary`.
@@ -419,7 +419,7 @@ The illustrative worked example (`{TARGET_URL}`, founder-supplied — not a live
 4. **S3:** Six cluster cards `IC-1…IC-6`; founder confirms; taps **Compile**.
 5. **S4:** `WC-1…WC-6` generated; jobs `SJ-1…SJ-6` launch in the cat-05 watcher (3 `inspect`, 3 `patch_diff`, `authority=none`).
 6. **S5:** Six `field_audit_receipt_v1` cards return **all FAIL** with evidence (404, `#`, 500, `$9,000`/`5-week`, no request-id, unlabeled chat input). Expansion suggestions offer to fan each template across siblings.
-7. **S6:** Six `ApprovalItem`s (`AP-1…AP-6`), all `pending`. AP-4/5/6 show staged diffs (`trust-brief-copy.diff`, `request-id-display.diff`, `chat-input-label.diff`) in read-only preview. Founder approves/scopes each.
+7. **S6:** Six `ApprovalItem`s (`AP-1…AP-6`), all `pending`. AP-4/5/6 show staged diffs (`acme-brief-copy.diff`, `request-id-display.diff`, `chat-input-label.diff`) in read-only preview. Founder approves/scopes each.
 8. **S8:** Session summary renders the spine's `chain_summary`: *1 voice note → 1 transcript → 6 observations → 6 clusters → 6 contracts → 6 sandbox jobs → 6 receipts (all FAIL as expected) → 6 pending approvals → pattern expansion. No PASS self-minted; no canonical mutation; all diffs staged, none applied.*
 
 ---

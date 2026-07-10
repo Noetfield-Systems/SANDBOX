@@ -79,7 +79,7 @@
     },
     "Transcript": {
       "type": "object",
-      "description": "Deterministic-normalized text of one VoiceNote. text_raw is verbatim ASR output; text_normalized applies stable, replayable normalization (lowercasing of surface tokens, number-word expansion e.g. 'twelve thousand dollar' -> '$12,000', 'eight-week' -> '8-week', punctuation/whitespace canon). If source_lang != 'en', translated=true and text_translated carries the English working text used for extraction.",
+      "description": "Deterministic-normalized text of one VoiceNote. text_raw is verbatim ASR output; text_normalized applies stable, replayable normalization (lowercasing of surface tokens, number-word expansion e.g. 'twelve thousand dollar' -> '$12,000', 'six-week' -> '8-week', punctuation/whitespace canon). If source_lang != 'en', translated=true and text_translated carries the English working text used for extraction.",
       "additionalProperties": false,
       "required": ["id", "voice_note_id", "session_id", "text_raw", "text_normalized", "source_lang", "translated"],
       "properties": {

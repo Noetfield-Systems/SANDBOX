@@ -132,7 +132,7 @@ Restated from `_SPINE_v1.authority_model.execution_rule` and binding on every ru
 
 The doctrine is bound to the **single canonical worked chain** in `_SPINE_v1.e2e_example`. Do not invent a divergent example. In brief (verbatim ids and values):
 
-**Founder voice note:** *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar eight-week package copy needs update. Request IDs are not visible. Web chat UI is bad."*
+**Founder voice note:** *"Apply for Program link is broken. Cookie link goes nowhere. Sign-in is broken. Acme Brief twelve-thousand-dollar six-week package copy needs update. Request IDs are not visible. Web chat UI is bad."*
 
 - Session `AS-2026-07-09-fieldaudit`, `surface_kind: website`, `target_url: {TARGET_URL}` (placeholder — not live).
 - 1 `VoiceNote` (`VN-1`) → 1 `Transcript` (`TR-1`, normalized `$12,000` / `8-week`) → 6 `Observation`s (`OB-1..OB-6`) → 6 `IssueCluster`s (`IC-1..IC-6`) → 6 `WorkflowContract`s (`WC-1..WC-6`) → 6 cat-05 `SandboxJob`s (3 `inspect`, 3 `patch_diff`) → 6 `VerificationRun`s → 6 `field_audit_receipt_v1` → 6 pending `ApprovalItem`s (`AP-1..AP-6`) → pattern expansion fans each template across siblings.
