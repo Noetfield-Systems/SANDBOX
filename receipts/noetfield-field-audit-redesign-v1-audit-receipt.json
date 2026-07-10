@@ -1,0 +1,81 @@
+{
+  "schema": "noetfield-sandbox-audit-receipt-v1",
+  "action": "field_audit_redesign_v1",
+  "repo": "Noetfield-Systems/Noetfield",
+  "branch": "sandbox/noetfield-field-audit-redesign-v1",
+  "base_ref": "origin/main",
+  "base_commit": "b609948b2a828eaf522d47f66b643e87d54ea6bb",
+  "result_commit": "22f95c57a1633f0e6fb08f205a8ad7064f4810c6",
+  "timestamp_utc": "2026-07-10T04:15:00Z",
+  "production_touched": false,
+  "changed_files": [
+    "assets/noetfield-chat.css",
+    "assets/noetfield-chat.js",
+    "assets/noetfield-shell.css",
+    "assets/noetfield-shell.js",
+    "assets/noetfield-tokens.css",
+    "assets/noetfield-v20-tier1.css",
+    "index.html",
+    "partners/index.html",
+    "pricing/index.html"
+  ],
+  "diffstat": "9 files changed, 46 insertions(+), 14 deletions(-)",
+  "changes": [
+    {
+      "change": "font_display_serif_wiring",
+      "detail": "--font-display and --font-serif repointed from Inter (identical to body font) to Source Serif 4, at all 3 definition sites (noetfield-tokens.css, noetfield-shell.css fallback block, noetfield-v20-tier1.css override).",
+      "verified": "computed getComputedStyle(h1).fontFamily === 'Source Serif 4, ui-serif, Georgia, \"Times New Roman\", serif' on / and /partners/, confirmed via Playwright, not source-reading alone."
+    },
+    {
+      "change": "radius_tightening",
+      "detail": "--radius 18px->10px, --radius-sm 12px->6px.",
+      "verified": "grep confirmed every pill/circle element (badges, avatars, FAB) uses hardcoded 999px/50%, not these tokens -- no visual family inconsistency introduced."
+    },
+    {
+      "change": "mobile_chat_fab_collision_fix",
+      "detail": "Floating chat FAB was overlapping the sticky bottom CTA bar on / at mobile widths. Fixed with a :has(.nf-sticky-mobile-cta)-scoped, higher-specificity rule.",
+      "verified": "computed bottom offset 84px on / at 390px viewport (was 14px before fix attempt 2); 14px unchanged on /partners/ (no bar present) -- confirms scoping is correct, not a blanket override."
+    },
+    {
+      "change": "cache_bust_bump",
+      "detail": "noetfield-chat.css?v=7->v=8, noetfield-chat.js?v=7->v=8, matching this repo's existing cache-bust convention.",
+      "verified": "grep confirmed no other file references the old v=7 URLs."
+    },
+    {
+      "change": "font_weight_range_fix",
+      "detail": "Google Fonts request changed from 3 discrete static weights (500;600;700) to a true variable range (500..700), matching how Inter is already requested in the same URL.",
+      "verified": "URL resolves 200; matches existing Inter request pattern in the same <link>."
+    }
+  ],
+  "verification": {
+    "method": "adversarial_workflow_two_lane",
+    "lanes": ["code_regression_review", "design_critique"],
+    "first_pass_verdict": "do_not_promote",
+    "first_pass_blocking_finding": "Mobile FAB fix was inert on all viewports <=480px due to a pre-existing, later-in-source-order @media (max-width: 480px) rule of equal specificity re-declaring the same property. Would have shipped as 'fixed' while remaining broken on every real phone.",
+    "first_pass_should_fix_findings": [
+      "chat CSS/JS not cache-bust-bumped despite editing chat CSS",
+      "font-weight:650 silently snapping to 700 due to discrete (not ranged) Google Fonts weight request"
+    ],
+    "corrective_action": "All three findings fixed in the same commit; blocking fix independently re-verified via computed-style inspection (ground truth, not visual screenshot impression) before commit.",
+    "second_pass_smoke_test": {
+      "pages_checked": ["/", "/partners/", "/pricing/"],
+      "viewports_checked": ["1440x900", "390x844"],
+      "console_errors": 0,
+      "page_errors": 0,
+      "result": "clean"
+    }
+  },
+  "known_deferred_items": [
+    {
+      "item": "serif over-applied to some small incidental text (pricing numerals in .nf-offer-card .price, .nf-pack-card__price; .nf-wwu-fit-section h3) via the shared --font-serif token, which is consumed by ~20 selectors across 9 files this pass did not individually audit",
+      "severity": "minor",
+      "recommendation": "spot-check on next iteration; not blocking for this scope (headline-level display typography)"
+    },
+    {
+      "item": "homepage hero density (3 pricing cards + full interactive governance playground above the fold) and duplicated 'Board PDF' CTA block (home vs /partners/, verbatim copy+layout)",
+      "severity": "deferred_by_design",
+      "recommendation": "flagged in original screenshot review as requiring layout/content restructuring, not a token-level fix -- intentionally out of scope for this pass"
+    }
+  ],
+  "result": "PASS_AFTER_CORRECTION"
+}
