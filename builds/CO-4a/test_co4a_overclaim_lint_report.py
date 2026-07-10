@@ -22,7 +22,7 @@ co4a = importlib.util.module_from_spec(spec); spec.loader.exec_module(co4a)
 
 FIXTURE = json.loads((HERE / "sample_web_copy_fixture.json").read_text())
 RAW_TRIGGERS = ["we are an MSP", "we process payments", "100% guaranteed",
-                "certified", "200+ clients", "TrustField Technologies"]
+                "certified", "200+ clients", "registered money services business"]
 
 
 def _engine():
@@ -83,8 +83,8 @@ def test_report_has_lock10_and_lint_banners_and_no_status_assertion():
     assert co4a.SYNTHETIC_WM in html, "synthetic watermark missing"
     text = _visible_text(html).lower()
     # authors NO RPAA/FINTRAC/MSB status assertion about the entity
-    for forbidden in ("trustfield is an msb", "trustfield is a registered",
-                      "we are an msp", "we are registered", "rpaa compliant"):
+    for forbidden in ("is a registered money services business", "we are an msp",
+                      "we are registered", "we process payments", "rpaa compliant"):
         assert forbidden not in text, f"report must not assert status: {forbidden!r}"
 
 

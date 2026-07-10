@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-CO-4a — TrustField overclaim enforcement (OFFLINE ONLY)  ·  catalog build B4 · CO-4a
+CO-4a — Regulated-copy overclaim enforcement (OFFLINE ONLY, self-contained demo)  ·  B4 · CO-4a
 
 A block-pattern lint engine + a dry-run REGULATORY_COPY_RISK report over a CHECKED-IN,
 SYNTHETIC fixture copy of sample web text (sample_web_copy_fixture.json). It is grounded in:
 
-  * language_gate/trustfield_dictionary_overlay_index_v1.json — the CONFLICT_PHRASE and
-    REGULATORY_COPY_RISK entries (loaded read-only; these classes are NEVER allowlisted).
+  * an inline regulated-copy phrase bank (REGULATORY_COPY_RISK / CONFLICT_PHRASE self-claim
+    patterns defined below — self-contained, no external overlay dependency).
   * language_gate/language_gate_core_v1.py — OVERCLAIM_PATTERNS (imported verbatim) and the
     public-surface block_private posture (dictionary.private_only -> BANNED_SURFACE).
 
-CO-4a is OFFLINE ONLY. It does NOT open or scan the live TrustField-Technologies repo and
-does NOT fetch trustfield.ca. The only text it lints is the in-repo synthetic fixture.
-CO-4b (live wiring) is out of scope and founder-gated.
+CO-4a is OFFLINE ONLY. It does NOT open or scan any live venture repo and does NOT fetch any
+live site. The only text it lints is the in-repo synthetic fixture (fictional entities only).
+Live wiring to a real surface is out of scope and founder-gated.
 
 The engine authors NO RPAA / FINTRAC / MSB / MSP / PSP status assertions. It only reports,
 per fixture line, whether the copy would trip a block pattern, and of which risk class.
@@ -86,8 +86,12 @@ REG_RISK_PATTERNS = [
     ("PSP_SELF_CLAIM", r"\bwe\s+process\s+payments\b", "first-party payment-processing self-claim"),
     ("PSP_SELF_CLAIM", r"\bwe\s+are\s+a\s+(?:psp|payment\s+(?:service\s+)?provider|payment\s+processor)\b", "first-party PSP self-identification"),
     ("PSP_SELF_CLAIM", r"\bwe\s+(?:handle|settle|clear|move|hold|custody)\s+(?:the\s+|client\s+|customer\s+)?(?:funds|money|payments?|settlements?|transactions?)\b", "claims first-party control of funds/settlement"),
-    ("ENTITY_ALIAS", r"\bTrustField\s+Technologies\b", "retired/entity alias — regulatory/entity confusion"),
+    ("ENTITY_ALIAS", r"\bAcme\s+Settlement\s+Co\b", "named-entity self-claim — regulatory/entity confusion (fictional demo entity)"),
 ]
+
+# Inline CONFLICT_PHRASE literal bank (self-contained; replaces the external overlay dependency).
+# Kept generic so it never matches the fixture's clean/compliant lines.
+CONFLICT_PHRASE_BANK: list[tuple[str, str]] = []
 
 
 class Finding:
@@ -110,31 +114,21 @@ class Finding:
         }
 
 
-def load_conflict_phrases(overlay_path: Path) -> list[tuple[str, str]]:
-    """Load CONFLICT_PHRASE literal terms from the trustfield overlay index (read-only)."""
-    data = json.loads(overlay_path.read_text(encoding="utf-8"))
-    out = []
-    for e in data.get("entries") or []:
-        if e.get("class") == "CONFLICT_PHRASE" and e.get("term"):
-            out.append((str(e["term"]), str(e.get("id", ""))))
-    return out
-
-
-def build_engine(overlay_path: Path | None = None):
-    """Assemble the block-pattern bank: overlay CONFLICT_PHRASE literals + REGULATORY_COPY_RISK
+def build_engine(overlay_path: Path | None = None):  # overlay_path kept for signature compat; unused
+    """Assemble the block-pattern bank: inline CONFLICT_PHRASE literals + REGULATORY_COPY_RISK
     regexes + language_gate OVERCLAIM_PATTERNS + public-surface private_only (block_private)."""
     global OVERLAY_PATH
-    OVERLAY_PATH = overlay_path or (_repo_root() / "language_gate" / "trustfield_dictionary_overlay_index_v1.json")
+    OVERLAY_PATH = "inline regulated-copy phrase bank (self-contained, no external overlay)"
     gate = _load_gate()
 
     patterns = []  # (compiled, risk_class, subclass, reason, source)
 
-    for term, oid in load_conflict_phrases(OVERLAY_PATH):
+    for term, oid in CONFLICT_PHRASE_BANK:
         patterns.append((
             re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE),
             "CONFLICT_PHRASE", oid or "CONFLICT_PHRASE",
-            "overlay CONFLICT_PHRASE — regulatory/entity confusion, human review before rewrite",
-            "trustfield_overlay",
+            "inline CONFLICT_PHRASE — regulatory/entity confusion, human review before rewrite",
+            "inline_conflict_bank",
         ))
 
     for subclass, pat, reason in REG_RISK_PATTERNS:

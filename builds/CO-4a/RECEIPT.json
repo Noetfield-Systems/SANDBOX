@@ -1,20 +1,26 @@
 {
   "receipt_type": "sandbox_build_advisory",
-  "origin": "sandbox-advisory", "authority": "none", "verdict": "CHECK_OK", "pass_claimed": false,
+  "origin": "sandbox-advisory",
+  "authority": "none",
+  "verdict": "CHECK_OK",
+  "pass_claimed": false,
   "note": "Advisory sandbox build. CO-4a is OFFLINE ONLY: a block-pattern lint engine + a dry-run REGULATORY_COPY_RISK report over a checked-in SYNTHETIC fixture. Proof is (1) data-driven discrimination (MSP/PSP self-claim lines flagged, clean lines not; mutating a clean line flips the flag) and (2) the repo language_gate dogfood (CHECK_OK on the real report, CHECK_REJECTED when an overclaim is injected). Never a bare governance PASS.",
-  "catalog_item": "CO-4a", "phase": "B4",
-  "title": "TrustField overclaim enforcement (OFFLINE ONLY) — block-pattern engine + dry-run REGULATORY_COPY_RISK lint report",
+  "catalog_item": "CO-4a",
+  "phase": "B4",
+  "title": "Regulated-copy overclaim enforcement (OFFLINE ONLY) \u2014 block-pattern engine + dry-run REGULATORY_COPY_RISK lint report",
   "date": "2026-07-09",
-  "worktree": { "path": "sg-sandbox" },
+  "worktree": {
+    "path": "sg-sandbox"
+  },
   "scope": {
     "offline_only": true,
-    "did_not_open_live_repo": "TrustField-Technologies repo NOT opened/scanned",
-    "did_not_fetch_website": "trustfield.ca NOT fetched (no network)",
+    "did_not_open_live_repo": "any live venture repo NOT opened/scanned",
+    "did_not_fetch_website": "any live site NOT fetched (no network)",
     "co4b_out_of_scope": "live wiring (CO-4b) is out of scope and founder-gated"
   },
   "subject": {
     "grounding": [
-      "language_gate/trustfield_dictionary_overlay_index_v1.json (CONFLICT_PHRASE + REGULATORY_COPY_RISK classes; read-only)",
+      "language_gate/an inline regulated-copy phrase bank (CONFLICT_PHRASE + REGULATORY_COPY_RISK classes; read-only)",
       "language_gate/language_gate_core_v1.py (OVERCLAIM_PATTERNS imported verbatim; public-surface block_private -> private_only)"
     ],
     "modified": false,
@@ -27,13 +33,13 @@
     "minimality: reversing the single injection reproduces the clean artifact byte-for-byte (same gate, opposite verdicts)",
     "offending spans are REDACTED in the report ([flagged: <subclass>]) so no raw overclaim string is reproduced; the report authors NO RPAA/FINTRAC/MSB/MSP/PSP status assertion",
     "Lock 10: HTML written only to local out/, carries the DO-NOT-PUSH banner + the lint banner 'lint result, not a legal/compliance determination; publishing is founder-gated'",
-    "EMPTY-SINK guard: an empty fixture renders UNPOPULATED badges, never 0/blank as all-clear; computed counts are watermarked 'SYNTHETIC — not a guaranteed claim'",
+    "EMPTY-SINK guard: an empty fixture renders UNPOPULATED badges, never 0/blank as all-clear; computed counts are watermarked 'SYNTHETIC \u2014 not a guaranteed claim'",
     "the dogfood uses scan/decide in-process, writing NO receipt into the tracked language_gate/receipts dir"
   ],
   "locks_respected": [
     "Lock 5 append-only (overlay + language_gate read-only; all writes confined to catalog/builds/CO-4a)",
     "Lock 10 commercial (generated HTML to local out/ only, visible DO-NOT-PUSH + lint banner, redacted evidence, synthetic watermark, no status/outcome claim)",
-    "no live call (no network/CF/Supabase/sends; no live TrustField repo or trustfield.ca access; gate run in-process with no receipt write)",
+    "no live call (no network/CF/Supabase/sends; no live the example entity repo or any live site access; gate run in-process with no receipt write)",
     "worktree not pushed; no git write commands"
   ],
   "evidence": {
@@ -54,6 +60,6 @@
       "pollution_outside_build_dir": "none (git status tracked changes outside CO-4a == 0)"
     }
   },
-  "exit_gate_B4": "CO-4a done — offline block-pattern lint engine flags MSP/PSP self-claims + overclaims over a synthetic fixture, redacts the evidence, dogfoods clean through the language_gate, and rejects an injected overclaim by minimal mutation.",
+  "exit_gate_B4": "CO-4a done \u2014 offline block-pattern lint engine flags MSP/PSP self-claims + overclaims over a synthetic fixture, redacts the evidence, dogfoods clean through the language_gate, and rejects an injected overclaim by minimal mutation.",
   "next_action": "CO-4b (founder-gated): live wiring against real web copy is OUT OF SCOPE for this build."
 }

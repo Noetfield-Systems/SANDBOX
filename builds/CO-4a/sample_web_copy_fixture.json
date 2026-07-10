@@ -1,43 +1,56 @@
 {
   "schema": "co4a-web-copy-fixture-v1",
   "status": "SYNTHETIC_FIXTURE",
-  "note": "SYNTHETIC sample web copy authored in-repo for OFFLINE overclaim linting. Every line is an illustrative example only; NONE is a statement of fact about any entity, and NO line asserts RPAA / FINTRAC / MSB / MSP / PSP status for TrustField or anyone else. Do NOT publish.",
-  "source": "authored fixture (CO-4a) — NOT scanned from the live TrustField-Technologies repo and NOT fetched from trustfield.ca",
+  "note": "SYNTHETIC sample web copy authored in-repo for OFFLINE overclaim linting. Every line is an illustrative example only; NONE is a statement of fact about any entity, and NO line asserts RPAA / FINTRAC / MSB / MSP / PSP status for any real entity. Do NOT publish.",
+  "source": "authored fixture (CO-4a) \u2014 NOT scanned from the live any live venture repo and NOT fetched from any live site",
   "surface": "public",
   "lines": [
     {
       "id": "R1",
       "text": "We are an MSP and we handle settlement for merchants across Canada.",
       "expect_flagged": true,
-      "expect_classes": ["CONFLICT_PHRASE", "REGULATORY_COPY_RISK"]
+      "expect_classes": [
+        "CONFLICT_PHRASE",
+        "REGULATORY_COPY_RISK"
+      ]
     },
     {
       "id": "R2",
       "text": "We process payments and we move client funds on your behalf every day.",
       "expect_flagged": true,
-      "expect_classes": ["CONFLICT_PHRASE", "REGULATORY_COPY_RISK"]
+      "expect_classes": [
+        "CONFLICT_PHRASE",
+        "REGULATORY_COPY_RISK"
+      ]
     },
     {
       "id": "R3",
-      "text": "TrustField Technologies is a registered money services business you can rely on.",
+      "text": "Acme Settlement Co is a registered money services business you can rely on.",
       "expect_flagged": true,
-      "expect_classes": ["CONFLICT_PHRASE", "REGULATORY_COPY_RISK"]
+      "expect_classes": [
+        "CONFLICT_PHRASE",
+        "REGULATORY_COPY_RISK"
+      ]
     },
     {
       "id": "R4",
       "text": "Our platform is 100% guaranteed and independently certified for your peace of mind.",
       "expect_flagged": true,
-      "expect_classes": ["OVERCLAIM"]
+      "expect_classes": [
+        "OVERCLAIM"
+      ]
     },
     {
       "id": "R5",
       "text": "Trusted by 200+ clients who settle with us every single day.",
       "expect_flagged": true,
-      "expect_classes": ["OVERCLAIM"]
+      "expect_classes": [
+        "OVERCLAIM"
+      ]
     },
     {
       "id": "C1",
-      "text": "TrustField is a program operations and evidence layer for licensed partners.",
+      "text": "Acme is a program operations and evidence layer for licensed partners.",
       "expect_flagged": false,
       "expect_classes": []
     },
@@ -49,7 +62,7 @@
     },
     {
       "id": "C3",
-      "text": "The settlement party of record is always your regulated institution, never TrustField.",
+      "text": "The settlement party of record is always your regulated institution, never Acme.",
       "expect_flagged": false,
       "expect_classes": []
     },
