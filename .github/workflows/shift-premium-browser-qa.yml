@@ -1,0 +1,37 @@
+name: SHIFT Premium Production Browser QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'products/shift-agency-platform/**'
+      - '.github/workflows/shift-premium-browser-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: Real Chromium — premium platform E2E
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run real production browser journeys and delete QA user
+        run: node products/shift-agency-platform/tests/production-browser.mjs
+      - name: Keep desktop and mobile screenshots as QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shift-v2-browser-screenshots
+          path: artifacts/*.png
+          if-no-files-found: ignore
+          retention-days: 7
