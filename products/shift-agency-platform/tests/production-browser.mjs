@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
+mkdirSync('artifacts',{recursive:true});
 
 const origin = 'https://shift-web-production-363a.up.railway.app';
 const seed = process.env.GITHUB_RUN_ID || String(Date.now());
@@ -10,6 +12,7 @@ const log = (...v) => console.log('[SHIFT E2E]', ...v);
 const check = (condition, message) => { if (!condition) throw new Error(message); };
 
 async function run() {
+try {
   browser = await chromium.launch({ headless: true });
   context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
   page = await context.newPage();
@@ -47,7 +50,7 @@ async function run() {
   await page.locator('#results.show').waitFor({ timeout: 30000 });
   const cards = await page.locator('.blueprint-card').count();
   check(cards >= 9, 'Expected full structured blueprint sections; got ' + cards);
-  check((await page.locator('#doc').innerText()).includes('90-DAY'), 'Missing execution roadmap');
+  check((await page.locator('#doc').innerText()).includes('90 DAYS'), 'Missing execution roadmap');
   await page.screenshot({ path: 'artifacts/shift-blueprint-desktop.png', fullPage: true });
   log('Generated structured strategy with', cards, 'sections.');
 
