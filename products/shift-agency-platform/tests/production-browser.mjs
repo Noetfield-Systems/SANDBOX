@@ -66,7 +66,8 @@ try {
   accountCreated = true;
   const me = await signedIn.json();
   assert.equal(me.user.email, email);
-  check(me.kits.some(k => k.blueprint || k.kit?.blueprint), 'Saved blueprint missing from shared database.');
+  log('Saved workspace schema', me.kits.map(k => ({ keys: Object.keys(k), kitType: typeof k.kit, kitKeys: k.kit && typeof k.kit === 'object' ? Object.keys(k.kit) : [], kitTextChars: typeof k.kit === 'string' ? k.kit.length : 0 })));
+  check(me.kits.some(k => { const v = typeof k.kit === 'string' ? JSON.parse(k.kit) : k.kit; return Boolean(v?.blueprint); }), 'Saved blueprint missing from shared database.');
   log('QA account created, blueprint saved.');
 
   await page.goto(origin + '/', { waitUntil: 'domcontentloaded' });
