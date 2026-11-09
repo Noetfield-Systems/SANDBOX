@@ -92,3 +92,39 @@ Visitors can copy, export text or print without signing in. Free account sign-up
 - This evidence is **not** a full browser E2E or payment test.
 
 **Critical gaps:** live AI provider credentials are not configured for `shift-web`, Architect currently uses industry-specific planning logic rather than third-party competitive research; Stripe live products and entitlement provisioning not configured; email notifications, email verification, password reset, automated social publishing and advertising account spend are not configured. The product must not be marketed as revenue-generating or having any paying customer until real payment records prove that.
+
+## v2 — Premium product and operating launch (2026-11-09)
+
+### Customer experience
+- Unified origin: **https://shift-web-production-363a.up.railway.app/**. The Agency Architect is served from **/architect** via a same-origin gateway to the separate Railway Function. All browser auth cookies apply to the same host. The legacy direct Architect domain redirects to the unified route for interactive visits.
+- Editorial redesign: responsive desktop/mobile navigation, display typography, crafted visual panels, workflow teaching, truthful copy and FAQ, custom favicon, canonical metadata and sitemap. No fictional reviews or earnings counters.
+- Architect: live buyer/offer preview, sectioned operational blueprint, 90-day plan, pricing scenario, client enquiry CTA, export/print/copy, account saving. No inferred market pricing or income guarantees.
+- Registered users may open saved campaigns from both apps (PostgreSQL JSONB is returned by Bun SQL as serialized JSON; normalized and safely parsed).
+- Account self-service: **GET /api/account/export** returns the user's saved work and reported campaign metrics; password-confirmed **POST /api/account/delete** deletes account, hashed sessions and saved data via DB cascade. Related independently submitted service enquiries are retained according to separate record-handling rules; they can be addressed through a privacy request.
+- Real lead intake remains available on both pages, and data is stored in the shared \`shift_enquiries\` table.
+
+### Operator pipeline (restricted)
+- **GET /operator** presents a restricted CRM-style sales inbox (robots noindex).
+- \`SHIFT_ADMIN_TOKEN\` is a high-entropy Railway environment variable on \`shift-web\`. The token is never published in HTML or JavaScript source and is only held in browser memory for the active operator session.
+- \`GET /api/operator/leads\` lists up to 250 genuine enquiries; \`POST /api/operator/stage\` changes the stage to \`new\`, \`contacted\`, \`qualified\`, \`won\` or \`closed\`. Requests require the secret token in the Authorization header; invalid bearer credentials return 401. The pipeline stage and update time are stored durably in PostgreSQL.
+- Export of lead data to CSV is available in the operator UI; spreadsheet formula prefixes are escaped. Keep exports private. This is a single-operator credential model, not enterprise multi-user RBAC.
+- To use: Railway project **agencyshift-ai** → **shift-web** → Variables → view the current \`SHIFT_ADMIN_TOKEN\` value → open **/operator** → paste it into the key field. Never paste or send this key in a public message.
+- Token protection, server-side table migrations and negative access cases are implemented; **the privileged operator flow itself still requires an authenticated manual QA test**.
+
+### Production verification
+- GitHub Actions workflow \`.github/workflows/shift-premium-browser-qa.yml\`: actual headless Chromium journey, not mock tests. It checks public landing and Architect, generated campaign assets, seven-step strategy, JSONB persistence, shared cookie session, account data export and delete, mobile no-horizontal-overflow and menu, invalid lead rejection, operator endpoint denial without credentials. QA-only account is immediately deleted.
+- Browser screenshots are retained as a GitHub Actions artifact for seven days.
+- Browser suite green on 2026-11-09: **run 42709343670**, using Ubuntu 24.04 / Playwright Chromium. Previous run failures were due to an unsupported runner and a JSONB serialized-data assertion; both were corrected.
+- The deployment still runs as Railway Functions; checked-in sources must match the actual deployed code byte-for-byte.
+- Both the main and proxied Architect health endpoints returned HTTP 200 after v2 changes. No payment, direct ad-publishing or production model-key functionality is implied by this validation.
+
+### Items not commissioned
+- Recurring Stripe payment collection, taxes, automatic entitlement provisioning, refunds/customer portal
+- Actual paid advertising or social posting and budget authorization
+- Verified deep research with external sources, real AI model inference without an attached provider credential
+- Transactional email, lead notifications, password reset and email verification
+- Multi-user operator access, rate limits durable across replicas, backups/PITR and external penetration/load testing
+- Genuine customer acquisition metrics; social impressions and account targets remain goals, not achieved results
+
+### Critical privacy note
+Users' optional marketing consent is separate from account creation. Treat business leads as confidential, and do not send automated marketing emails without relevant consent and anti-spam compliance.
