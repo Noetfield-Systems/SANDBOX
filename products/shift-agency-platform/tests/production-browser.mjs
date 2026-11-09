@@ -22,6 +22,15 @@ try {
   assert.equal(home.status(), 200, 'Landing page must load');
   await page.locator('h1').waitFor();
   check((await page.locator('h1').innerText()).includes('agency'), 'Expected premium agency hero');
+  const releaseHealth = await context.request.get(origin + '/health');
+  assert.equal(releaseHealth.status(), 200);
+  const healthJson = await releaseHealth.json();
+  check(healthJson.operator_configured === true, 'Sales operator credential is not correctly configured');
+  const operatorPage = await context.request.get(origin + '/operator');
+  assert.equal(operatorPage.status(), 200, 'Private operator UI is unreachable');
+  const operatorUnauthorized = await context.request.get(origin + '/api/operator/leads');
+  assert.equal(operatorUnauthorized.status(), 401, 'Operator lead records are exposed without a token');
+  log('Operator UI and secret-backed access boundary passed.');
   await page.screenshot({ path: 'artifacts/shift-desktop.png', fullPage: true });
   log('Landing desktop rendered.');
 
