@@ -70,3 +70,25 @@ Early KPI dashboard: visitors -> tool use -> signup -> qualified enquiry -> purc
 6. Verify production logs and HTTP error rates after each release.
 
 No ad spend or third-party marketing campaign was launched as part of v1.
+
+## v1.1 — Agency Architect production release (2026-11-09)
+
+**Public URL:** https://shift-architect-production.up.railway.app/  
+**Railway service:** `shift-architect`, project `agencyshift-ai`, environment production  
+**Source:** `architect/index.tsx` in this folder. The original acquisition site is `railway-function/index.tsx`.
+
+Added a dedicated, responsive 7-question agency operating system with buyer/niche specification, business-pain selection, delivery model, prior experience, acquisition channel and gross revenue *scenario*. It creates an actionable full-length blueprint with positioning, sample pilot offer, discovery questions, acceptance criteria, compliant outreach and 90-day validation roadmap. No external data is scraped or interpreted as real market validation.
+
+Visitors can copy, export text or print without signing in. Free account sign-up/log-in uses the existing `shift_users` and `shift_sessions` schema via the same PostgreSQL instance, with Argon2id password hashes and secure HTTP-only sessions. Blueprints are saved to `shift_kits`. The two Railway-generated domains cannot share host-only session cookies, so users may need to sign in separately at each entry point even though the underlying accounts are shared.
+
+**Commercial acquisition:** the output includes "Ask Noetfield to build it" with a consented implementation enquiry. Submissions persist in `shift_enquiries` with opt-in contact permission and UTM metadata; **no notification dispatch or sales CRM sync is configured**, so the operator must check stored enquiries manually. This is not a paid checkout or confirmed booking.
+
+**Growth instrumentation:** no-login referral sharing with tagged links, server-side event records for `architect_view`, `architect_step`, `architect_completed`, `architect_saved`, `architect_enquiry` and `architect_shared`. Event attribution relies on URL-supplied UTMs and is not a verified ad-platform conversion metric.
+
+**Independent evidence:**
+- Railway status returned SUCCESS with one online replica for `shift-web`, `shift-architect`, and `Postgres`.
+- Railway external POST `/health` returned HTTP 200 for both public web services; Architect health runs a built-in sample blueprint and Postgres SELECT smoke test.
+- Served frontend JavaScript was parsed with a JavaScript syntax checker in the tool runtime successfully.
+- This evidence is **not** a full browser E2E or payment test.
+
+**Critical gaps:** live AI provider credentials are not configured for `shift-web`, Architect currently uses industry-specific planning logic rather than third-party competitive research; Stripe live products and entitlement provisioning not configured; email notifications, email verification, password reset, automated social publishing and advertising account spend are not configured. The product must not be marketed as revenue-generating or having any paying customer until real payment records prove that.
