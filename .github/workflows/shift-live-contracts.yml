@@ -1,0 +1,29 @@
+name: SHIFT Production Contract Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'products/shift-agency-platform/**'
+      - '.github/workflows/shift-live-contracts.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  production-contracts:
+    name: Verify real live SHIFT services
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out current production contract tests
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check public health, content, anonymous access boundaries, and all seven niches
+        run: node products/shift-agency-platform/tests/live-contract.mjs
