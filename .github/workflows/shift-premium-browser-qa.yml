@@ -14,7 +14,7 @@ permissions:
 jobs:
   browser:
     name: Real Chromium — premium platform E2E
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
